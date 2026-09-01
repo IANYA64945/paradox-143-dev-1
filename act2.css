@@ -362,3 +362,476 @@ body.act2-active :is(
 @media(prefers-reduced-motion:reduce){
   #act2Root *,#act2Archive *{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
 }
+
+
+/* =========================================================
+   ACTO II EXPANDIDO — RASTROS INTERACTIVOS
+========================================================= */
+
+#act2TouchLayer{
+  position:absolute;
+  inset:0;
+  z-index:31;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+
+#act2TouchLayer.show{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+
+.act2TouchPoint{
+  position:absolute;
+  width:48px;
+  height:48px;
+  border:0;
+  background:transparent;
+  transform:translate(-50%,-50%);
+  color:rgba(212,221,228,.52);
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.act2TouchPoint span{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  font:900 13px/1 monospace;
+  opacity:.56;
+  filter:grayscale(1);
+  text-shadow:0 0 10px rgba(202,217,227,.18);
+}
+
+.act2TouchPoint i,
+.act2TouchPoint i::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  border:1px solid rgba(201,216,225,.12);
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+}
+
+.act2TouchPoint i{
+  width:24px;
+  height:24px;
+  animation:act2TracePulse 3.2s ease-in-out infinite;
+}
+
+.act2TouchPoint i::before{
+  width:38px;
+  height:38px;
+  opacity:.4;
+}
+
+.act2TouchPoint:hover span,
+.act2TouchPoint:active span{
+  opacity:.95;
+}
+
+.act2TouchPoint.touched{
+  pointer-events:none;
+  animation:act2TraceGone .36s ease forwards;
+}
+
+@keyframes act2TracePulse{
+  0%,100%{scale:.85;opacity:.25}
+  50%{scale:1.08;opacity:.72}
+}
+
+@keyframes act2TraceGone{
+  to{opacity:0;scale:.65;filter:blur(2px)}
+}
+
+#act2BrokenLine{
+  position:absolute;
+  left:50%;
+  bottom:13%;
+  z-index:78;
+  min-width:180px;
+  max-width:min(78vw,420px);
+  padding:10px 15px;
+  border-left:1px solid rgba(215,223,228,.15);
+  background:linear-gradient(90deg,rgba(3,5,9,.78),rgba(3,5,9,.18));
+  opacity:0;
+  visibility:hidden;
+  transform:translate(-50%,6px);
+  pointer-events:none;
+}
+
+#act2BrokenLine.show{
+  visibility:visible;
+  animation:act2BrokenSpeak 1.9s steps(1,end) forwards;
+}
+
+#act2BrokenLine span{
+  display:block;
+  color:rgba(229,233,236,.72);
+  font:800 9px/1.55 monospace;
+  letter-spacing:.03em;
+}
+
+#act2BrokenLine small{
+  display:block;
+  margin-top:4px;
+  color:rgba(205,213,219,.30);
+  font:700 7px/1.4 monospace;
+}
+
+@keyframes act2BrokenSpeak{
+  0%{opacity:0;translate:-2px 0}
+  7%{opacity:.9;translate:2px 0}
+  10%{opacity:.25}
+  13%,78%{opacity:.84;translate:0 0}
+  84%{opacity:.18;translate:-1px 0}
+  100%{opacity:0;visibility:hidden}
+}
+
+#act2Root.act2-touch-complete #act2Fog{
+  animation:act2RememberBreath 1.35s ease;
+}
+
+@keyframes act2RememberBreath{
+  0%,100%{opacity:.52}
+  45%{opacity:.22;filter:brightness(1.3)}
+}
+
+
+/* =========================================================
+   EL ARCHIVO V2 — HORROR ANALÓGICO
+========================================================= */
+
+#act2Archive{
+  background:#030404;
+  color:#d9ded8;
+  font-family:monospace;
+}
+
+#act2ArchiveScan{
+  position:absolute;
+  inset:0;
+  z-index:25;
+  pointer-events:none;
+  opacity:.14;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 2px,
+      rgba(255,255,255,.045) 3px,
+      transparent 4px 5px
+    );
+  mix-blend-mode:screen;
+}
+
+#act2ArchiveHeader{
+  position:absolute;
+  left:16px;
+  right:16px;
+  top:12px;
+  z-index:30;
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  padding-bottom:8px;
+  border-bottom:1px solid rgba(215,225,215,.13);
+  color:rgba(222,229,220,.58);
+  font:800 8px/1 monospace;
+  letter-spacing:.12em;
+}
+
+#act2ArchiveHeader small{
+  color:rgba(222,229,220,.28);
+  font-size:7px;
+}
+
+#act2ArchiveIndex,
+#act2ArchivePlayback{
+  position:absolute;
+  inset:48px 0 0;
+  z-index:12;
+  display:none;
+}
+
+#act2ArchiveIndex.show,
+#act2ArchivePlayback.show{
+  display:block;
+}
+
+.archiveIndexIntro{
+  position:absolute;
+  left:7%;
+  top:6%;
+}
+
+.archiveIndexIntro small{
+  color:rgba(222,229,220,.33);
+  font:800 8px/1 monospace;
+  letter-spacing:.15em;
+}
+
+.archiveIndexIntro p{
+  margin:8px 0 0;
+  color:rgba(222,229,220,.58);
+  font:700 9px/1.5 monospace;
+}
+
+#act2ArchiveRecords{
+  position:absolute;
+  left:7%;
+  top:21%;
+  width:46%;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+#act2ArchiveRecords button{
+  min-height:58px;
+  padding:9px 10px;
+  border:1px solid rgba(210,220,210,.11);
+  background:rgba(255,255,255,.018);
+  color:rgba(223,228,221,.48);
+  text-align:left;
+  font-family:monospace;
+}
+
+#act2ArchiveRecords button code{
+  display:block;
+  color:rgba(225,231,224,.66);
+  font-size:8px;
+}
+
+#act2ArchiveRecords button span{
+  display:block;
+  margin-top:6px;
+  font:900 9px/1 monospace;
+  letter-spacing:.1em;
+}
+
+#act2ArchiveRecords button i{
+  display:block;
+  margin-top:6px;
+  color:rgba(219,225,217,.23);
+  font:700 7px/1 monospace;
+  font-style:normal;
+}
+
+#act2ArchiveRecords button.seen{
+  border-color:rgba(214,224,214,.25);
+  background:rgba(230,240,230,.035);
+}
+
+#act2ArchiveRecords button[data-record="tuluz"].seen{
+  border-color:rgba(210,190,190,.28);
+}
+
+#act2ArchiveRecords button[data-record="tuluz"].seen i{
+  color:rgba(230,170,170,.52);
+}
+
+#act2ArchivePreview{
+  position:absolute;
+  right:7%;
+  top:21%;
+  width:32%;
+  height:180px;
+  margin:0;
+  padding:13px;
+  overflow:hidden;
+  border:1px solid rgba(210,220,210,.09);
+  background:rgba(0,0,0,.44);
+  color:rgba(205,215,205,.42);
+  font:700 8px/1.8 monospace;
+  white-space:pre-wrap;
+}
+
+#act2ArchiveStart{
+  position:absolute;
+  right:7%;
+  top:61%;
+  width:32%;
+  min-height:44px;
+  border:1px solid rgba(210,220,210,.09);
+  background:transparent;
+  color:rgba(215,222,215,.18);
+  font:900 8px/1 monospace;
+  letter-spacing:.08em;
+}
+
+#act2ArchiveStart.ready{
+  color:rgba(224,230,223,.72);
+  border-color:rgba(215,225,215,.27);
+  animation:archiveReady 1.6s steps(1) infinite;
+}
+
+@keyframes archiveReady{
+  0%,88%,100%{opacity:1}
+  90%{opacity:.22}
+  94%{opacity:.72}
+}
+
+#act2Archive.record-flash::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:80;
+  pointer-events:none;
+  background:rgba(235,240,233,.18);
+  animation:archiveRecordFlash .16s steps(2) forwards;
+}
+
+@keyframes archiveRecordFlash{
+  to{opacity:0}
+}
+
+
+/* Playback */
+#act2ArchivePlayback #act2ArchiveVisual{
+  position:absolute;
+  inset:0;
+}
+
+.archiveMoon{
+  position:absolute;
+  right:18%;
+  top:13%;
+  width:86px;
+  height:86px;
+  border-radius:50%;
+  background:rgba(210,215,205,.14);
+  box-shadow:0 0 28px rgba(220,225,215,.08);
+  opacity:0;
+}
+
+.archiveTimestamp{
+  position:absolute;
+  left:14px;
+  bottom:12px;
+  color:rgba(230,235,228,.30);
+  font:800 8px/1 monospace;
+}
+
+.archiveRec{
+  position:absolute;
+  right:14px;
+  top:13px;
+  color:rgba(225,205,205,.34);
+  font:900 8px/1 monospace;
+}
+
+#act2ArchiveMeta{
+  display:block;
+  min-height:12px;
+  margin:7px 0 12px;
+  color:rgba(207,216,207,.27);
+  font:700 7px/1.3 monospace;
+  letter-spacing:.07em;
+}
+
+#act2ArchiveVisual.archive-repeat-2{
+  transform:scale(1.002);
+  filter:contrast(1.12) brightness(.92);
+}
+
+#act2ArchiveVisual.archive-moon .archiveMoon{
+  opacity:.68;
+}
+
+#act2ArchiveVisual.archive-mewo-1 .archiveCopies img:nth-child(1),
+#act2ArchiveVisual.archive-mewo-2 .archiveCopies img:nth-child(2),
+#act2ArchiveVisual.archive-marie .archiveCopies img:nth-child(4),
+#act2ArchiveVisual.archive-home .archiveCopies img:nth-child(-n+5),
+#act2ArchiveVisual.archive-tuluz .archiveCopies img:nth-child(6){
+  opacity:.48;
+}
+
+#act2ArchiveVisual.archive-mewo-2 .archiveCopies img:nth-child(2){
+  left:20%;
+}
+
+#act2ArchiveVisual.archive-future .archiveCopies img:nth-child(6){
+  opacity:.36;
+  left:58%;
+  filter:grayscale(1) contrast(2.8) blur(.5px);
+  animation:archiveTuluzFuture .28s steps(2) infinite;
+}
+
+@keyframes archiveTuluzFuture{
+  50%{translate:3px 0;opacity:.08}
+}
+
+#act2ArchiveVisual.archive-still *,
+#act2ArchiveVisual.archive-still-2 *{
+  animation:none!important;
+}
+
+#act2ArchiveVisual.archive-still-2{
+  filter:grayscale(1) brightness(.28);
+}
+
+#act2ArchiveVisual.archive-dead{
+  filter:brightness(.035) grayscale(1);
+}
+
+#act2ArchiveVisual.archive-exit{
+  opacity:.20;
+  filter:blur(1.1px);
+}
+
+
+/* El texto del Archivo falla de forma controlada */
+#act2Archive.shift #act2ArchiveText{
+  animation:archiveSubtitleBreak .34s steps(2);
+}
+
+@keyframes archiveSubtitleBreak{
+  0%{translate:0 0}
+  25%{translate:-2px 0;opacity:.4}
+  50%{translate:2px 0;opacity:.85}
+  75%{translate:-1px 0}
+  100%{translate:0 0}
+}
+
+@media(max-width:650px){
+  #act2ArchiveHeader{
+    left:10px;
+    right:10px;
+  }
+
+  #act2ArchiveRecords{
+    left:6%;
+    top:18%;
+    width:88%;
+    grid-template-columns:1fr 1fr;
+  }
+
+  #act2ArchivePreview{
+    left:6%;
+    right:auto;
+    top:58%;
+    width:55%;
+    height:116px;
+  }
+
+  #act2ArchiveStart{
+    right:6%;
+    top:61%;
+    width:29%;
+  }
+
+  .act2TouchPoint{
+    width:54px;
+    height:54px;
+  }
+
+  #act2BrokenLine{
+    bottom:12%;
+    max-width:82vw;
+  }
+}
+

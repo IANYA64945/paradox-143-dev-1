@@ -47,6 +47,14 @@
     archiveSeen:false,
     finaleSeen:false,
     act3Ready:false,
+
+    /*
+      Cada capítulo tiene pequeños rastros que deben tocarse
+      antes de que aparezca el recuerdo principal.
+      Se guarda para poder cerrar y volver sin perder avance.
+    */
+    touches:{},
+
     lastSeenAt:0
   };
 
@@ -66,6 +74,8 @@
   let titleMain=null;
   let titleSub=null;
   let tinyStar=null;
+  let touchLayer=null;
+  let brokenLine=null;
   let activeScene=null;
   let sceneIndex=0;
   let sceneLock=false;
@@ -199,6 +209,14 @@
           <small id="act2ObjectiveLabel"></small>
         </button>
         <button id="act2SecretStar" type="button" aria-label="Una estrella pequeña">✦</button>
+
+        <div id="act2TouchLayer" aria-label="Rastros que el mundo todavía no entiende"></div>
+
+        <div id="act2BrokenLine" aria-live="polite">
+          <span></span>
+          <small></small>
+        </div>
+
         <div id="act2WalkHint">arrastra el campo</div>
       </div>
 
@@ -248,6 +266,8 @@
     titleMain=root.querySelector('#act2TitleMain');
     titleSub=root.querySelector('#act2TitleSub');
     tinyStar=root.querySelector('#act2SecretStar');
+    touchLayer=root.querySelector('#act2TouchLayer');
+    brokenLine=root.querySelector('#act2BrokenLine');
 
     objective.addEventListener('click',onObjective);
     tinyStar.addEventListener('click',onSecretStar);
@@ -318,7 +338,7 @@
     if(state.refuge) ch=Math.max(ch,4);
     if(state.marie) ch=Math.max(ch,5);
     if(state.tuluz) ch=Math.max(ch,6);
-    if(state.reconstructionStep>=3 || state.archiveSeen) ch=Math.max(ch,7);
+    if(state.reconstructionStep>=5 || state.archiveSeen) ch=Math.max(ch,7);
     if(state.finished) ch=7;
     if(ch!==state.chapter) save({chapter:ch});
   }
@@ -330,6 +350,243 @@
     titleSub.textContent=sub;
     titleCard.classList.add('show');
     setTimeout(()=>titleCard.classList.remove('show'),3200);
+  }
+
+
+  /* =======================================================
+     EXPLORACIÓN DEL ACTO II
+
+     La historia principal no aparece inmediatamente.
+     Primero hay que tocar todos los rastros de cada zona.
+     No son coleccionables, no tienen contador y no usan azar.
+  ======================================================= */
+
+  const TOUCH_PHASES={
+    0:[
+      {id:'moon-piece',x:-610,y:28,mark:'◐',label:'algo de la luna',line:'lu...',sub:'no.'},
+      {id:'basket-shadow',x:-390,y:62,mark:'◇',label:'una forma vacía',line:'había algo aquí.',sub:'¿qué guardaba?'},
+      {id:'cold-pillow',x:-155,y:70,mark:'zZ',label:'algo blando',line:'alguien dormía...',sub:'...'},
+      {id:'dead-light',x:95,y:42,mark:'·',label:'una luz apagada',line:'no enciende.',sub:'antes sí.'},
+      {id:'paw-half',x:330,y:67,mark:'🐾',label:'media huella',line:'me...',sub:'no puedo terminarlo.'},
+      {id:'rain-mark',x:545,y:75,mark:'◇',label:'una marca húmeda',line:'llovió.',sub:'¿cuándo?'},
+      {id:'torn-promise',x:760,y:52,mark:'♡',label:'unas palabras incompletas',line:'te amaré un día m—',sub:'la frase se corta.'}
+    ],
+
+    1:[
+      {id:'pink',x:210,y:62,mark:'·',label:'un poco de color',line:'rosa.',sub:'eso sí.'},
+      {id:'stem',x:325,y:70,mark:'│',label:'una línea verde',line:'debajo había...',sub:'algo que crecía.'},
+      {id:'petal',x:445,y:55,mark:'✿',label:'un borde de pétalo',line:'faltan partes.',sub:'pero reconozco la forma.'},
+      {id:'soil',x:555,y:76,mark:'·',label:'tierra removida',line:'aquí.',sub:'era aquí.'}
+    ],
+
+    2:[
+      {id:'paw1',x:330,y:68,mark:'🐾',label:'una huellita',line:'una.',sub:''},
+      {id:'paw2',x:455,y:61,mark:'🐾',label:'otra huellita',line:'otra.',sub:'van hacia adelante.'},
+      {id:'warmth',x:580,y:72,mark:'·',label:'un lugar tibio',line:'todavía está tibio.',sub:'pero no hay nadie.'},
+      {id:'name',x:735,y:47,mark:'?',label:'algo que parece un nombre',line:'me...',sub:'...wo?'}
+    ],
+
+    3:[
+      {id:'tree',x:-390,y:39,mark:'⌁',label:'una sombra alta',line:'esto era más alto.',sub:'mucho más.'},
+      {id:'lamp',x:-255,y:49,mark:'✦',label:'una luz sin brillo',line:'una lucecita.',sub:'no recuerda cómo encender.'},
+      {id:'pillow',x:-110,y:72,mark:'zZ',label:'una almohadita fuera de lugar',line:'demasiado lejos.',sub:'alguien la movía antes.'},
+      {id:'box',x:35,y:68,mark:'□',label:'una cajita cerrada',line:'cerrada.',sub:'hay algo dentro.'},
+      {id:'home',x:190,y:55,mark:'⌂',label:'la forma de un lugar',line:'hog...',sub:'la palabra no llega.'}
+    ],
+
+    4:[
+      {id:'wrong-gray',x:-60,y:54,mark:'?',label:'una silueta gris',line:'gris.',sub:'no.'},
+      {id:'wrong-eyes',x:70,y:61,mark:'?',label:'unos ojos incorrectos',line:'los ojos...',sub:'no eran así.'},
+      {id:'quiet-voice',x:205,y:43,mark:'·',label:'una voz sin palabras',line:'...',sub:'casi escuché algo.'},
+      {id:'chosen-place',x:340,y:68,mark:'☾',label:'un rincón conocido',line:'alguien elegía este rincón.',sub:'eso sí lo recuerda.'}
+    ],
+
+    5:[
+      {id:'search-rain',x:-540,y:53,mark:'◇',label:'buscar en la lluvia',line:'no.',sub:'aquí no.'},
+      {id:'search-box',x:-300,y:69,mark:'□',label:'buscar en la caja',line:'no.',sub:'tampoco.'},
+      {id:'search-cards',x:-30,y:46,mark:'♡',label:'buscar entre cartas',line:'no.',sub:'ninguna es anterior.'},
+      {id:'search-field',x:270,y:72,mark:'✿',label:'buscar en el campo',line:'no.',sub:'sigue sin estar.'},
+      {id:'search-backward',x:545,y:48,mark:'↺',label:'buscar todavía más atrás',line:'aquí tampoco.',sub:'quizá el error es mirar hacia atrás.'}
+    ]
+  };
+
+  function touchedFor(ch=state.chapter){
+    const all=
+      state.touches &&
+      typeof state.touches==='object'
+        ? state.touches
+        : {};
+
+    const arr=all[String(ch)] ?? all[ch];
+
+    return Array.isArray(arr)
+      ? arr
+      : [];
+  }
+
+  function touchPhaseDone(ch=state.chapter){
+    const phase=TOUCH_PHASES[ch];
+
+    if(!Array.isArray(phase) || !phase.length){
+      return true;
+    }
+
+    const touched=new Set(touchedFor(ch));
+
+    return phase.every(
+      item=>touched.has(item.id)
+    );
+  }
+
+  function saveTouch(ch,id){
+    const all={
+      ...(
+        state.touches &&
+        typeof state.touches==='object'
+          ? state.touches
+          : {}
+      )
+    };
+
+    const key=String(ch);
+    const current=
+      Array.isArray(all[key])
+        ? [...all[key]]
+        : [];
+
+    if(!current.includes(id)){
+      current.push(id);
+    }
+
+    all[key]=current;
+    save({touches:all});
+  }
+
+  function showBrokenLine(text='',sub=''){
+    if(!brokenLine) return;
+
+    const main=brokenLine.querySelector('span');
+    const small=brokenLine.querySelector('small');
+
+    if(main) main.textContent=text;
+    if(small) small.textContent=sub;
+
+    brokenLine.classList.remove('show');
+    void brokenLine.offsetWidth;
+    brokenLine.classList.add('show');
+
+    clearTimeout(showBrokenLine.timer);
+
+    showBrokenLine.timer=setTimeout(
+      ()=>{
+        brokenLine?.classList.remove('show');
+      },
+      1950
+    );
+  }
+
+  function renderTouchPoints(){
+    if(!touchLayer) return;
+
+    touchLayer.innerHTML='';
+
+    const phase=TOUCH_PHASES[state.chapter];
+
+    if(
+      !Array.isArray(phase) ||
+      !phase.length ||
+      touchPhaseDone(state.chapter) ||
+      sceneLock ||
+      suppressed ||
+      cine?.classList.contains('show') ||
+      window.ParadoxAct2Archive?.isOpen?.()
+    ){
+      touchLayer.classList.remove('show');
+      return;
+    }
+
+    const touched=new Set(
+      touchedFor(state.chapter)
+    );
+
+    phase.forEach(item=>{
+      if(touched.has(item.id)) return;
+
+      const b=document.createElement('button');
+      b.type='button';
+      b.className='act2TouchPoint';
+      b.dataset.id=item.id;
+      b.setAttribute('aria-label',item.label||'Un rastro');
+      b.style.left=
+        `calc(50% + ${item.x-state.worldX}px)`;
+      b.style.top=`${item.y}%`;
+
+      b.innerHTML=`
+        <span>${item.mark||'·'}</span>
+        <i></i>
+      `;
+
+      b.addEventListener(
+        'click',
+        e=>{
+          e.stopPropagation();
+
+          if(
+            sceneLock ||
+            suppressed
+          ) return;
+
+          saveTouch(
+            state.chapter,
+            item.id
+          );
+
+          showBrokenLine(
+            item.line||'...',
+            item.sub||''
+          );
+
+          b.classList.add('touched');
+
+          setTimeout(
+            ()=>{
+              renderTouchPoints();
+
+              if(
+                touchPhaseDone(
+                  state.chapter
+                )
+              ){
+                root?.classList.add(
+                  'act2-touch-complete'
+                );
+
+                showBrokenLine(
+                  '...',
+                  'algo recuerda suficiente.'
+                );
+
+                setTimeout(
+                  ()=>{
+                    root?.classList.remove(
+                      'act2-touch-complete'
+                    );
+
+                    setObjectiveForChapter();
+                  },
+                  1450
+                );
+              }
+            },
+            360
+          );
+        }
+      );
+
+      touchLayer.appendChild(b);
+    });
+
+    touchLayer.classList.add('show');
   }
 
   function bindWalking(){
@@ -390,6 +647,8 @@
     const stars=root?.querySelector('#act2DistantStars');
     if(horizon) horizon.style.transform=`translate3d(${-state.worldX*.12}px,0,0)`;
     if(stars) stars.style.transform=`translate3d(${-state.worldX*.05}px,0,0)`;
+
+    renderTouchPoints();
   }
 
   function renderWorld(){
@@ -410,6 +669,8 @@
       tinyStar.classList.toggle('show',fragments.found.length>=7);
       tinyStar.classList.toggle('seen',fragments.starSeen);
     }
+
+    renderTouchPoints();
   }
 
   function setObjective(id,label,x){
@@ -431,6 +692,17 @@
     if(window.ParadoxAct2Archive?.isOpen?.()) return;
 
     clearObjective();
+
+    /*
+      El recuerdo principal solo aparece después de que el jugador
+      haya examinado todos los rastros de ese capítulo.
+    */
+    if(!touchPhaseDone(state.chapter)){
+      renderTouchPoints();
+      return;
+    }
+
+    renderTouchPoints();
 
     switch(state.chapter){
       case 0:
@@ -466,8 +738,12 @@
 
   function setReconstructionObjective(){
     const step=Number(state.reconstructionStep||0);
-    const points=[-360,90,470];
-    setObjective(`reconstruct-${step+1}`,'',points[Math.min(step,2)]);
+    const points=[-520,-180,120,390,650];
+    setObjective(
+      `reconstruct-${step+1}`,
+      '',
+      points[Math.min(step,4)]
+    );
   }
 
   function onObjective(){
@@ -555,8 +831,18 @@
 
   function runReconstructionChoice(){
     const step=Number(state.reconstructionStep||0);
-    const scenes=[SCENES.reconstruct1,SCENES.reconstruct2,SCENES.reconstruct3];
-    const scene=scenes[Math.min(step,2)];
+    const scenes=[
+      SCENES.reconstruct1,
+      SCENES.reconstruct2,
+      SCENES.reconstruct3,
+      SCENES.reconstruct4,
+      SCENES.reconstruct5
+    ];
+
+    const scene=
+      scenes[
+        Math.min(step,4)
+      ];
 
     playScene(scene,{
       choices:[
@@ -571,8 +857,8 @@
         root.classList.add(`reconstruction-${step+1}`);
         renderWorld();
 
-        if(state.reconstructionStep>=3){
-          if(state.exactChoices>=3 && !state.archiveSeen){
+        if(state.reconstructionStep>=5){
+          if(state.exactChoices>=4 && !state.archiveSeen){
             setTimeout(()=>{
               emit('paradox-act2-archive-requested',{reason:'no-cambies'});
               window.ParadoxAct2Archive?.open?.();
@@ -730,6 +1016,11 @@
     activeScene=null;
     sceneIndex=0;
     sceneLock=false;
+
+    setTimeout(
+      renderTouchPoints,
+      180
+    );
   }
 
   function playExternalScene(scene,opts={}){
@@ -754,7 +1045,7 @@
     if(n>=4) patch.refuge=true;
     if(n>=5) patch.marie=true;
     if(n>=6) patch.tuluz=true;
-    if(n>=7) patch.reconstructionStep=3;
+    if(n>=7) patch.reconstructionStep=5;
     save(patch);
     document.body.classList.add('act2-active');
     if(!booted) activate();
@@ -773,11 +1064,17 @@
     awakening:{
       theme:'awakening',mark:'·',frames:[
         {text:'...',memory:'empty'},
+        {text:'No hay música.',memory:'empty'},
         {text:'El viento sigue aquí.',memory:'wind'},
         {text:'La luna también.',memory:'moon'},
-        {text:'Pero el mundo no sabe qué debería haber debajo.',memory:'empty'},
+        {text:'Hay formas que parecen haber sido borradas sin desaparecer del todo.',memory:'trace'},
+        {text:'Intentas recordar qué debería estar cerca.',memory:'empty'},
+        {text:'La respuesta llega cortada.',memory:'trace'},
+        {text:'algo...',memory:'trace'},
+        {text:'...aquí.',memory:'trace'},
         {text:'Este no es un mundo que recuerda todo.',memory:'glimmer'},
-        {text:'Es un mundo que intenta recordar.',memory:'glimmer'}
+        {text:'Es un mundo que intenta recordar.',memory:'glimmer'},
+        {text:'Tal vez tengas que tocar lo poco que quedó.',memory:'empty'}
       ]
     },
 
@@ -871,6 +1168,23 @@
         {text:'Crecen flores donde antes había espacio vacío.',memory:'new-flowers'},
         {text:'El mundo no recuerda haberlas plantado.',memory:'new-flowers'},
         {text:'Aun así parecen felices de estar aquí.',memory:'new-flowers'}
+      ]
+    },
+
+    reconstruct4:{
+      theme:'choice',mark:'☾',frames:[
+        {text:'La luna vuelve completa por un segundo.',memory:'moon'},
+        {text:'Después queda una pequeña marca que antes no estaba.',memory:'moon'},
+        {text:'El mundo espera a que decidas si debe borrarla.',memory:'moon'}
+      ]
+    },
+
+    reconstruct5:{
+      theme:'choice',mark:'⌂',frames:[
+        {text:'El Claro vuelve a reconocerse como hogar.',memory:'world'},
+        {text:'Pero hay un pequeño espacio junto al árbol que nadie recuerda.',memory:'future-gap'},
+        {text:'Podrías llenarlo con una copia de algo antiguo.',memory:'future-gap'},
+        {text:'O podrías dejar que todavía no signifique nada.',memory:'future-gap'}
       ]
     },
 
