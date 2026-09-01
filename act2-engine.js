@@ -139,6 +139,86 @@
     try{ window.dispatchEvent(new CustomEvent(name,{detail})); }catch(_){}
   }
 
+  function configureAct2Music(){
+    const audio=
+      document.getElementById(
+        'bgMusic'
+      );
+
+    if(!audio) return;
+
+    /*
+      Por ahora reutilizamos el tema existente como MATERIA PRIMA,
+      pero el Acto II lo transforma en un eco lento y bajo.
+      Cuando tengamos el audio definitivo del Acto II podremos
+      sustituirlo sin tocar el motor narrativo.
+    */
+    try{
+      audio.pause();
+
+      audio.preservesPitch=false;
+      audio.mozPreservesPitch=false;
+      audio.webkitPreservesPitch=false;
+
+      audio.playbackRate=.62;
+      audio.volume=0;
+
+      if(
+        Number.isFinite(audio.duration) &&
+        audio.duration>10
+      ){
+        audio.currentTime=
+          Math.min(
+            audio.duration-1,
+            Math.max(
+              0,
+              audio.duration*.16
+            )
+          );
+      }else{
+        audio.currentTime=0;
+      }
+    }catch(_){}
+
+    setTimeout(
+      ()=>{
+        try{
+          const playPromise=
+            audio.play();
+
+          if(
+            playPromise &&
+            typeof playPromise.catch==='function'
+          ){
+            playPromise.catch(()=>{});
+          }
+        }catch(_){}
+
+        let steps=0;
+
+        const fade=setInterval(
+          ()=>{
+            steps++;
+
+            try{
+              audio.volume=
+                Math.min(
+                  .115,
+                  steps*.009
+                );
+            }catch(_){}
+
+            if(steps>=14){
+              clearInterval(fade);
+            }
+          },
+          120
+        );
+      },
+      1450
+    );
+  }
+
   function build(){
     if(root) return;
 
@@ -258,6 +338,8 @@
 
     document.body.classList.remove('intro-active');
     document.body.classList.add('act2-active');
+
+    configureAct2Music();
 
     const intro=document.getElementById('intro');
     if(intro) intro.style.display='none';

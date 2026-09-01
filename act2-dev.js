@@ -26,6 +26,11 @@
         <strong>PARADOX · DEV</strong>
         <button id="devClose" type="button">×</button>
       </header>
+
+      <div class="devGrid tools">
+        <button id="devCard100Full">100 → ACTO II · PRUEBA COMPLETA</button>
+      </div>
+
       <div class="devGrid">
         <button data-ch="0">II · Despertar</button>
         <button data-ch="1">Primer recuerdo</button>
@@ -57,6 +62,46 @@
 
     toggle.addEventListener('click',()=>panel.classList.toggle('show'));
     panel.querySelector('#devClose').addEventListener('click',()=>panel.classList.remove('show'));
+
+    panel.querySelector('#devCard100Full').addEventListener('click',()=>{
+      /*
+        Reinicia SOLO la historia DEV.
+        No toca cartas, gatos, crafting ni el juego público.
+      */
+      try{
+        localStorage.removeItem('paradox143_act2_v1');
+        localStorage.removeItem('paradox143_fragments_v1');
+
+        const raw=
+          localStorage.getItem(
+            'paradox143_story_v1'
+          );
+
+        const story=
+          raw
+            ? JSON.parse(raw)
+            : {};
+
+        delete story.card100Seen;
+        delete story.card100Started;
+        delete story.card100At;
+        delete story.card100StartedAt;
+        delete story.act2Started;
+        delete story.act2Finished;
+
+        story.act=1;
+        story.phase='warm';
+
+        localStorage.setItem(
+          'paradox143_story_v1',
+          JSON.stringify(story)
+        );
+      }catch(_){}
+
+      location.href=
+        location.pathname+
+        '?dev=1&card100=1';
+    });
 
     panel.querySelectorAll('[data-ch]').forEach(b=>b.addEventListener('click',()=>{
       window.ParadoxAct2?.jumpChapter?.(Number(b.dataset.ch));

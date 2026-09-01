@@ -1,0 +1,65 @@
+PARCHE DEV — TRANSICIÓN CARTA 100 → ACTO II + MÚSICA
+
+Tienes razón: al pulsar directamente "II · Despertar" en el panel DEV
+se SALTABA la Carta 100. Ese botón era solo un salto de capítulo.
+
+Además, la música del Acto II seguía usando el comportamiento normal
+del Acto I cuando se probaba directamente.
+
+ESTE PARCHE CORRIGE AMBAS COSAS.
+
+=========================================================
+REEMPLAZA EN paradox-143-dev-1
+=========================================================
+
+- card100.js
+- act2-engine.js
+- act2-dev.js
+
+NO CAMBIES NADA MÁS.
+
+Commit sugerido:
+Corrección transición Carta 100 y música Acto II
+
+=========================================================
+CÓMO PROBAR
+=========================================================
+
+1. Abre:
+   https://ianya64945.github.io/paradox-143-dev-1/?dev=1
+
+2. Abre DEV.
+
+3. Pulsa:
+   100 → ACTO II · PRUEBA COMPLETA
+
+4. El navegador recargará con:
+   ?dev=1&card100=1
+
+5. Mira TODO sin saltar.
+
+Debe ocurrir:
+
+- aparece la Carta 100;
+- empieza normal;
+- "Quería guardar una última cosa.";
+- el texto falla;
+- "Yo sabía qué iba aquí.";
+- "No recuerdo.";
+- LA MÚSICA SE DEFORMA y termina apagándose;
+- aparece el recuerdo del refugio;
+- se apagan luces;
+- desaparece Tuluz;
+- desaparece Marie;
+- Mewo queda última;
+- desaparece Mewo;
+- refugio;
+- luna/campo;
+- negro;
+- después entra ACTO II;
+- la música del Acto II vuelve como un ECO MUCHO MÁS LENTO,
+  bajo y extraño; NO debe sonar como la canción normal.
+
+IMPORTANTE:
+El botón DEV "II · Despertar" sigue existiendo para revisar rápido
+esa escena, pero NO sirve para evaluar la transición narrativa completa.

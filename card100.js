@@ -282,37 +282,107 @@
 
     captureMusic();
 
+    /*
+      La Carta 100 es el PRIMER momento donde la música deja
+      de comportarse como la canción normal del Acto I.
+    */
+    try{
+      audio.preservesPitch=false;
+      audio.mozPreservesPitch=false;
+      audio.webkitPreservesPitch=false;
+    }catch(_){}
+
+    const rates=[
+      .96,.82,1.07,.74,.91,.61,.79,.53,.69,.47
+    ];
+
+    const startVolume=
+      Number.isFinite(audio.volume)
+        ? audio.volume
+        : .5;
+
     let n=0;
 
     const wobble=setInterval(
       ()=>{
-        n++;
-
         try{
           audio.playbackRate=
-            n%2
-              ? .86
-              : 1.06;
+            rates[
+              Math.min(
+                n,
+                rates.length-1
+              )
+            ];
+
+          const progress=
+            (n+1)/
+            (rates.length+2);
 
           audio.volume=
             Math.max(
               0,
-              Number(audio.volume||0)-
-              .045
+              startVolume*
+              (1-progress)
             );
+
+          /*
+            Dos pequeñas pérdidas de continuidad.
+            No saltamos mucho para que no parezca un bug normal.
+          */
+          if(
+            (n===4 || n===7) &&
+            Number.isFinite(audio.currentTime)
+          ){
+            audio.currentTime=
+              Math.max(
+                0,
+                audio.currentTime-
+                .16
+              );
+          }
         }catch(_){}
 
-        if(n>=14){
+        n++;
+
+        if(n>=rates.length){
           clearInterval(wobble);
 
-          try{
-            audio.volume=0;
-            audio.pause();
-            audio.playbackRate=1;
-          }catch(_){}
+          const fade=setInterval(
+            ()=>{
+              try{
+                audio.volume=
+                  Math.max(
+                    0,
+                    Number(audio.volume||0)-
+                    .025
+                  );
+
+                audio.playbackRate=
+                  Math.max(
+                    .38,
+                    Number(audio.playbackRate||.5)-
+                    .018
+                  );
+              }catch(_){}
+
+              if(
+                !audio ||
+                audio.volume<=.005
+              ){
+                clearInterval(fade);
+
+                try{
+                  audio.volume=0;
+                  audio.pause();
+                  audio.playbackRate=1;
+                }catch(_){}
+              }
+            },
+            85
+          );
         }
       },
-      155
+      175
     );
   }
 
@@ -423,10 +493,16 @@
     );
   }
 
-  async function start(){
+  async function start(forceDev=false){
+    const devAllowed=
+      forceDev &&
+      new URLSearchParams(
+        location.search
+      ).has('dev');
+
     if(
       started ||
-      !eligible()
+      (!devAllowed && !eligible())
     ){
       return;
     }
@@ -657,10 +733,30 @@
     ensureDOM();
 
     /*
-      Si ya vio la Carta 100, no repetimos el colapso.
-      Al recargar, el Acto I vuelve a ser visible por ahora.
-      El próximo módulo de Acto II leerá STORY_KEY y tomará
-      el control desde ahí.
+      PRUEBA DEV:
+      ?dev=1&card100=1 reproduce la transición COMPLETA
+      aunque esta ventana de incógnito no tenga las 99 cartas.
+      Nunca funciona sin ?dev=1.
+    */
+    const params=
+      new URLSearchParams(
+        location.search
+      );
+
+    if(
+      params.has('dev') &&
+      params.has('card100')
+    ){
+      setTimeout(
+        ()=>start(true),
+        1100
+      );
+
+      return;
+    }
+
+    /*
+      En juego normal no repetimos la Carta 100.
     */
     if(
       readStory().card100Seen
@@ -719,6 +815,15 @@
   window.ParadoxCard100={
     eligible,
     start,
+    startDev(){
+      if(
+        !new URLSearchParams(
+          location.search
+        ).has('dev')
+      ) return;
+
+      start(true);
+    },
     getState:readStory,
 
     /*
