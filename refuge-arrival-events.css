@@ -1,0 +1,816 @@
+/* =========================================================
+   PARADOX143 — EVENTOS DE MARIE Y TULUZ
+========================================================= */
+
+#refugeArrivalEvent{
+  position:absolute;
+  inset:0;
+
+  z-index:86;
+
+  display:block;
+
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+
+  overflow:hidden;
+
+  transition:
+    opacity .7s ease,
+    visibility .7s;
+}
+
+
+#refugeArrivalEvent.show{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+
+
+.refugeEventShade{
+  position:absolute;
+  inset:0;
+
+  background:
+    radial-gradient(
+      circle at 50% 56%,
+      rgba(21,22,37,.06),
+      rgba(2,4,9,.52) 71%
+    );
+
+  backdrop-filter:
+    blur(.6px);
+}
+
+
+.refugeEventScene{
+  position:absolute;
+
+  left:7%;
+  right:7%;
+  top:6%;
+  bottom:23%;
+
+  pointer-events:none;
+}
+
+
+/* =========================================================
+   GATO DEL EVENTO
+========================================================= */
+
+.refugeEventCat{
+  position:absolute;
+
+  left:50%;
+  bottom:12%;
+
+  z-index:4;
+
+  width:min(12vw,128px);
+  height:auto;
+
+  object-fit:contain;
+
+  opacity:0;
+
+  transform:
+    translateX(-50%)
+    scale(.86);
+
+  filter:
+    drop-shadow(
+      0 7px 9px
+      rgba(0,0,0,.38)
+    );
+
+  transition:
+    opacity 2s ease,
+    transform 2s ease,
+    filter 2s ease;
+}
+
+
+/* Marie aparece primero casi como silueta. */
+.refugeEventCat.marie-silhouette{
+  opacity:.32;
+
+  transform:
+    translateX(74%)
+    scale(.68);
+
+  filter:
+    brightness(.34)
+    saturate(.2)
+    blur(1px)
+    drop-shadow(
+      0 7px 8px
+      rgba(0,0,0,.52)
+    );
+}
+
+
+.refugeEventCat.marie-reveal,
+.refugeEventCat.marie-love{
+  opacity:1;
+
+  transform:
+    translateX(-50%)
+    scale(1);
+}
+
+
+/* Tuluz asoma desde un costado. */
+.refugeEventCat.tuluz-peek{
+  opacity:.78;
+
+  transform:
+    translateX(125%)
+    scale(.72)
+    rotate(2deg);
+}
+
+
+.refugeEventCat.tuluz-reveal{
+  opacity:1;
+
+  transform:
+    translateX(-50%)
+    scale(1);
+}
+
+
+/* =========================================================
+   NARRACIÓN
+========================================================= */
+
+.refugeEventStory{
+  position:absolute;
+
+  left:50%;
+  bottom:
+    max(
+      11px,
+      calc(
+        env(safe-area-inset-bottom)
+        + 7px
+      )
+    );
+
+  z-index:9;
+
+  width:min(88%,680px);
+
+  transform:
+    translateX(-50%);
+
+  padding:
+    13px 16px 12px;
+
+  border:
+    1px solid
+    rgba(
+      242,
+      190,
+      220,
+      .28
+    );
+
+  border-radius:11px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(15,14,25,.88),
+      rgba(5,7,13,.94)
+    );
+
+  box-shadow:
+    0 14px 35px
+    rgba(0,0,0,.34),
+    inset 0 1px
+    rgba(255,255,255,.025);
+
+  color:#f5eaf1;
+
+  text-align:center;
+}
+
+
+.refugeEventTitle{
+  margin-bottom:6px;
+
+  color:#ffd8ea;
+
+  font:
+    800 10px/1.25
+    monospace;
+
+  letter-spacing:.035em;
+}
+
+
+.refugeEventText{
+  min-height:2.8em;
+
+  color:#eee4eb;
+
+  font:
+    700 8px/1.55
+    monospace;
+}
+
+
+.refugeEventText.change{
+  animation:
+    refugeTextIn
+    .55s
+    ease
+    both;
+}
+
+
+@keyframes refugeTextIn{
+
+  from{
+    opacity:0;
+    transform:
+      translateY(4px);
+  }
+
+  to{
+    opacity:1;
+    transform:
+      translateY(0);
+  }
+}
+
+
+/* =========================================================
+   PROGRESO
+========================================================= */
+
+.refugeEventProgress{
+  width:68%;
+  height:3px;
+
+  margin:
+    10px auto 0;
+
+  overflow:hidden;
+
+  border-radius:3px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      .055
+    );
+}
+
+
+.refugeEventProgress span{
+  display:block;
+
+  width:0;
+  height:100%;
+
+  border-radius:inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      #c990b8,
+      #ffd6e9,
+      #e6b68c
+    );
+
+  box-shadow:
+    0 0 7px
+    rgba(
+      255,
+      197,
+      225,
+      .25
+    );
+
+  transition:
+    width 1.2s ease;
+}
+
+
+/* =========================================================
+   BOTÓN FINAL
+========================================================= */
+
+.refugeEventAction{
+  display:none;
+
+  margin:
+    11px auto 0;
+
+  padding:
+    8px 12px;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      198,
+      228,
+      .38
+    );
+
+  border-radius:8px;
+
+  background:
+    rgba(
+      38,
+      20,
+      38,
+      .76
+    );
+
+  color:#ffe7f3;
+
+  font:
+    800 8px/1
+    monospace;
+
+  box-shadow:
+    0 5px 14px
+    rgba(0,0,0,.25);
+
+  -webkit-tap-highlight-color:transparent;
+}
+
+
+.refugeEventAction.show{
+  display:block;
+
+  animation:
+    refugeActionIn
+    .65s
+    ease
+    both;
+}
+
+
+@keyframes refugeActionIn{
+
+  from{
+    opacity:0;
+    transform:
+      translateY(6px)
+      scale(.96);
+  }
+
+  to{
+    opacity:1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+
+.refugeEventAction:active{
+  transform:scale(.96);
+}
+
+
+/* =========================================================
+   HUELLAS DE MARIE
+========================================================= */
+
+.refugeEventFootprints{
+  position:absolute;
+  inset:0;
+
+  z-index:6;
+
+  pointer-events:none;
+}
+
+
+.refugeEventPaw{
+  position:absolute;
+
+  width:43px;
+  height:43px;
+
+  border:
+    1px solid
+    rgba(
+      235,
+      200,
+      219,
+      .14
+    );
+
+  border-radius:50%;
+
+  background:
+    rgba(
+      7,
+      9,
+      14,
+      .32
+    );
+
+  color:
+    rgba(
+      232,
+      214,
+      226,
+      .42
+    );
+
+  font-size:19px;
+
+  opacity:0;
+
+  transform:
+    translate(-50%,-50%)
+    scale(.55)
+    rotate(-11deg);
+
+  pointer-events:none;
+
+  transition:
+    opacity .6s,
+    transform .6s,
+    color .4s,
+    background .4s;
+
+  -webkit-tap-highlight-color:transparent;
+}
+
+
+.refugeEventPaw.ready{
+  opacity:1;
+
+  pointer-events:auto;
+
+  color:#ffd9ec;
+
+  background:
+    rgba(
+      43,
+      27,
+      42,
+      .57
+    );
+
+  transform:
+    translate(-50%,-50%)
+    scale(1)
+    rotate(-11deg);
+
+  animation:
+    refugePawGlow
+    1.45s
+    ease-in-out
+    infinite;
+}
+
+
+.refugeEventPaw.found{
+  opacity:.28;
+
+  pointer-events:none;
+
+  transform:
+    translate(-50%,-50%)
+    scale(.74)
+    rotate(-11deg);
+}
+
+
+@keyframes refugePawGlow{
+
+  0%,
+  100%{
+    box-shadow:
+      0 0 4px
+      rgba(
+        249,
+        191,
+        220,
+        .08
+      );
+  }
+
+  50%{
+    box-shadow:
+      0 0 17px
+      rgba(
+        249,
+        191,
+        220,
+        .23
+      );
+  }
+}
+
+
+/* =========================================================
+   SÍMBOLOS
+========================================================= */
+
+.refugeEventSymbols{
+  position:absolute;
+  inset:0;
+
+  z-index:7;
+
+  pointer-events:none;
+}
+
+
+.refugeEventSymbol{
+  position:absolute;
+
+  color:#efe4eb;
+
+  font:
+    900 14px/1
+    monospace;
+
+  opacity:0;
+
+  transform:
+    translate(-50%,-50%);
+
+  animation:
+    refugeSymbolFloat
+    5s
+    ease
+    forwards;
+}
+
+
+.refugeEventSymbol.pink{
+  color:#ffaccf;
+}
+
+
+.refugeEventSymbol.gold{
+  color:#ffdfa0;
+}
+
+
+.refugeEventSymbol.orange{
+  color:#efb177;
+}
+
+
+.refugeEventSymbol.gray{
+  color:#e2dfe7;
+}
+
+
+.refugeEventSymbol.big{
+  font-size:21px;
+}
+
+
+.refugeEventSymbol.letter{
+  font-size:25px;
+}
+
+
+.refugeEventSymbol.faint{
+  opacity:.28;
+}
+
+
+@keyframes refugeSymbolFloat{
+
+  0%{
+    opacity:0;
+    transform:
+      translate(-50%,8px)
+      scale(.7);
+  }
+
+  18%{
+    opacity:1;
+  }
+
+  76%{
+    opacity:.9;
+  }
+
+  100%{
+    opacity:0;
+    transform:
+      translate(-50%,-27px)
+      scale(1.13);
+  }
+}
+
+
+/* =========================================================
+   COLOR POR EVENTO
+========================================================= */
+
+#refugeArrivalEvent[data-event="marie"]
+.refugeEventShade{
+  background:
+    radial-gradient(
+      circle at 50% 51%,
+      rgba(139,115,155,.10),
+      rgba(2,4,9,.59) 72%
+    );
+}
+
+
+#refugeArrivalEvent[data-event="tuluz"]
+.refugeEventShade{
+  background:
+    radial-gradient(
+      circle at 54% 51%,
+      rgba(201,137,80,.13),
+      rgba(3,4,8,.55) 72%
+    );
+}
+
+
+/* =========================================================
+   MIENTRAS HAY EVENTO
+========================================================= */
+
+body.refuge-arrival-event-open
+#catGardenActions,
+
+body.refuge-arrival-event-open
+#catGardenCareActions,
+
+body.refuge-arrival-event-open
+#catGardenToyShelf,
+
+body.refuge-arrival-event-open
+#catGardenLetterDrop,
+
+body.refuge-arrival-event-open
+#catGardenWeatherNote,
+
+body.refuge-arrival-event-open
+#catGardenMewoSpot,
+
+body.refuge-arrival-event-open
+#refugeFamilyCats{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+
+
+/*
+  Dejamos los efectos del clima de los bordes,
+  pero se vuelven más suaves durante la llegada.
+*/
+body.refuge-arrival-event-open
+#catGarden::before{
+  opacity:.20 !important;
+}
+
+
+/* =========================================================
+   MÓVIL
+========================================================= */
+
+@media(max-width:600px){
+
+  .refugeEventScene{
+    left:3%;
+    right:3%;
+    top:7%;
+    bottom:31%;
+  }
+
+
+  .refugeEventCat{
+    width:min(27vw,118px);
+    bottom:10%;
+  }
+
+
+  .refugeEventStory{
+    width:94%;
+
+    padding:
+      10px 11px 9px;
+  }
+
+
+  .refugeEventTitle{
+    font-size:8px;
+  }
+
+
+  .refugeEventText{
+    font-size:7px;
+    line-height:1.45;
+  }
+
+
+  .refugeEventProgress{
+    width:78%;
+    margin-top:7px;
+  }
+
+
+  .refugeEventAction{
+    padding:
+      7px 9px;
+
+    font-size:7px;
+  }
+
+
+  .refugeEventPaw{
+    width:38px;
+    height:38px;
+
+    font-size:16px;
+  }
+}
+
+
+/* =========================================================
+   HORIZONTAL BAJO
+========================================================= */
+
+@media(max-height:430px){
+
+  .refugeEventScene{
+    top:2%;
+    bottom:25%;
+  }
+
+
+  .refugeEventCat{
+    width:min(10vw,92px);
+    bottom:7%;
+  }
+
+
+  .refugeEventStory{
+    width:min(84%,650px);
+
+    bottom:
+      max(
+        5px,
+        env(safe-area-inset-bottom)
+      );
+
+    padding:
+      7px 10px 6px;
+  }
+
+
+  .refugeEventTitle{
+    margin-bottom:3px;
+    font-size:7px;
+  }
+
+
+  .refugeEventText{
+    min-height:2em;
+    font-size:6px;
+    line-height:1.35;
+  }
+
+
+  .refugeEventProgress{
+    margin-top:4px;
+  }
+
+
+  .refugeEventAction{
+    margin-top:5px;
+    padding:5px 8px;
+    font-size:6px;
+  }
+}
+
+
+/* =========================================================
+   REDUCIR MOVIMIENTO
+========================================================= */
+
+@media(prefers-reduced-motion:reduce){
+
+  #refugeArrivalEvent *,
+  #refugeArrivalEvent *::before,
+  #refugeArrivalEvent *::after{
+    animation-duration:.01ms !important;
+    transition-duration:.01ms !important;
+  }
+}

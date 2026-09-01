@@ -1,0 +1,130 @@
+:root{
+  --pixel-pink:#f2a5d9;
+  --pixel-pink-2:#ffd1ee;
+  --pixel-dark:#08060c;
+}
+
+/* Mantener bordes y sprites nítidos, sin suavizado */
+.pixelArt,
+#pixelLives img,
+.pixelFrameOverlay{
+  image-rendering:pixelated;
+  image-rendering:crisp-edges;
+}
+
+/* El marco que enviaste se usa como capa decorativa.
+   SCREEN hace que el negro de la imagen desaparezca
+   sobre el panel y solo resalte el rosa. */
+.introCard,
+.gamePanel,
+.finalPaper{
+  position:relative;
+  overflow:visible;
+}
+
+.introCard::after,
+.gamePanel::after,
+.finalPaper::after{
+  content:"";
+  position:absolute;
+  inset:-15px;
+  z-index:4;
+  pointer-events:none;
+  background:url('pixel_frame.png') center/100% 100% no-repeat;
+  image-rendering:pixelated;
+  image-rendering:crisp-edges;
+  mix-blend-mode:screen;
+  filter:contrast(1.45) saturate(1.15);
+  opacity:.96;
+}
+
+.introCard>* ,
+.gamePanel>* ,
+.finalPaper>*{
+  position:relative;
+  z-index:5;
+}
+
+/* Paneles más retro: menos redondeados y tipografía monoespaciada */
+.gamePanel{
+  border:0;
+  border-radius:2px;
+  background:rgba(5,4,10,.97);
+  font-family:"Courier New",monospace;
+  box-shadow:0 18px 70px rgba(0,0,0,.60),0 0 30px rgba(235,130,198,.12);
+}
+.gamePanel h2,
+.gameBtn{
+  font-family:"Courier New",monospace;
+}
+.gameBtn{
+  border-radius:2px;
+  border:2px solid var(--pixel-pink);
+  background:#140a16;
+  box-shadow:3px 3px 0 #5f2d53;
+  text-transform:uppercase;
+}
+.gameBtn:active{
+  transform:translate(2px,2px);
+  box-shadow:1px 1px 0 #5f2d53;
+}
+
+/* HUD con la imagen de los tres corazones que enviaste */
+#gameHud{
+  border-radius:2px;
+  border:2px solid #111;
+  background:#faeaf0;
+  color:#111;
+  box-shadow:4px 4px 0 rgba(0,0,0,.45);
+  font-family:"Courier New",monospace;
+  font-weight:700;
+  gap:11px;
+  padding:6px 10px;
+}
+
+#pixelLives{
+  position:relative;
+  width:124px;
+  height:34px;
+  overflow:hidden;
+  background:#faeaf0;
+  flex:0 0 124px;
+}
+
+#pixelLives img{
+  position:absolute;
+  inset:0;
+  width:124px;
+  height:34px;
+  object-fit:cover;
+  object-position:center 50%;
+  filter:contrast(1.1) saturate(1.08);
+}
+
+#livesCover{
+  position:absolute;
+  right:0;
+  top:0;
+  bottom:0;
+  width:0%;
+  background:#faeaf0;
+  transition:width .16s steps(3,end);
+  z-index:2;
+}
+
+#phaseText,#timeText{
+  min-width:55px;
+  text-align:center;
+}
+
+/* Carta final con un poco más de estética pixel */
+.finalPaper{
+  border-radius:1px;
+}
+
+@media(max-width:600px){
+  #gameHud{gap:7px;padding:5px 7px;font-size:10px}
+  #pixelLives{width:96px;height:29px;flex-basis:96px}
+  #pixelLives img{width:96px;height:29px}
+  .introCard::after,.gamePanel::after,.finalPaper::after{inset:-10px}
+}

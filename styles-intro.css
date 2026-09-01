@@ -1,0 +1,53 @@
+body.intro-active #fsBtn{opacity:0;pointer-events:none}
+#intro{position:fixed;inset:0;z-index:45;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 38%,rgba(29,45,72,.42),rgba(2,5,12,.97) 62%);overflow:hidden;transition:opacity .9s ease,visibility .9s ease}
+#intro.hide{opacity:0;visibility:hidden;pointer-events:none}
+#intro::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle,#fff 0 1px,transparent 1.2px);background-size:72px 72px;opacity:.10;animation:introDrift 18s linear infinite}
+@keyframes introDrift{to{transform:translate3d(-72px,72px,0)}}
+.introWrap{position:relative;width:min(92vw,560px);min-height:430px;display:flex;flex-direction:column;align-items:center;justify-content:center;perspective:1200px;padding:24px}
+.introHint{position:absolute;top:18px;color:rgba(255,255,255,.58);font-size:12px;letter-spacing:.18em;text-transform:uppercase;transition:opacity .4s}
+#intro.open .introHint{opacity:0}
+.envelopeStage{position:relative;width:min(78vw,360px);height:235px;cursor:pointer;-webkit-tap-highlight-color:transparent;filter:drop-shadow(0 22px 34px rgba(0,0,0,.42));transform:translateY(18px);transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+#intro.open .envelopeStage{transform:translateY(54px)}
+.envelopeBody{position:absolute;left:0;right:0;bottom:0;height:190px;border-radius:8px;background:linear-gradient(145deg,#d88ba6,#b85f7e);overflow:visible}
+.envelopeBody::before,.envelopeBody::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none}
+.envelopeBody::before{background:#c87592;clip-path:polygon(0 0,56% 53%,0 100%)}
+.envelopeBody::after{background:#cf7f9a;clip-path:polygon(100% 0,44% 53%,100% 100%)}
+.envFront{position:absolute;left:0;right:0;bottom:0;height:58%;z-index:4;background:#dc91aa;clip-path:polygon(0 100%,50% 0,100% 100%);filter:brightness(.97)}
+.envFlap{position:absolute;left:0;right:0;top:0;height:62%;background:#e6a0b7;clip-path:polygon(0 0,100% 0,50% 100%);z-index:5;transform-origin:50% 0;transition:transform .8s cubic-bezier(.2,.75,.2,1),z-index 0s .4s}
+#intro.open .envFlap{transform:rotateX(180deg);z-index:1}
+.introCard{position:absolute;left:6%;right:6%;bottom:12px;height:210px;z-index:2;border-radius:9px;background:linear-gradient(180deg,#fffaf5,#f8eceb);box-shadow:0 8px 28px rgba(38,10,22,.25);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px 24px;color:#5f3341;transition:transform 1s .32s cubic-bezier(.18,.88,.2,1),box-shadow .7s .3s}
+#intro.open .introCard{transform:translateY(-174px);box-shadow:0 24px 54px rgba(0,0,0,.35)}
+.introCard .forYou{font-family:Georgia,serif;font-size:16px;letter-spacing:.08em;color:#a14e6c;margin-bottom:20px}
+.introCard .mainPhrase{font-family:Georgia,serif;font-size:clamp(21px,5vw,30px);line-height:1.35;font-weight:600}
+.introCard .heartMark{font-size:20px;margin-top:16px;color:#bd5a7d}
+#introContinue{position:absolute;bottom:8px;z-index:10;border:1px solid rgba(255,219,231,.52);border-radius:999px;padding:12px 22px;background:rgba(126,45,73,.58);color:#fff;font-size:13px;letter-spacing:.12em;text-transform:uppercase;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .5s 1.05s,transform .5s 1.05s,background .2s;cursor:pointer}
+#intro.open #introContinue{opacity:1;transform:translateY(0);pointer-events:auto}
+#introContinue:active{transform:scale(.97)}
+
+
+/* =====================================================
+   TRANSICIÓN: 1 TULIPÁN → VARIOS → CAMPO
+===================================================== */
+#bloomTransition{position:fixed;inset:0;z-index:44;pointer-events:none;display:none;overflow:hidden;background:radial-gradient(circle at 50% 55%,rgba(24,55,58,.25),rgba(2,5,10,0) 58%)}
+#bloomTransition.active{display:block}
+.bloomTulip{position:absolute;width:54px;height:104px;background-image:url('tulip_atlas.webp');background-size:300% 100%;background-position:100% 0;background-repeat:no-repeat;opacity:0;transform:translate(-50%,18px) scale(.25);filter:drop-shadow(0 0 13px rgba(255,132,191,.6));animation:bloomPop 1.45s cubic-bezier(.18,.88,.2,1) forwards}
+@keyframes bloomPop{0%{opacity:0;transform:translate(-50%,22px) scale(.18)}32%{opacity:1}75%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-14px) scale(1.12)}}
+
+/* =====================================================
+   CARTA ESCONDIDA EN EL CAMPO
+===================================================== */
+#secretLetterBtn{position:fixed;left:76%;top:66%;z-index:18;width:58px;height:45px;border:0;background:transparent;opacity:0;transform:translate(-50%,-50%) scale(.55) rotate(-5deg);pointer-events:none;transition:opacity .7s,transform .7s;cursor:pointer;filter:drop-shadow(0 0 12px rgba(255,200,222,.72));-webkit-tap-highlight-color:transparent}
+#secretLetterBtn.visible{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-5deg);pointer-events:auto;animation:secretGlow 2.2s ease-in-out infinite}
+@keyframes secretGlow{50%{filter:drop-shadow(0 0 22px rgba(255,214,228,.95))}}
+.miniEnv{position:absolute;inset:0;border-radius:5px;background:#d98ca7;border:1px solid rgba(255,245,248,.5);overflow:hidden}
+.miniEnv::before{content:"";position:absolute;left:0;top:0;width:0;height:0;border-left:29px solid transparent;border-right:29px solid transparent;border-top:23px solid #efb2c5}
+.miniEnv::after{content:"";position:absolute;left:0;bottom:0;width:0;height:0;border-left:29px solid #c86d8c;border-right:29px solid #d67f9b;border-top:20px solid transparent}
+.secretSpark{position:absolute;right:-5px;top:-9px;color:#fff5c8;font-size:16px;text-shadow:0 0 9px #fff3a8}
+
+/* =====================================================
+   MÚSICA OPCIONAL: se activa si existe musica.mp3
+===================================================== */
+#musicBtn{position:fixed;left:max(12px,env(safe-area-inset-left));top:max(12px,env(safe-area-inset-top));z-index:22;width:42px;height:42px;border:1px solid rgba(255,255,255,.20);border-radius:12px;background:rgba(4,8,14,.66);color:#fff;font-size:18px;display:none;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#musicBtn.available{display:flex}
+body.intro-active #musicBtn{opacity:0;pointer-events:none}
+@media(max-width:600px){#musicBtn{width:38px;height:38px;top:10px;left:10px}}

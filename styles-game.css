@@ -1,0 +1,578 @@
+#gameOverlay{position:fixed;inset:0;z-index:60;display:none;background:rgba(2,4,10,.78);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);touch-action:none}
+#gameOverlay.show{display:block}
+#gameCanvas{position:absolute;inset:0;width:100%;height:100%;display:none;touch-action:none}
+#gameCanvas.show{display:block}
+.gamePanel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(90vw,520px);padding:28px 24px;border:1px solid rgba(244,175,199,.34);border-radius:18px;background:linear-gradient(180deg,rgba(15,17,31,.97),rgba(7,8,17,.98));box-shadow:0 24px 80px rgba(0,0,0,.55),0 0 35px rgba(205,91,137,.11);color:#fff;text-align:center}
+.gamePanel.hidden{display:none}
+.gamePanel h2{font-family:Georgia,serif;font-size:clamp(23px,5vw,32px);font-weight:500;margin-bottom:14px}
+.gamePanel p{font-size:14px;line-height:1.6;color:rgba(255,255,255,.78);margin-bottom:18px}
+.gameBtn{border:1px solid rgba(255,219,232,.45);border-radius:999px;padding:11px 20px;background:rgba(164,73,106,.58);color:#fff;font-weight:600;letter-spacing:.06em;cursor:pointer;margin:5px;-webkit-tap-highlight-color:transparent}
+.gameBtn:active{transform:scale(.97)}
+#gameHud{position:absolute;left:50%;top:max(12px,env(safe-area-inset-top));transform:translateX(-50%);z-index:64;display:none;align-items:center;gap:16px;padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.48);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:12px;letter-spacing:.05em;white-space:nowrap}
+#gameHud.show{display:flex}
+#hpText{color:#ff6f93;font-size:17px;letter-spacing:.12em}
+#finalLetter{display:none}
+#finalLetter.show{display:block}
+.finalPaper{margin:0 auto 18px;width:min(100%,430px);padding:28px 25px;background:linear-gradient(180deg,#fffaf5,#f7e9eb);border-radius:10px;color:#5f3341;box-shadow:0 15px 45px rgba(0,0,0,.34)}
+.finalPaper .seal{font-size:25px;color:#bd5a7d;margin-bottom:10px}
+.finalPaper h2{color:#7e3d55;margin-bottom:16px}
+.finalPaper p{color:#694452;font-family:Georgia,serif;font-size:18px;line-height:1.55;margin:0}
+
+
+
+
+/* =========================================================
+   MINIJUEGO PRINCIPAL V2
+========================================================= */
+
+#gamePhaseBanner{
+  position:absolute;
+
+  left:50%;
+  top:
+    max(
+      62px,
+      calc(
+        env(safe-area-inset-top) +
+        54px
+      )
+    );
+
+  z-index:66;
+
+  width:min(78vw,420px);
+
+  padding:
+    9px 12px;
+
+  transform:
+    translate(-50%,-10px)
+    scale(.97);
+
+  border:
+    2px solid
+    rgba(243,173,215,.56);
+
+  background:
+    rgba(7,5,13,.94);
+
+  box-shadow:
+    4px 4px 0
+    rgba(83,35,73,.72),
+    0 0 24px
+    rgba(236,130,193,.14);
+
+  color:#ffe8f7;
+
+  text-align:center;
+
+  font-family:
+    "Courier New",
+    monospace;
+
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+
+
+#gamePhaseBanner.show{
+  animation:
+    gamePhaseBannerIn
+    2.1s
+    steps(8,end)
+    forwards;
+}
+
+
+#gamePhaseBanner strong{
+  display:block;
+
+  margin-bottom:4px;
+
+  color:#ffd3ed;
+
+  font-size:
+    clamp(
+      10px,
+      2.6vw,
+      13px
+    );
+
+  letter-spacing:.045em;
+}
+
+
+#gamePhaseBanner span{
+  display:block;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      .72
+    );
+
+  font-size:
+    clamp(
+      8px,
+      2.2vw,
+      10px
+    );
+}
+
+
+@keyframes gamePhaseBannerIn{
+
+  0%{
+    opacity:0;
+    visibility:visible;
+
+    transform:
+      translate(-50%,-10px)
+      scale(.97);
+  }
+
+  12%,
+  65%{
+    opacity:1;
+    visibility:visible;
+
+    transform:
+      translate(-50%,0)
+      scale(1);
+  }
+
+  100%{
+    opacity:0;
+    visibility:hidden;
+
+    transform:
+      translate(-50%,6px)
+      scale(.98);
+  }
+}
+
+
+/* =====================================================
+   FLASH DE DAÑO
+===================================================== */
+
+#gameDamageFlash{
+  position:absolute;
+  inset:0;
+
+  z-index:63;
+
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(255,203,228,.06),
+      rgba(255,54,121,.32)
+    );
+
+  opacity:0;
+  pointer-events:none;
+}
+
+
+#gameDamageFlash.show{
+  animation:
+    gameDamageFlash
+    .34s
+    steps(5,end);
+}
+
+
+@keyframes gameDamageFlash{
+
+  0%{
+    opacity:0;
+  }
+
+  24%{
+    opacity:.9;
+  }
+
+  100%{
+    opacity:0;
+  }
+}
+
+
+/* =====================================================
+   VICTORIA
+===================================================== */
+
+#gameVictoryGlow{
+  position:absolute;
+  inset:0;
+
+  z-index:65;
+
+  opacity:0;
+  pointer-events:none;
+
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(255,240,174,.44),
+      rgba(248,161,214,.24) 24%,
+      transparent 62%
+    );
+}
+
+
+#gameVictoryGlow.show{
+  animation:
+    gameVictoryGlow
+    .85s
+    ease-out;
+}
+
+
+@keyframes gameVictoryGlow{
+
+  0%{
+    opacity:0;
+    transform:scale(.92);
+  }
+
+  32%{
+    opacity:1;
+  }
+
+  100%{
+    opacity:0;
+    transform:scale(1.06);
+  }
+}
+
+
+/* =====================================================
+   HUD V2
+===================================================== */
+
+#gameOverlay #gameHud{
+  z-index:67;
+}
+
+
+#gameOverlay #phaseText{
+  color:#7d274e;
+
+  min-width:62px;
+}
+
+
+#gameOverlay #timeText{
+  min-width:47px;
+
+  color:#2d3343;
+}
+
+
+/* =====================================================
+   PANELES
+===================================================== */
+
+#gameOverlay .gamePanel{
+  z-index:68;
+}
+
+
+#gameOverlay #challengePanel p{
+  max-width:430px;
+
+  margin-left:auto;
+  margin-right:auto;
+}
+
+
+#gameOverlay #losePanel h2{
+  color:#ffd1e9;
+}
+
+
+/* =====================================================
+   MÓVIL
+===================================================== */
+
+@media(max-width:600px){
+
+  #gamePhaseBanner{
+    top:
+      max(
+        57px,
+        calc(
+          env(safe-area-inset-top) +
+          49px
+        )
+      );
+
+    width:min(84vw,380px);
+
+    padding:
+      8px 9px;
+  }
+
+
+  #gameOverlay #gameHud{
+    max-width:
+      calc(
+        100vw - 16px
+      );
+
+    gap:6px;
+  }
+}
+
+
+/* Carta de consuelo al perder */
+#loseLetterBtn{
+  border-color:#f0a9cf;
+  color:#ffe4f3;
+  box-shadow:0 0 14px rgba(235,132,190,.12);
+}
+
+
+/* =========================================================
+   RECOMPENSA DE MATERIALES — MINIJUEGO PRINCIPAL
+========================================================= */
+
+#gameMaterialReward{
+  position:absolute;
+
+  left:50%;
+  bottom:
+    max(
+      17px,
+      calc(
+        env(safe-area-inset-bottom) +
+        10px
+      )
+    );
+
+  z-index:71;
+
+  width:
+    min(
+      92vw,
+      430px
+    );
+
+  padding:
+    9px 10px 10px;
+
+  transform:
+    translate(-50%,18px)
+    scale(.97);
+
+  border:
+    2px solid
+    rgba(
+      245,
+      180,
+      219,
+      .62
+    );
+
+  border-radius:8px;
+
+  background:
+    rgba(
+      8,
+      6,
+      15,
+      .95
+    );
+
+  box-shadow:
+    4px 4px 0
+    rgba(
+      80,
+      36,
+      71,
+      .70
+    ),
+    0 0 26px
+    rgba(
+      242,
+      147,
+      203,
+      .17
+    );
+
+  color:#fcebf7;
+
+  font-family:
+    "Courier New",
+    monospace;
+
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+
+
+#gameMaterialReward.show{
+  animation:
+    gameMaterialRewardIn
+    5.2s
+    ease
+    forwards;
+}
+
+
+.gameMaterialRewardTitle{
+  margin-bottom:7px;
+
+  color:#ffd2eb;
+
+  text-align:center;
+
+  font:
+    800 10px/1.2
+    "Courier New",
+    monospace;
+
+  letter-spacing:.04em;
+}
+
+
+.gameMaterialRewardItems{
+  display:flex;
+
+  flex-wrap:wrap;
+
+  justify-content:center;
+
+  gap:5px;
+}
+
+
+.gameMaterialRewardItem{
+  display:grid;
+
+  grid-template-columns:
+    24px auto auto;
+
+  align-items:center;
+
+  gap:4px;
+
+  min-height:30px;
+
+  padding:
+    3px 6px;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      .10
+    );
+
+  border-radius:5px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      .035
+    );
+
+  color:#eadde9;
+
+  font:
+    700 8px/1
+    "Courier New",
+    monospace;
+}
+
+
+.gameMaterialRewardItem img{
+  display:block;
+
+  width:24px;
+  height:24px;
+
+  object-fit:contain;
+
+  pointer-events:none;
+}
+
+
+.gameMaterialRewardItem strong{
+  color:#ffe0a8;
+
+  font-size:10px;
+}
+
+
+@keyframes gameMaterialRewardIn{
+
+  0%{
+    opacity:0;
+    visibility:visible;
+
+    transform:
+      translate(-50%,18px)
+      scale(.97);
+  }
+
+  9%,
+  82%{
+    opacity:1;
+    visibility:visible;
+
+    transform:
+      translate(-50%,0)
+      scale(1);
+  }
+
+  100%{
+    opacity:0;
+    visibility:hidden;
+
+    transform:
+      translate(-50%,-5px)
+      scale(.99);
+  }
+}
+
+
+@media(max-width:600px){
+
+  #gameMaterialReward{
+    width:
+      min(
+        94vw,
+        390px
+      );
+
+    padding:
+      8px;
+  }
+
+
+  .gameMaterialRewardItem{
+    grid-template-columns:
+      21px auto auto;
+
+    gap:3px;
+
+    padding:
+      3px 5px;
+  }
+
+
+  .gameMaterialRewardItem img{
+    width:21px;
+    height:21px;
+  }
+}
