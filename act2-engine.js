@@ -1684,14 +1684,68 @@
     let input=[];
     let locked=true;
     let flashing=false;
+    let started=false;
+    let destroyed=false;
+
+    /*
+      IMPORTANTE:
+      La versión anterior usaba "await wait(...)" pero la función
+      wait NO existía en este archivo. Por eso quedaba bloqueado
+      eternamente en "escucha." / "todavía no.".
+    */
+    const delay=ms=>
+      new Promise(
+        resolve=>setTimeout(resolve,ms)
+      );
 
     puzzleBody.innerHTML=`
       <div class="act2EchoPuzzle">
+        <div
+          id="act2PawIntro"
+          class="act2PawIntro"
+        >
+          <span>🐾</span>
+
+          <strong>
+            Hay algo detrás de las huellas.
+          </strong>
+
+          <small>
+            Necesito escucharlo primero.
+          </small>
+
+          <button
+            id="act2PawStart"
+            type="button"
+          >
+            ESCUCHAR PATRÓN
+          </button>
+        </div>
+
         <div class="act2PawGrid">
-          <button data-pad="0" type="button" aria-label="Huella arriba izquierda">🐾</button>
-          <button data-pad="1" type="button" aria-label="Huella arriba derecha">🐾</button>
-          <button data-pad="2" type="button" aria-label="Huella abajo izquierda">🐾</button>
-          <button data-pad="3" type="button" aria-label="Huella abajo derecha">🐾</button>
+          <button
+            data-pad="0"
+            type="button"
+            aria-label="Huella arriba izquierda"
+          >🐾</button>
+
+          <button
+            data-pad="1"
+            type="button"
+            aria-label="Huella arriba derecha"
+          >🐾</button>
+
+          <button
+            data-pad="2"
+            type="button"
+            aria-label="Huella abajo izquierda"
+          >🐾</button>
+
+          <button
+            data-pad="3"
+            type="button"
+            aria-label="Huella abajo derecha"
+          >🐾</button>
         </div>
 
         <button
@@ -1714,18 +1768,163 @@
         '.act2EchoPuzzle'
       );
 
-    const pads=[
-      ...puzzleBody.querySelectorAll(
-        '[data-pad]'
-      )
-    ];
+    const intro=
+      puzzleBody.querySelector(
+        '#act2PawIntro'
+      );
+
+    const startButton=
+      puzzleBody.querySelector(
+        '#act2PawStart'
+      );
 
     const replayButton=
       puzzleBody.querySelector(
         '#act2PawReplay'
       );
 
-    const setReady=ready=>{
+    const pads=[
+      ...puzzleBody.querySelectorAll(
+        '[data-pad]'
+      )
+    ];
+
+    /*
+      Sonidos distintos para cada huella.
+      Así el patrón puede reconocerse tanto visualmente como por oído.
+    */
+    const PAW_FREQ=[
+      246.94, // arriba izquierda
+      293.66, // arriba derecha
+      369.99, // abajo izquierda
+      440.00  // abajo derecha
+    ];
+
+    function resumeAudio(){
+      ensureAct2Soundscape();
+
+      try{
+        if(
+          sound?.ctx &&
+          sound.ctx.state==='suspended'
+        ){
+          sound.ctx.resume().catch(()=>{});
+        }
+      }catch(_){}
+    }
+
+    function pawTone(idx,duration=.23,volume=.070){
+      resumeAudio();
+
+      if(
+        !sound?.initialized ||
+        !sound?.ctx
+      ){
+        return;
+      }
+
+      try{
+        const ctx=sound.ctx;
+        const now=ctx.currentTime;
+
+        const osc=ctx.createOscillator();
+        const gain=ctx.createGain();
+        const filter=ctx.createBiquadFilter();
+
+        osc.type='sine';
+        osc.frequency.setValueAtTime(
+          PAW_FREQ[idx] || 330,
+          now
+        );
+
+        /*
+          Pequeño tono amortiguado, más parecido a un eco
+          que a una nota de juego brillante.
+        */
+        filter.type='lowpass';
+        filter.frequency.setValueAtTime(
+          1450,
+          now
+        );
+
+        gain.gain.setValueAtTime(
+          .0001,
+          now
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+          volume,
+          now+.025
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+          .0001,
+          now+duration
+        );
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(
+          now+duration+.04
+        );
+      }catch(_){}
+    }
+
+    function errorTone(){
+      resumeAudio();
+
+      if(
+        !sound?.initialized ||
+        !sound?.ctx
+      ){
+        return;
+      }
+
+      try{
+        const ctx=sound.ctx;
+        const now=ctx.currentTime;
+
+        const osc=ctx.createOscillator();
+        const gain=ctx.createGain();
+
+        osc.type='sawtooth';
+        osc.frequency.setValueAtTime(
+          115,
+          now
+        );
+
+        osc.frequency.exponentialRampToValueAtTime(
+          63,
+          now+.24
+        );
+
+        gain.gain.setValueAtTime(
+          .0001,
+          now
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+          .035,
+          now+.015
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+          .0001,
+          now+.28
+        );
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now+.31);
+      }catch(_){}
+    }
+
+    function setReady(ready){
       locked=!ready;
 
       wrapper?.classList.toggle(
@@ -1735,7 +1934,7 @@
 
       wrapper?.classList.toggle(
         'listening',
-        !ready
+        !ready && started
       );
 
       pads.forEach(
@@ -1751,10 +1950,13 @@
         replayButton.disabled=
           !ready;
       }
-    };
+    }
 
-    const flash=async(sequence)=>{
-      if(flashing) return;
+    async function flash(sequence){
+      if(
+        flashing ||
+        destroyed
+      ) return;
 
       flashing=true;
       input=[];
@@ -1763,30 +1965,36 @@
 
       setPuzzleStatus(
         'escucha.',
-        'primero mira el patrón; después podrás tocar.'
+        'mira y escucha el orden de las huellas.'
       );
 
-      await wait(650);
+      await delay(500);
 
       for(const idx of sequence){
+        if(destroyed) return;
+
         const pad=pads[idx];
 
         pad?.classList.add(
           'echo'
         );
 
-        setAct2SoundMode('hum');
+        pawTone(
+          idx,
+          .30,
+          .085
+        );
 
-        await wait(430);
+        await delay(460);
 
         pad?.classList.remove(
           'echo'
         );
 
-        setAct2SoundMode('silence');
-
-        await wait(280);
+        await delay(300);
       }
+
+      if(destroyed) return;
 
       flashing=false;
       setReady(true);
@@ -1795,20 +2003,55 @@
         'ahora tú.',
         'toca las huellas en el mismo orden.'
       );
-    };
+    }
 
-    const replay=()=>{
-      if(flashing) return;
+    function replay(){
+      if(
+        flashing ||
+        destroyed ||
+        !started
+      ) return;
 
       flash(
         rounds[round]
       );
-    };
+    }
+
+    function begin(){
+      if(started) return;
+
+      started=true;
+      intro?.classList.add(
+        'gone'
+      );
+
+      startButton.disabled=true;
+
+      /*
+        Esta pulsación del usuario desbloquea WebAudio en Chrome,
+        Android, iOS y navegadores con políticas de autoplay.
+      */
+      resumeAudio();
+
+      setTimeout(
+        replay,
+        320
+      );
+    }
+
+    startButton?.addEventListener(
+      'click',
+      begin
+    );
 
     replayButton?.addEventListener(
       'click',
       ()=>{
-        if(!locked){
+        if(
+          started &&
+          !locked &&
+          !flashing
+        ){
           replay();
         }
       }
@@ -1819,36 +2062,49 @@
         b.addEventListener(
           'pointerdown',
           ()=>{
-            b.classList.add(
-              'pressed'
-            );
+            if(!locked){
+              b.classList.add(
+                'pressed'
+              );
+            }
           }
         );
 
+        const release=()=>{
+          setTimeout(
+            ()=>b.classList.remove(
+              'pressed'
+            ),
+            110
+          );
+        };
+
         b.addEventListener(
           'pointerup',
-          ()=>{
-            setTimeout(
-              ()=>b.classList.remove(
-                'pressed'
-              ),
-              120
-            );
-          }
+          release
+        );
+
+        b.addEventListener(
+          'pointercancel',
+          release
         );
 
         b.addEventListener(
           'click',
           ()=>{
-            /*
-              Antes el click se ignoraba silenciosamente mientras
-              decía "escucha.", y parecía que el puzzle estaba roto.
-              Ahora responde claramente.
-            */
+            if(!started){
+              setPuzzleStatus(
+                'primero escucha.',
+                'pulsa ESCUCHAR PATRÓN.'
+              );
+
+              return;
+            }
+
             if(locked){
               setPuzzleStatus(
                 'todavía no.',
-                'espera a que termine el patrón y aparezca “ahora tú”.'
+                'espera a que termine el patrón.'
               );
 
               return;
@@ -1858,11 +2114,17 @@
               'chosen'
             );
 
+            pawTone(
+              idx,
+              .20,
+              .075
+            );
+
             setTimeout(
               ()=>b.classList.remove(
                 'chosen'
               ),
-              220
+              210
             );
 
             input.push(idx);
@@ -1875,13 +2137,11 @@
             if(idx!==expected){
               setReady(false);
 
+              errorTone();
+
               setPuzzleStatus(
                 'la huella se corta.',
-                'te lo mostraré otra vez.'
-              );
-
-              setAct2SoundMode(
-                'static'
+                'te mostraré el patrón otra vez.'
               );
 
               wrapper?.classList.add(
@@ -1894,12 +2154,11 @@
                     'wrong'
                   );
 
-                  setAct2SoundMode(
-                    'silence'
-                  );
-
                   flashing=false;
-                  replay();
+
+                  if(!destroyed){
+                    replay();
+                  }
                 },
                 900
               );
@@ -1909,7 +2168,10 @@
 
             setPuzzleStatus(
               `${input.length}…`,
-              'sigue.'
+              input.length<
+              rounds[round].length
+                ? 'sigue.'
+                : ''
             );
 
             if(
@@ -1934,22 +2196,25 @@
                     'las huellas ya no están solas.',
                     ''
                   ),
-                  850
+                  900
                 );
               }else{
                 setReady(false);
 
                 setPuzzleStatus(
                   'bien.',
-                  'escucha el siguiente patrón.'
+                  'el siguiente ritmo recuerda un poco más.'
                 );
 
                 setTimeout(
                   ()=>{
                     flashing=false;
-                    replay();
+
+                    if(!destroyed){
+                      replay();
+                    }
                   },
-                  1000
+                  1050
                 );
               }
             }
@@ -1959,19 +2224,27 @@
     );
 
     /*
-      Marcamos explícitamente el estado inicial para que visualmente
-      se entienda que primero es demostración y luego interacción.
+      Ya NO intentamos reproducir el ritmo automáticamente.
+      El navegador puede bloquear audio automático.
+      Esperamos una pulsación real en ESCUCHAR PATRÓN.
     */
     setReady(false);
-    replay();
+
+    setPuzzleStatus(
+      '...',
+      'pulsa ESCUCHAR PATRÓN.'
+    );
 
     puzzleCleanup=()=>{
+      destroyed=true;
       locked=true;
       flashing=false;
 
-      setAct2SoundMode(
-        'silence'
-      );
+      try{
+        setAct2SoundMode(
+          'silence'
+        );
+      }catch(_){}
     };
   }
 

@@ -1764,3 +1764,148 @@ body.act2-active :is(
     touch-action:manipulation;
   }
 }
+
+
+/* =========================================================
+   FIX DEFINITIVO — HUELLAS / RITMO / AUDIO
+========================================================= */
+
+.act2PawIntro{
+  width:min(94%,420px);
+  margin:0 auto 16px;
+  padding:13px 14px;
+  border:1px solid rgba(210,223,225,.10);
+  border-radius:7px;
+  background:rgba(255,255,255,.012);
+  text-align:center;
+  opacity:1;
+  max-height:150px;
+  overflow:hidden;
+  transition:
+    opacity .35s,
+    max-height .45s,
+    margin .45s,
+    padding .45s,
+    border-color .35s;
+}
+
+.act2PawIntro.gone{
+  opacity:0;
+  max-height:0;
+  margin:0 auto;
+  padding-top:0;
+  padding-bottom:0;
+  border-color:transparent;
+  pointer-events:none;
+}
+
+.act2PawIntro > span,
+.act2PawIntro > strong,
+.act2PawIntro > small{
+  display:block;
+}
+
+.act2PawIntro > span{
+  color:rgba(227,233,229,.72);
+  font-size:18px;
+}
+
+.act2PawIntro > strong{
+  margin-top:8px;
+  color:rgba(227,233,233,.56);
+  font:800 9px/1.5 monospace;
+}
+
+.act2PawIntro > small{
+  margin-top:5px;
+  color:rgba(210,221,224,.27);
+  font:700 7px/1.5 monospace;
+}
+
+#act2PawStart{
+  display:block;
+  margin:13px auto 0;
+  min-width:160px;
+  min-height:42px;
+  padding:0 16px;
+  border:1px solid rgba(217,229,229,.21);
+  border-radius:6px;
+  background:rgba(221,232,229,.035);
+  color:rgba(235,239,236,.72);
+  font:900 8px/1 monospace;
+  letter-spacing:.06em;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  animation:act2PawStartPulse 2.2s ease-in-out infinite;
+}
+
+#act2PawStart:active{
+  scale:.97;
+}
+
+#act2PawStart:disabled{
+  opacity:.25;
+  animation:none;
+}
+
+@keyframes act2PawStartPulse{
+  50%{
+    border-color:rgba(222,234,230,.39);
+    box-shadow:0 0 16px rgba(211,229,219,.08);
+  }
+}
+
+/*
+  Durante la demostración las huellas NO parecen botones activos.
+*/
+.act2EchoPuzzle.listening .act2PawGrid button{
+  pointer-events:auto;
+  opacity:.45;
+}
+
+/*
+  Cuando aparece AHORA TÚ queda claro que sí pueden tocarse.
+*/
+.act2EchoPuzzle.ready .act2PawGrid button{
+  cursor:pointer;
+  opacity:1!important;
+  border-color:rgba(220,231,231,.30)!important;
+  background:rgba(222,232,230,.035)!important;
+}
+
+/*
+  El destello de patrón es deliberadamente MUY visible.
+*/
+.act2PawGrid button.echo{
+  color:rgba(250,247,238,1)!important;
+  border-color:rgba(236,241,233,.70)!important;
+  background:rgba(225,236,226,.23)!important;
+  box-shadow:
+    0 0 18px rgba(224,237,226,.28),
+    0 0 42px rgba(216,232,221,.22),
+    inset 0 0 24px rgba(241,245,236,.12)!important;
+  transform:scale(1.08);
+}
+
+.act2PawGrid button.echo::before{
+  background:rgba(241,244,235,.90)!important;
+}
+
+.act2PawGrid button.chosen{
+  color:rgba(246,245,237,.96)!important;
+  border-color:rgba(229,238,231,.48)!important;
+  background:rgba(220,234,224,.14)!important;
+}
+
+@media(max-width:600px){
+  #act2PawStart{
+    min-width:190px;
+    min-height:48px;
+    font-size:9px;
+  }
+
+  .act2PawGrid button{
+    min-height:100px;
+  }
+}
