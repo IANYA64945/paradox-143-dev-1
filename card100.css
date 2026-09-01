@@ -1,0 +1,769 @@
+/* =========================================================
+   PARADOX143 — CARTA 100 · FIN DEL ACTO I
+========================================================= */
+
+
+/* =========================================================
+   LA CARTA QUE NO ESTABA AQUÍ
+========================================================= */
+
+#card100Signal{
+  position:fixed;
+
+  left:50%;
+  top:54%;
+
+  z-index:187;
+
+  width:66px;
+  height:78px;
+
+  padding:0;
+
+  border:0;
+
+  background:transparent;
+
+  opacity:0;
+  visibility:hidden;
+
+  pointer-events:none;
+
+  transform:
+    translate(-50%,-50%)
+    scale(.86);
+
+  transition:
+    opacity .5s,
+    visibility .5s,
+    transform .5s;
+
+  -webkit-tap-highlight-color:
+    transparent;
+}
+
+#card100Signal.show{
+  opacity:1;
+  visibility:visible;
+
+  pointer-events:auto;
+
+  transform:
+    translate(-50%,-50%)
+    scale(1);
+
+  animation:
+    card100SignalFloat
+    3.6s
+    ease-in-out
+    infinite;
+}
+
+.card100MiniPaper{
+  position:absolute;
+
+  left:50%;
+  top:50%;
+
+  width:42px;
+  height:52px;
+
+  border:
+    1px solid
+    rgba(238,225,218,.58);
+
+  border-radius:2px;
+
+  background:
+    linear-gradient(
+      150deg,
+      #e8e0d9,
+      #c9c0bb
+    );
+
+  box-shadow:
+    0 8px 15px
+    rgba(0,0,0,.34),
+    0 0 13px
+    rgba(236,217,204,.12);
+
+  transform:
+    translate(-50%,-50%)
+    rotate(-2deg);
+}
+
+.card100MiniPaper::before,
+.card100MiniPaper::after{
+  content:"";
+
+  position:absolute;
+
+  left:8px;
+  right:8px;
+
+  height:1px;
+
+  background:
+    rgba(65,55,58,.28);
+}
+
+.card100MiniPaper::before{
+  top:17px;
+}
+
+.card100MiniPaper::after{
+  top:26px;
+}
+
+.card100MiniPaper i{
+  position:absolute;
+
+  left:50%;
+  bottom:8px;
+
+  width:5px;
+  height:5px;
+
+  border-radius:50%;
+
+  background:
+    rgba(97,74,83,.5);
+
+  transform:
+    translateX(-50%);
+}
+
+.card100SignalSpark{
+  position:absolute;
+
+  right:4px;
+  top:5px;
+
+  color:
+    rgba(255,235,218,.64);
+
+  font:
+    900 15px/1
+    monospace;
+
+  text-shadow:
+    0 0 9px
+    rgba(255,231,210,.4);
+}
+
+@keyframes card100SignalFloat{
+  0%,100%{
+    translate:0 0;
+  }
+
+  50%{
+    translate:0 -5px;
+  }
+}
+
+
+/* =========================================================
+   DURANTE LA CARTA 100
+========================================================= */
+
+body.card100-running{
+  overflow:hidden;
+}
+
+body.card100-running
+:is(
+  #fsBtn,
+  #musicBtn,
+  #letterBasketBtn,
+  #climateBtn,
+  #catGardenPawBtn,
+  #secretLetterBtn,
+  #moonHotspot,
+  #act1StayingCue,
+  #act1LastWarmCue,
+  #habitFieldConstellation
+){
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+
+  transition:
+    opacity .7s,
+    visibility .7s;
+}
+
+#card100Overlay{
+  position:fixed;
+  inset:0;
+
+  z-index:420;
+
+  overflow:hidden;
+
+  background:
+    transparent;
+
+  opacity:0;
+  visibility:hidden;
+
+  pointer-events:none;
+
+  transition:
+    opacity .6s,
+    visibility .6s;
+}
+
+#card100Overlay.show{
+  opacity:1;
+  visibility:visible;
+
+  pointer-events:auto;
+}
+
+
+/* =========================================================
+   PAPEL
+========================================================= */
+
+#card100LetterStage{
+  position:absolute;
+  inset:0;
+
+  z-index:5;
+
+  display:grid;
+  place-items:center;
+
+  pointer-events:none;
+}
+
+#card100Paper{
+  position:relative;
+
+  width:min(
+    82vw,
+    430px
+  );
+
+  min-height:250px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  gap:15px;
+
+  padding:
+    28px 24px;
+
+  border:
+    1px solid
+    rgba(116,98,94,.24);
+
+  border-radius:4px;
+
+  background:
+    linear-gradient(
+      155deg,
+      rgba(239,231,223,.98),
+      rgba(206,198,193,.98)
+    );
+
+  box-shadow:
+    0 24px 55px
+    rgba(0,0,0,.5);
+
+  color:#322a2d;
+
+  text-align:center;
+
+  transition:
+    opacity 1.7s,
+    filter 1.7s,
+    scale 1.7s;
+}
+
+.card100ForYou{
+  color:
+    rgba(65,51,57,.72);
+
+  font:
+    900 10px/1
+    monospace;
+
+  letter-spacing:.18em;
+}
+
+#card100PaperMark{
+  color:#765a66;
+
+  font:
+    900 27px/1
+    monospace;
+
+  transition:
+    opacity .6s,
+    filter .6s;
+}
+
+#card100PaperMark.fail{
+  opacity:.22;
+
+  filter:
+    blur(1px);
+}
+
+#card100PaperText{
+  max-width:330px;
+
+  margin:0;
+
+  color:#342c30;
+
+  font:
+    900 13px/1.75
+    monospace;
+
+  transition:
+    opacity .2s;
+}
+
+#card100PaperSub{
+  min-height:14px;
+
+  color:
+    rgba(58,48,53,.53);
+
+  font:
+    700 8px/1.4
+    monospace;
+}
+
+body.card100-first-failure
+#card100Paper{
+  animation:
+    card100PaperFail
+    .19s
+    linear
+    4;
+}
+
+@keyframes card100PaperFail{
+  0%,100%{
+    translate:0 0;
+  }
+
+  33%{
+    translate:-1px 0;
+  }
+
+  66%{
+    translate:1px 0;
+  }
+}
+
+#card100Paper.erase{
+  opacity:0;
+
+  filter:
+    blur(7px)
+    brightness(.4);
+
+  scale:.96;
+}
+
+
+/* =========================================================
+   RECUERDO DEL REFUGIO
+========================================================= */
+
+#card100RefugeStage{
+  position:absolute;
+  inset:0;
+
+  z-index:3;
+
+  overflow:hidden;
+
+  opacity:0;
+  visibility:hidden;
+
+  background:#07100d;
+
+  transition:
+    opacity 1.2s,
+    visibility 1.2s,
+    filter 1.3s;
+}
+
+#card100RefugeStage.show{
+  opacity:1;
+  visibility:visible;
+}
+
+#card100RefugeStage.gone{
+  opacity:0;
+
+  filter:
+    brightness(.08)
+    saturate(.15);
+}
+
+.card100RefugeImage{
+  position:absolute;
+  inset:0;
+
+  background:
+    linear-gradient(
+      rgba(3,7,11,.12),
+      rgba(2,7,8,.30)
+    ),
+    url("cat_garden_clearing_bg.png")
+    center center /
+    cover
+    no-repeat;
+
+  filter:
+    brightness(.72)
+    saturate(.78);
+}
+
+.card100Cat{
+  position:absolute;
+
+  z-index:5;
+
+  bottom:13%;
+
+  width:min(
+    10vw,
+    86px
+  );
+
+  height:auto;
+
+  object-fit:contain;
+
+  filter:
+    drop-shadow(
+      0 7px 10px
+      rgba(0,0,0,.38)
+    );
+
+  opacity:1;
+
+  transition:
+    opacity 1.15s,
+    filter 1.15s,
+    transform 1.15s;
+}
+
+#card100Marie{
+  left:29%;
+}
+
+#card100Mewo{
+  left:50%;
+
+  transform:
+    translateX(-50%);
+}
+
+#card100Tuluz{
+  right:29%;
+}
+
+.card100Cat.gone{
+  opacity:0;
+
+  filter:
+    blur(3px)
+    brightness(.2);
+
+  transform:
+    translateY(4px)
+    scale(.96);
+}
+
+#card100Mewo.last{
+  filter:
+    drop-shadow(
+      0 0 14px
+      rgba(224,211,226,.14)
+    );
+}
+
+#card100Mewo.last.gone{
+  transform:
+    translateX(-50%)
+    translateY(4px)
+    scale(.96);
+}
+
+.card100Light{
+  position:absolute;
+
+  z-index:4;
+
+  width:5px;
+  height:5px;
+
+  border-radius:50%;
+
+  background:#ffe3a2;
+
+  box-shadow:
+    0 0 12px
+    rgba(255,222,150,.68);
+
+  transition:
+    opacity 1.2s,
+    scale 1.2s;
+}
+
+.card100Light.l1{
+  left:18%;
+  top:33%;
+}
+
+.card100Light.l2{
+  left:35%;
+  top:27%;
+}
+
+.card100Light.l3{
+  left:55%;
+  top:31%;
+}
+
+.card100Light.l4{
+  right:25%;
+  top:38%;
+}
+
+.card100Light.l5{
+  right:12%;
+  top:28%;
+}
+
+body.card100-lights-gone
+.card100Light{
+  opacity:0;
+
+  scale:.2;
+}
+
+
+/* =========================================================
+   LA LUNA / EL CAMPO
+========================================================= */
+
+#card100MoonMask{
+  position:fixed;
+
+  z-index:8;
+
+  border-radius:50%;
+
+  background:#020307;
+
+  box-shadow:
+    0 0 30px
+    14px
+    rgba(2,3,7,.92);
+
+  opacity:0;
+
+  transform:
+    translate(-50%,-50%)
+    scale(.15);
+
+  transition:
+    opacity 1.15s,
+    transform 1.15s;
+
+  pointer-events:none;
+}
+
+#card100MoonMask.show{
+  opacity:1;
+
+  transform:
+    translate(-50%,-50%)
+    scale(1.12);
+}
+
+#card100GroundDark{
+  position:absolute;
+
+  left:-5%;
+  right:-5%;
+  bottom:-8%;
+
+  z-index:9;
+
+  height:64%;
+
+  background:
+    linear-gradient(
+      to top,
+      #000 0 68%,
+      rgba(0,0,0,.92) 80%,
+      rgba(0,0,0,0) 100%
+    );
+
+  transform:
+    translateY(100%);
+
+  transition:
+    transform 2.1s
+    cubic-bezier(.55,.05,.45,.95);
+
+  pointer-events:none;
+}
+
+#card100GroundDark.show{
+  transform:
+    translateY(0);
+}
+
+body.card100-world-gone
+#scene{
+  opacity:.12 !important;
+
+  filter:
+    brightness(.18)
+    saturate(.2)
+    blur(.4px);
+
+  transition:
+    opacity 2s,
+    filter 2s;
+}
+
+
+/* =========================================================
+   NEGRO
+========================================================= */
+
+#card100Black{
+  position:absolute;
+  inset:0;
+
+  z-index:20;
+
+  background:#000;
+
+  opacity:0;
+
+  transition:
+    opacity 1.75s;
+
+  pointer-events:none;
+}
+
+#card100Black.show{
+  opacity:1;
+}
+
+#card100LastText{
+  position:absolute;
+
+  left:50%;
+  top:50%;
+
+  z-index:24;
+
+  color:
+    rgba(232,226,231,.3);
+
+  font:
+    900 12px/1
+    monospace;
+
+  letter-spacing:.3em;
+
+  opacity:0;
+
+  transform:
+    translate(-50%,-50%);
+
+  transition:
+    opacity 2.2s;
+
+  pointer-events:none;
+}
+
+#card100LastText.show{
+  opacity:1;
+}
+
+
+/* =========================================================
+   MÓVIL
+========================================================= */
+
+@media(max-width:600px){
+
+  #card100Signal{
+    top:55%;
+
+    width:58px;
+    height:68px;
+  }
+
+  .card100MiniPaper{
+    width:37px;
+    height:47px;
+  }
+
+  #card100Paper{
+    width:86vw;
+
+    min-height:230px;
+
+    padding:
+      25px 18px;
+  }
+
+  #card100PaperText{
+    font-size:11px;
+
+    max-width:285px;
+  }
+
+  .card100Cat{
+    width:min(
+      17vw,
+      72px
+    );
+  }
+
+  #card100Marie{
+    left:22%;
+  }
+
+  #card100Tuluz{
+    right:22%;
+  }
+}
+
+
+/* =========================================================
+   REDUCIR MOVIMIENTO
+========================================================= */
+
+@media(prefers-reduced-motion:reduce){
+
+  #card100Signal,
+  #card100Paper,
+  .card100Cat,
+  .card100Light,
+  #card100MoonMask,
+  #card100GroundDark,
+  #card100Black{
+    animation-duration:
+      .01ms !important;
+  }
+}
