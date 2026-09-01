@@ -1,0 +1,575 @@
+/* =========================================================
+   PARADOX143 — DISTRIBUCIÓN DEL CLARO 2.0
+
+   Objetivo:
+   - evitar que muebles, gatos y objetos se amontonen
+   - usar mejor izquierda / centro / derecha
+   - mantener libre el centro visual bajo el árbol
+   - no cambiar assets ni lógica de progreso
+========================================================= */
+
+
+/* =========================================================
+   1. MOBILIARIO BASE
+========================================================= */
+
+/* Cama principal: extremo izquierdo. */
+#catGardenBedZone{
+  left:5.5% !important;
+  bottom:5.5% !important;
+
+  width:min(14vw,135px) !important;
+  height:min(9vw,84px) !important;
+}
+
+
+/* Rascador: extremo derecho, un poco más compacto. */
+#catGardenScratcherZone{
+  right:2.5% !important;
+  bottom:4% !important;
+
+  width:min(25vw,220px) !important;
+  height:min(40vh,320px) !important;
+}
+
+
+/* Juguetes: ya no pegados al rascador. */
+#catGardenToyShelf{
+  right:32% !important;
+  bottom:5.5% !important;
+
+  gap:7px !important;
+
+  padding:5px 8px !important;
+}
+
+
+/* Comedero de Jardín 2.0: entre juguetes y rascador. */
+#refugeGarden2FoodZone{
+  right:20.5% !important;
+  bottom:6% !important;
+
+  width:min(5.5vw,54px) !important;
+}
+
+
+/* Zona cálida: claramente del lado izquierdo. */
+#refugeGarden2WarmPatch{
+  left:14% !important;
+  bottom:6% !important;
+
+  width:24% !important;
+  height:17% !important;
+}
+
+
+/* Mirador central-alto, sin invadir la base del árbol. */
+#refugeGarden2Lookout{
+  left:50% !important;
+  top:18% !important;
+}
+
+
+/* =========================================================
+   2. CRECIMIENTO 68–79 — REPARTIR OBJETOS
+========================================================= */
+
+/*
+  El "rincón nuevo" deja de ocupar todo el lado derecho.
+  Ahora aparece como extensión suave del bosque a la izquierda.
+*/
+.growthNook{
+  left:1.5% !important;
+  right:auto !important;
+
+  bottom:19% !important;
+
+  width:24% !important;
+  height:29% !important;
+
+  border-left:0 !important;
+  border-right:
+    1px solid
+    rgba(185,226,194,.09) !important;
+
+  border-radius:
+    0 52% 18% 0 !important;
+
+  background:
+    radial-gradient(
+      ellipse at 42% 70%,
+      rgba(50,95,66,.16),
+      transparent 58%
+    ),
+    linear-gradient(
+      270deg,
+      transparent,
+      rgba(7,28,20,.14)
+    ) !important;
+}
+
+
+/* Segunda almohada: zona de descanso izquierda-media. */
+.growthPillow2{
+  left:20% !important;
+  right:auto !important;
+
+  bottom:6% !important;
+
+  width:min(7.8vw,76px) !important;
+}
+
+
+/* Caja de juguetes: centro-derecha, separada del rascador. */
+.growthToyBox{
+  left:55% !important;
+  right:auto !important;
+
+  bottom:6% !important;
+
+  width:min(9vw,88px) !important;
+  height:min(6.4vw,58px) !important;
+}
+
+
+/* Agua: junto al comedero, sin tocarlo. */
+.growthWater{
+  left:68% !important;
+  right:auto !important;
+
+  bottom:6% !important;
+
+  width:min(5vw,48px) !important;
+}
+
+
+/* Luz permanente: parte superior izquierda del árbol. */
+.growthLantern{
+  left:30% !important;
+  right:auto !important;
+
+  top:28% !important;
+}
+
+
+/* Favoritos: cada gato tiene una zona reconocible. */
+.growthFavoriteMarie{
+  left:24% !important;
+  right:auto !important;
+
+  bottom:22% !important;
+}
+
+.growthFavoriteMewo{
+  left:49% !important;
+  right:auto !important;
+
+  bottom:24% !important;
+}
+
+.growthFavoriteTuluz{
+  left:77% !important;
+  right:auto !important;
+
+  bottom:22% !important;
+}
+
+
+/* Puerta del rincón nuevo: borde izquierdo. */
+.growthNookDoor{
+  left:0 !important;
+  right:auto !important;
+
+  top:31% !important;
+
+  border-left:0 !important;
+  border-right:
+    2px solid
+    rgba(212,244,219,.30) !important;
+
+  border-radius:
+    0 50% 50% 0 !important;
+
+  background:
+    radial-gradient(
+      ellipse at left,
+      rgba(78,124,89,.22),
+      transparent 65%
+    ) !important;
+}
+
+
+/* Actividades de agua y lámpara siguen la nueva ubicación. */
+.growthWaterQuest{
+  left:66% !important;
+  right:auto !important;
+
+  bottom:10% !important;
+}
+
+.growthLanternQuest{
+  left:27% !important;
+  right:auto !important;
+
+  top:27% !important;
+}
+
+
+/* Avisos de rincones favoritos también se reparten. */
+.growthNoticeMarie{
+  left:22% !important;
+  right:auto !important;
+
+  bottom:29% !important;
+}
+
+.growthNoticeMewo{
+  left:47% !important;
+  right:auto !important;
+
+  bottom:30% !important;
+}
+
+.growthNoticeTuluz{
+  left:76% !important;
+  right:auto !important;
+
+  bottom:29% !important;
+}
+
+
+/* =========================================================
+   3. ESCENAS DE CRECIMIENTO — MÁS AIRE ENTRE GATOS
+========================================================= */
+
+#catGarden.growth-marie-scene
+.refugeGrayCat{
+  left:25% !important;
+  bottom:16% !important;
+}
+
+#catGarden.growth-tuluz-scene
+.refugeOrangeCat{
+  left:76% !important;
+  bottom:16% !important;
+}
+
+#catGarden.growth-mewo-scene
+#catGardenMewoSpot.show{
+  left:50% !important;
+  bottom:17% !important;
+}
+
+
+/* Noche en casa: composición triangular, no fila apretada. */
+#catGarden.growth-night-scene
+.refugeGrayCat{
+  left:27% !important;
+  bottom:13% !important;
+}
+
+#catGarden.growth-night-scene
+#catGardenMewoSpot.show{
+  left:49% !important;
+  bottom:17% !important;
+}
+
+#catGarden.growth-night-scene
+.refugeOrangeCat{
+  left:72% !important;
+  bottom:13% !important;
+}
+
+
+/* =========================================================
+   4. ESCENAS ESPONTÁNEAS DEL JARDÍN 2.0
+========================================================= */
+
+/* Saludo: mayor separación. */
+#catGarden.garden2-greet
+.refugeGrayCat{
+  left:34% !important;
+}
+
+#catGarden.garden2-greet
+#catGardenMewoSpot.show{
+  left:50% !important;
+}
+
+#catGarden.garden2-greet
+.refugeOrangeCat{
+  left:66% !important;
+}
+
+
+/* Comida: no encima del rascador. */
+#catGarden.garden2-food
+.refugeGrayCat{
+  left:61% !important;
+  bottom:9.5% !important;
+}
+
+#catGarden.garden2-food
+.refugeOrangeCat{
+  left:72% !important;
+  bottom:9.5% !important;
+}
+
+
+/* Mirar estrellas: línea amplia. */
+#catGarden.garden2-watch
+.refugeGrayCat{
+  left:35% !important;
+}
+
+#catGarden.garden2-watch
+#catGardenMewoSpot.show{
+  left:50% !important;
+}
+
+#catGarden.garden2-watch
+.refugeOrangeCat{
+  left:65% !important;
+}
+
+
+/* Mal clima: juntos, pero sin superponerse. */
+#catGarden.garden2-huddle
+.refugeGrayCat{
+  left:37% !important;
+}
+
+#catGarden.garden2-huddle
+#catGardenMewoSpot.show{
+  left:50% !important;
+}
+
+#catGarden.garden2-huddle
+.refugeOrangeCat{
+  left:63% !important;
+}
+
+
+/* =========================================================
+   5. ESCENAS FAMILIARES ANTIGUAS
+========================================================= */
+
+/* Los tres juntos */
+#catGarden.family-scene-three
+.refugeGrayCat{
+  left:35% !important;
+}
+
+#catGarden.family-scene-three
+#catGardenMewoSpot{
+  left:50% !important;
+}
+
+#catGarden.family-scene-three
+.refugeOrangeCat{
+  left:65% !important;
+}
+
+
+/* Hermanitos: cercanos, pero no pegados. */
+#catGarden.family-scene-siblings
+.refugeGrayCat{
+  left:41% !important;
+}
+
+#catGarden.family-scene-siblings
+.refugeOrangeCat{
+  left:59% !important;
+}
+
+
+/* Todos cerquita */
+#catGarden.family-scene-close
+.refugeGrayCat{
+  left:36% !important;
+}
+
+#catGarden.family-scene-close
+#catGardenMewoSpot{
+  left:50% !important;
+}
+
+#catGarden.family-scene-close
+.refugeOrangeCat{
+  left:64% !important;
+}
+
+
+/* =========================================================
+   6. RESPONSIVE — PANTALLAS VERTICALES / PEQUEÑAS
+========================================================= */
+
+@media(max-width:600px){
+
+  #catGardenBedZone{
+    left:2.5% !important;
+
+    width:21vw !important;
+    height:14vw !important;
+  }
+
+
+  #catGardenScratcherZone{
+    right:0 !important;
+
+    width:27vw !important;
+    height:31vh !important;
+  }
+
+
+  #catGardenToyShelf{
+    right:30% !important;
+    bottom:6% !important;
+
+    gap:3px !important;
+    padding:4px 5px !important;
+  }
+
+
+  #catGardenToyShelf button{
+    width:35px !important;
+    height:35px !important;
+  }
+
+
+  #refugeGarden2FoodZone{
+    right:18% !important;
+    bottom:8% !important;
+
+    width:min(10vw,46px) !important;
+  }
+
+
+  .growthNook{
+    left:0 !important;
+    bottom:23% !important;
+
+    width:27% !important;
+    height:26% !important;
+  }
+
+
+  .growthPillow2{
+    left:21% !important;
+
+    width:min(12vw,61px) !important;
+  }
+
+
+  .growthToyBox{
+    left:54% !important;
+
+    width:min(15vw,74px) !important;
+    height:min(10vw,52px) !important;
+  }
+
+
+  .growthWater{
+    left:68% !important;
+
+    width:min(8.5vw,43px) !important;
+  }
+
+
+  .growthLantern{
+    left:29% !important;
+    top:31% !important;
+  }
+
+
+  .growthFavoriteMarie{
+    left:24% !important;
+  }
+
+  .growthFavoriteMewo{
+    left:49% !important;
+  }
+
+  .growthFavoriteTuluz{
+    left:76% !important;
+  }
+
+
+  .growthNoticeMarie{
+    left:21% !important;
+  }
+
+  .growthNoticeMewo{
+    left:46% !important;
+  }
+
+  .growthNoticeTuluz{
+    left:73% !important;
+  }
+
+
+  #catGarden.growth-night-scene
+  .refugeGrayCat{
+    left:25% !important;
+  }
+
+  #catGarden.growth-night-scene
+  #catGardenMewoSpot.show{
+    left:49% !important;
+  }
+
+  #catGarden.growth-night-scene
+  .refugeOrangeCat{
+    left:73% !important;
+  }
+}
+
+
+/* =========================================================
+   7. ULTRAWIDE — APROVECHAR MÁS EL ANCHO
+========================================================= */
+
+@media(min-width:1200px){
+
+  #catGardenBedZone{
+    left:6% !important;
+  }
+
+
+  #catGardenScratcherZone{
+    right:3% !important;
+
+    width:min(22vw,230px) !important;
+  }
+
+
+  #catGardenToyShelf{
+    right:31% !important;
+  }
+
+
+  #refugeGarden2FoodZone{
+    right:21% !important;
+  }
+
+
+  .growthNook{
+    left:2% !important;
+    width:22% !important;
+  }
+
+
+  .growthPillow2{
+    left:19% !important;
+  }
+
+
+  .growthToyBox{
+    left:56% !important;
+  }
+
+
+  .growthWater{
+    left:69% !important;
+  }
+}

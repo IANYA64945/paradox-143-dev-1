@@ -1,0 +1,52 @@
+PARADOX143 — ESTRUCTURA MODULAR
+
+Esta versión conserva el comportamiento de la versión estable, pero separa el código
+para que las futuras actualizaciones sean más fáciles de localizar y revertir.
+
+ARCHIVOS DEL SITIO
+------------------
+index.html          = estructura principal. Evitar tocarlo salvo que agreguemos un módulo nuevo.
+styles-base.css     = pantalla, loader, fullscreen y estilos generales.
+styles-intro.css    = carta inicial, transición de tulipanes, carta escondida y música.
+styles-game.css     = paneles y presentación básica del minijuego.
+styles-pixel.css    = estética pixel art, marcos, vidas y botones retro.
+
+core.js             = referencias, variables globales, calidad automática y utilidades.
+field.js            = cielo, tulipanes, pasto, horizonte, render e inercia del campo.
+intro.js            = carta inicial, música, transición y carta escondida.
+game.js             = minijuego, corazón, pétalos, vidas y arena pixelada.
+main.js             = arranque, controles del campo, resize y fullscreen.
+
+RECURSOS QUE YA DEBEN EXISTIR EN GITHUB
+---------------------------------------
+tulip_atlas.webp
+grass_night.webp
+pixel_frame.png
+pixel_hearts.png
+player_heart.png
+musica.mp3
+
+ORDEN DE LOS JS
+---------------
+No cambiar:
+core.js
+field.js
+intro.js
+game.js
+main.js
+
+PARA FUTUROS PARCHES
+--------------------
+- Cambiar el campo/horizonte: editar field.js.
+- Cambiar cartas, textos de introducción o música: editar intro.js / styles-intro.css.
+- Cambiar ataques o dificultad: editar game.js.
+- Cambiar apariencia pixel: editar styles-pixel.css.
+- Cambiar carga/fullscreen/arrastre: editar main.js.
+- Agregar una carta nueva: lo ideal será crear un archivo nuevo, por ejemplo carta-extra.js,
+  y añadir una sola línea <script src="carta-extra.js"></script> en index.html.
+
+REGLA DE SEGURIDAD
+------------------
+Antes de un parche grande, hacer un Commit en GitHub con un nombre claro como:
+"Version estable antes de carta 3".
+Así se puede volver atrás fácilmente.

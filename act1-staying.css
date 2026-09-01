@@ -1,0 +1,198 @@
+/* =========================================================
+   ACTO I · ETAPA 4 — LO QUE SIGNIFICA QUEDARSE
+========================================================= */
+
+#act1StayingCue{
+  position:fixed;
+  z-index:188;
+  min-width:48px;
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:8px 10px;
+  border:1px solid rgba(255,213,235,.33);
+  border-radius:999px;
+  background:rgba(8,9,16,.82);
+  box-shadow:0 8px 22px rgba(0,0,0,.34),0 0 20px rgba(255,181,219,.11);
+  color:#ffeaf5;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transform:translate(-50%,8px) scale(.9);
+  transition:opacity .3s,visibility .3s,transform .3s;
+  -webkit-tap-highlight-color:transparent;
+}
+
+#act1StayingCue.show{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translate(-50%,0) scale(1);
+  animation:act1StayCueFloat 2.8s ease-in-out infinite;
+}
+
+#act1StayingCueIcon{
+  color:#ffd2e8;
+  font:900 18px/1 monospace;
+  text-shadow:0 0 9px rgba(255,192,224,.52);
+}
+
+#act1StayingCueText{
+  max-width:185px;
+  color:rgba(255,239,247,.78);
+  font:700 8px/1.35 monospace;
+  text-align:left;
+}
+
+@keyframes act1StayCueFloat{
+  0%,100%{translate:0 0}
+  50%{translate:0 -3px}
+}
+
+#act1StayingCue[data-zone="garden"]{left:50%;bottom:17%}
+#act1StayingCue[data-zone="lookout"]{left:31%;bottom:31%}
+#act1StayingCue[data-zone="box"]{left:42%;bottom:12%}
+#act1StayingCue[data-zone="field"]{left:50%;top:62%;bottom:auto}
+#act1StayingCue[data-zone="cats"]{left:51%;bottom:21%}
+
+#act1StayingCue[data-zone="final"]{
+  left:50%;
+  top:50%;
+  bottom:auto;
+  padding:11px 15px;
+  border-color:rgba(255,211,234,.5);
+  background:rgba(12,9,17,.9);
+  box-shadow:0 0 28px rgba(255,177,218,.2),0 12px 30px rgba(0,0,0,.36);
+}
+
+/* Cinemáticas 80–89 */
+#act1Cinematic[data-theme="stay-home"]{
+  background:
+    radial-gradient(ellipse at 50% 70%,rgba(91,117,87,.24),transparent 38%),
+    linear-gradient(#02050c,#081322 60%,#07130d);
+}
+
+#act1Cinematic[data-theme="stay-moon"]{
+  background:
+    radial-gradient(circle at 72% 18%,rgba(245,231,194,.16),transparent 16%),
+    linear-gradient(#01040c,#081228 64%,#07100e);
+}
+
+#act1Cinematic[data-theme="stay-moon"] .act1CineAtmosphere::before{
+  content:"☾";
+  position:absolute;
+  right:19%;
+  top:10%;
+  color:rgba(255,237,202,.72);
+  font:900 48px/1 monospace;
+  text-shadow:0 0 25px rgba(255,233,191,.24);
+}
+
+#act1Cinematic[data-theme="stay-quiet"] .act1CineAtmosphere span{
+  opacity:.14;
+  animation-duration:8s;
+}
+
+#act1Cinematic[data-theme="stay-box"] #act1CineProp{
+  right:auto;
+  left:50%;
+  width:min(10vw,58px);
+  transform:translateX(-50%);
+}
+
+#act1Cinematic[data-theme="stay-tulip"] #act1CineCats{
+  display:none;
+}
+
+#act1Cinematic[data-theme="stay-tulip"] #act1CineVisual::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:0;
+  width:76px;
+  height:140px;
+  background:url("tulip_atlas.webp") left bottom/300% 100% no-repeat;
+  transform:translateX(-50%);
+  filter:brightness(1.08) saturate(1.12) drop-shadow(0 0 15px rgba(255,123,188,.36));
+  animation:act1StayTulip 3.2s ease-in-out infinite;
+}
+
+@keyframes act1StayTulip{
+  0%,100%{rotate:-1deg}
+  50%{rotate:1.5deg;translate:0 -3px}
+}
+
+#act1Cinematic[data-theme="stay-rain"]::before{
+  content:"";
+  position:absolute;
+  inset:-20%;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(
+      106deg,
+      transparent 0 18px,
+      rgba(186,215,255,.12) 19px 20px,
+      transparent 21px 36px
+    );
+  animation:act1StayRain 1.3s linear infinite;
+}
+
+@keyframes act1StayRain{
+  to{translate:-24px 40px}
+}
+
+#act1Cinematic[data-theme="stay-cats"] #act1CineCats{
+  gap:25px;
+}
+
+#act1Cinematic[data-theme="stay-choices"]{
+  background:
+    radial-gradient(circle at 24% 65%,rgba(255,144,199,.08),transparent 20%),
+    radial-gradient(circle at 72% 22%,rgba(255,228,164,.09),transparent 22%),
+    linear-gradient(#02040b,#081223 62%,#07110e);
+}
+
+#act1Cinematic[data-theme="stay-more"]{
+  background:
+    radial-gradient(ellipse at 50% 72%,rgba(59,56,82,.28),transparent 37%),
+    linear-gradient(#010309,#050c19 62%,#050a08);
+}
+
+#act1Cinematic[data-theme="stay-finale"]{
+  background:
+    radial-gradient(ellipse at 50% 68%,rgba(104,67,94,.24),transparent 40%),
+    radial-gradient(circle at 50% 22%,rgba(255,224,172,.08),transparent 18%),
+    linear-gradient(#02040a,#081120 60%,#08100d);
+}
+
+#act1Cinematic[data-theme="stay-finale"] #act1CineMark{
+  font-size:40px;
+  animation:act1StayFinalHeart 2.4s ease-in-out infinite;
+}
+
+@keyframes act1StayFinalHeart{
+  0%,100%{scale:.9;opacity:.72}
+  50%{scale:1.08;opacity:1}
+}
+
+@media(max-width:600px){
+  #act1StayingCue{min-height:43px;padding:7px 9px}
+  #act1StayingCueText{max-width:135px;font-size:7px}
+  #act1StayingCue[data-zone="lookout"]{left:29%;bottom:32%}
+  #act1StayingCue[data-zone="box"]{left:43%;bottom:14%}
+  #act1StayingCue[data-zone="field"]{top:60%}
+  #act1Cinematic[data-theme="stay-tulip"] #act1CineVisual::before{
+    width:62px;
+    height:118px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  #act1StayingCue,
+  #act1Cinematic[data-theme^="stay-"] *{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+  }
+}

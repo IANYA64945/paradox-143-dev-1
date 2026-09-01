@@ -1,0 +1,1752 @@
+
+/* =========================================================
+   UI OCULTA DURANTE LA CARTA / ANIMACIÓN INICIAL
+========================================================= */
+
+body.intro-active #catGardenPawBtn,
+body.intro-active #climateBtn,
+body.intro-active #climatePanel,
+body.intro-active #mewoHomeLayer{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+
+/* =========================================================
+   PARADOX143 — JARDÍN DE GATOS
+========================================================= */
+
+#catGardenPawBtn{
+  position:fixed;
+  right:max(12px,calc(env(safe-area-inset-right) + 10px));
+  bottom:max(72px,calc(env(safe-area-inset-bottom) + 68px));
+  z-index:48;
+  width:54px;height:54px;padding:0;border:0;background:transparent;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .25s,transform .25s,visibility .25s;
+  -webkit-tap-highlight-color:transparent;
+}
+#catGardenPawBtn.visible{opacity:.88;visibility:visible;pointer-events:auto}
+#catGardenPawBtn:active{transform:scale(.91)}
+#catGardenPawBtn img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.38))}
+
+#catGarden{
+  position:fixed;inset:0;z-index:90;display:none;overflow:hidden;
+  background:#07100d;color:#fff;font-family:monospace;
+}
+#catGarden.show{display:block}
+.catGardenBackdrop{
+  position:absolute;
+  inset:0;
+  background:url('cat_garden_clearing_bg.png') center/cover no-repeat;
+  transform:scale(1.008);
+  filter:saturate(1.02) brightness(.96);
+}
+.catGardenVignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 54%,transparent 20%,rgba(0,8,10,.12) 55%,rgba(0,0,0,.48) 100%)}
+
+#catGarden[data-weather="storm"] .catGardenBackdrop{filter:brightness(.72) saturate(.74) contrast(1.04)}
+#catGarden[data-weather="rain"] .catGardenBackdrop{filter:brightness(.82) saturate(.82)}
+#catGarden[data-weather="fog"] .catGardenBackdrop{filter:brightness(.84) saturate(.68) contrast(.92)}
+#catGarden[data-weather="snow"] .catGardenBackdrop{filter:brightness(.98) saturate(.72) hue-rotate(7deg)}
+#catGarden[data-weather="stars"] .catGardenBackdrop{filter:brightness(.98) saturate(1.02)}
+
+#catGardenBack{position:absolute;left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));z-index:6;width:55px;height:55px;padding:0;border:0;background:transparent}
+#catGardenBack img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45))}
+
+#catGardenWeatherNote{position:absolute;left:50%;top:max(12px,env(safe-area-inset-top));z-index:5;transform:translateX(-50%);max-width:min(64vw,430px);padding:7px 10px;border:1px solid rgba(255,228,188,.23);border-radius:8px;background:rgba(5,10,12,.58);backdrop-filter:blur(3px);font-size:10px;text-align:center;color:#f5e8d0}
+
+#catGardenMewoSpot{
+  position:absolute;
+  left:51%;
+  bottom:17%;
+  z-index:5;
+  width:min(7.7vw,77px);
+  transform:translateX(-50%);
+  opacity:0;
+  visibility:hidden;
+  transition:
+    left .55s ease,
+    bottom .55s ease,
+    width .55s ease,
+    opacity .3s,
+    visibility .3s;
+}
+#catGardenMewoSpot.show{opacity:1;visibility:visible}
+
+#catGardenMewoTouch{
+  display:block;
+  width:100%;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+#catGardenMewoTouch:active{transform:scale(.94)}
+
+#catGardenMewo{
+  display:block;
+  width:100%;
+  height:auto;
+  object-fit:contain;
+  filter:drop-shadow(0 4px 5px rgba(0,0,0,.38));
+  animation:gardenMewoBreathe 2.1s ease-in-out infinite;
+}
+
+/* Mewo usa la almohada cuando decide dormir. */
+#catGardenMewoSpot.using-pillow{
+  left:13.2%;
+  bottom:9.1%;
+  width:min(6.8vw,70px);
+}
+
+#catGardenMewoSpot.using-pillow #catGardenMewo{
+  animation:gardenMewoSleep 2.4s ease-in-out infinite;
+}
+
+@keyframes gardenMewoSleep{
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-1px) rotate(-2deg)}
+}
+
+/* Las emociones aparecen FUERA del cuerpo. */
+#catGardenMewoSpot::before{
+  position:absolute;
+  right:-14px;
+  top:-11px;
+  z-index:9;
+  color:#fff0f8;
+  font:900 12px/1 monospace;
+  text-shadow:0 0 8px rgba(255,197,226,.58);
+  pointer-events:none;
+}
+
+#catGardenMewoSpot[data-mood="sleep"]::before{content:"zZ";color:#e9edff}
+#catGardenMewoSpot[data-mood="love"]::before{content:"♡";color:#ffb9dc}
+#catGardenMewoSpot[data-mood="happy"]::before{content:"✦";color:#ffe49b}
+#catGardenMewoSpot[data-mood="play"]::before{content:"!!";color:#ffe49b}
+#catGardenMewoSpot[data-mood="eat"]::before{content:"♡";color:#ffd6b1}
+#catGardenMewoSpot[data-mood="confused"]::before{content:"?";color:#f1f1f1}
+
+#catGardenMewoMood{
+  position:absolute;
+  left:50%;
+  top:calc(100% + 5px);
+  width:max-content;
+  max-width:190px;
+  transform:translateX(-50%);
+  padding:4px 6px;
+  border-radius:6px;
+  background:rgba(3,6,9,.70);
+  font-size:7px;
+  line-height:1.25;
+  text-align:center;
+  color:#fff0f8;
+  white-space:normal;
+}
+@keyframes gardenMewoBreathe{50%{transform:translateY(-3px)}}
+
+
+#catGardenMewoProp{
+  position:absolute;
+  left:57%;
+  bottom:15%;
+  z-index:5;
+  width:min(7vw,64px);
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(8px) scale(.82);
+  transition:.2s;
+  pointer-events:none;
+}
+#catGardenMewoProp.show{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0) scale(1);
+}
+#catGardenMewoProp img{
+  display:block;
+  width:100%;
+  height:auto;
+  object-fit:contain;
+  filter:drop-shadow(0 4px 5px rgba(0,0,0,.35));
+}
+
+#catGardenCareActions{
+  position:absolute;
+  left:50%;
+  bottom:5.5%;
+  z-index:7;
+  display:flex;
+  gap:5px;
+  transform:translateX(-50%) translateY(8px);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:.22s;
+}
+#catGardenCareActions.show{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translateX(-50%) translateY(0);
+}
+#catGardenCareActions button{
+  padding:6px 8px;
+  border:1px solid rgba(244,191,221,.30);
+  border-radius:7px;
+  background:rgba(6,8,14,.73);
+  color:#ffe7f4;
+  font:700 7px/1 monospace;
+  box-shadow:0 4px 10px rgba(0,0,0,.22);
+  backdrop-filter:blur(3px);
+  -webkit-tap-highlight-color:transparent;
+}
+#catGardenCareActions button:active{
+  transform:scale(.94);
+  background:rgba(45,23,43,.82);
+}
+
+.catGardenBurst{
+  position:absolute;
+  left:50%;
+  top:20%;
+  z-index:8;
+  width:1px;
+  height:1px;
+  pointer-events:none;
+}
+.catGardenBurst span{
+  position:absolute;
+  left:0;
+  top:0;
+  color:#ffb9dc;
+  font:700 13px/1 monospace;
+  text-shadow:0 0 8px rgba(255,150,210,.65);
+  animation:catGardenBurstFly 1.05s ease-out forwards;
+  animation-delay:calc(var(--i) * 45ms);
+}
+.catGardenBurst.play span{color:#ffe391}
+.catGardenBurst.feed span{color:#ffd8b4}
+
+@keyframes catGardenBurstFly{
+  0%{
+    opacity:0;
+    transform:translate(0,4px) scale(.65);
+  }
+  15%{opacity:1}
+  100%{
+    opacity:0;
+    transform:
+      translate(
+        calc((var(--i) - 1.5) * 16px),
+        calc(-26px - var(--i) * 5px)
+      )
+      scale(1.1);
+  }
+}
+
+#catGardenMewoAway{position:absolute;left:50%;bottom:24%;z-index:4;transform:translateX(-50%);display:none;width:min(74vw,300px);padding:12px;border:1px solid rgba(238,184,214,.28);border-radius:10px;background:rgba(5,8,12,.65);text-align:center;color:#eadde7;font-size:9px}
+#catGardenMewoAway.show{display:block}
+#catGardenMewoAway span{font-size:20px}
+#catGardenMewoAway p{margin:5px 0 0}
+
+#catGardenBedZone{
+  position:absolute;
+  left:7%;
+  bottom:6%;
+  width:min(15vw,145px);
+  height:min(10vw,90px);
+  z-index:3;
+}
+.catGardenBedShadow,.catGardenBedBase,#catGardenPillow{position:absolute;left:0;bottom:0;width:100%;height:100%;object-fit:contain}
+.catGardenBedShadow{opacity:.45;transform:translateY(8px) scale(.94)}
+.catGardenBedBase{opacity:.8}
+#catGardenPillow{opacity:0;transform:translateY(-5px) scale(.86);transition:.3s}
+#catGardenPillow.show{opacity:1}
+
+#catGardenScratcherZone{position:absolute;right:4%;bottom:5%;width:min(34vw,260px);height:min(46vh,360px);z-index:3;display:flex;align-items:flex-end;justify-content:center}
+#catGardenScratcher{max-width:100%;max-height:100%;object-fit:contain;opacity:0;transition:.3s;filter:drop-shadow(0 8px 9px rgba(0,0,0,.38))}
+#catGardenScratcher.show{opacity:1}
+
+#catGardenActions{position:absolute;right:max(12px,env(safe-area-inset-right));top:max(78px,calc(env(safe-area-inset-top) + 70px));z-index:7;display:flex;flex-direction:column;gap:6px}
+#catGardenActions button{padding:8px 10px;border:1px solid rgba(242,194,222,.32);border-radius:7px;background:rgba(7,9,16,.72);color:#ffe7f4;font:700 9px/1 monospace;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+
+#mewoFollowInvitation{position:fixed;inset:0;z-index:105;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(2,4,9,.72);backdrop-filter:blur(4px);transition:opacity .3s}
+#mewoFollowInvitation.leaving{opacity:0;pointer-events:none}
+.mewoFollowCard{width:min(88vw,390px);padding:18px;border:2px solid rgba(236,165,203,.55);border-radius:12px;background:rgba(8,9,17,.97);text-align:center;color:#fff;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.mewoFollowCard img{width:94px;height:94px;object-fit:contain;margin-bottom:6px}
+.mewoFollowCard strong,.mewoFollowCard small{display:block}.mewoFollowCard small{margin:8px 0 14px;color:#cdbdca;line-height:1.4}.mewoFollowCard button{padding:10px 13px;border:1px solid #efa8cf;border-radius:7px;background:#1a111d;color:#ffe8f5;font:700 10px monospace}
+
+#mewoFollowRunner{position:fixed;left:12%;bottom:20%;z-index:106;width:min(22vw,130px);height:auto;pointer-events:none;opacity:0;transition:transform 2.2s cubic-bezier(.25,.8,.25,1),opacity .2s}
+#mewoFollowRunner.run{opacity:1;transform:translateX(74vw) translateY(-5vh)}
+
+body.cat-garden-open #app,
+body.cat-garden-open #fsBtn,
+body.cat-garden-open #musicBtn,
+body.cat-garden-open #climateBtn,
+body.cat-garden-open #climatePanel,
+body.cat-garden-open #moonHotspot,
+body.cat-garden-open #moonWhisper,
+body.cat-garden-open #moonLetterDrop,
+body.cat-garden-open #mewoHomeLayer{
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+
+@media(max-width:600px){
+  #catGardenWeatherNote{
+    top:max(66px,calc(env(safe-area-inset-top) + 58px));
+    max-width:68vw;
+  }
+
+  #catGardenMewoSpot{
+    left:52%;
+    bottom:24%;
+    width:min(18vw,77px);
+  }
+
+  #catGardenMewoSpot.using-pillow{
+    left:16%;
+    bottom:11%;
+    width:min(15.6vw,66px);
+  }
+
+  #catGardenMewoMood{
+    max-width:155px;
+    font-size:6.5px;
+  }
+
+  #catGardenMewoProp{
+    left:62%;
+    bottom:22%;
+    width:min(15vw,56px);
+  }
+
+  #catGardenBedZone{
+    left:2.5%;
+    bottom:5%;
+    width:23vw;
+    height:15vw;
+  }
+
+  #catGardenCareActions{
+    left:50%;
+    bottom:max(4%,calc(env(safe-area-inset-bottom) + 5px));
+    width:min(70vw,330px);
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+
+  #catGardenCareActions button{
+    min-width:66px;
+    padding:6px 7px;
+    font-size:6.5px;
+  }
+
+  #catGardenScratcherZone{
+    right:1%;
+    bottom:4%;
+    width:31vw;
+    height:34vh;
+  }
+
+  #catGardenActions{
+    top:auto;
+    bottom:max(12px,calc(env(safe-area-inset-bottom) + 8px));
+    right:8px;
+  }
+
+  #catGardenActions button{
+    font-size:8px;
+    padding:7px;
+  }
+}
+
+#mewoFollowRunner.step{
+  margin-bottom:2px;
+  transform-origin:50% 100%;
+}
+
+
+/* =========================================================
+   PULIDO FINAL + JUGUETES + RASCADOR INTERACTIVO
+========================================================= */
+
+#catGardenWeatherNote.special{
+  border-color:rgba(255,205,229,.45);
+  background:rgba(25,12,28,.76);
+  color:#ffe8f5;
+  box-shadow:
+    0 0 18px rgba(235,150,204,.12);
+}
+
+/* Sombras suaves para integrar muebles con el suelo. */
+#catGardenBedZone::after,
+#catGardenScratcherZone::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:0;
+  z-index:-1;
+  width:86%;
+  height:18%;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(0,0,0,.32),
+      transparent 70%
+    );
+  filter:blur(4px);
+  pointer-events:none;
+}
+
+#catGardenBedZone{
+  filter:
+    drop-shadow(
+      0 5px 7px
+      rgba(0,0,0,.18)
+    );
+}
+
+#catGardenPillow.show{
+  filter:
+    drop-shadow(
+      0 5px 6px
+      rgba(0,0,0,.22)
+    )
+    saturate(.96);
+}
+
+/*
+  Mewo puede desplazarse por el claro.
+  Se mantiene exactamente el mismo sprite.
+*/
+#catGardenMewoSpot.using-scratcher{
+  left:78%;
+  bottom:13%;
+  width:min(7.2vw,72px);
+}
+
+#catGardenMewoSpot.using-toy{
+  left:58%;
+  bottom:15%;
+  width:min(7.7vw,77px);
+}
+
+#catGardenMewoSpot.weather-shelter{
+  left:27%;
+  bottom:15%;
+}
+
+#catGardenMewoSpot.weather-watch{
+  left:45%;
+  bottom:19%;
+}
+
+/* El objeto de juego acompaña a Mewo. */
+#catGardenMewoSpot.using-toy ~ #catGardenMewoProp{
+  left:64%;
+  bottom:13%;
+}
+
+#catGardenMewoSpot.using-scratcher ~ #catGardenMewoProp{
+  left:73%;
+  bottom:16%;
+}
+
+/* ---------------------------------------------------------
+   RASCADOR
+--------------------------------------------------------- */
+
+#catGardenScratcherZone{
+  right:4%;
+  bottom:7%;
+  width:min(28vw,235px);
+  height:min(42vh,325px);
+  z-index:3;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+
+#catGardenScratcherUse{
+  position:relative;
+  width:100%;
+  height:100%;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+#catGardenScratcherUse:disabled{
+  cursor:default;
+}
+
+#catGardenScratcher{
+  position:absolute;
+  left:50%;
+  bottom:0;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  opacity:0;
+  transform:
+    translateX(-50%)
+    scale(.96);
+  transform-origin:50% 100%;
+  transition:
+    opacity .3s,
+    transform .25s;
+  filter:
+    drop-shadow(
+      0 8px 9px
+      rgba(0,0,0,.34)
+    )
+    saturate(.96);
+}
+
+#catGardenScratcher.show{
+  opacity:1;
+}
+
+#catGardenScratcherZone.complete
+#catGardenScratcherUse:hover
+#catGardenScratcher{
+  transform:
+    translateX(-50%)
+    scale(1);
+}
+
+#catGardenScratcherZone.complete
+#catGardenScratcherUse:active
+#catGardenScratcher{
+  transform:
+    translateX(-50%)
+    scale(.97);
+}
+
+#catGardenScratcherToy{
+  position:absolute;
+  right:20%;
+  top:28%;
+  width:34px;
+  height:52px;
+  object-fit:contain;
+  opacity:0;
+  transform-origin:50% 0;
+  pointer-events:none;
+}
+
+#catGardenScratcherToy.show{
+  opacity:1;
+  animation:
+    catGardenScratchToy
+    .52s
+    ease-in-out
+    infinite alternate;
+}
+
+@keyframes catGardenScratchToy{
+  from{
+    transform:
+      rotate(-10deg);
+  }
+  to{
+    transform:
+      rotate(13deg);
+  }
+}
+
+#catGardenScratcherHint{
+  position:absolute;
+  left:50%;
+  bottom:-3px;
+  width:max-content;
+  max-width:150px;
+  transform:translateX(-50%);
+  padding:3px 5px;
+  border-radius:5px;
+  background:rgba(4,7,12,.56);
+  color:rgba(255,239,248,.76);
+  font:700 6px/1.2 monospace;
+  text-align:center;
+  pointer-events:none;
+}
+
+/* ---------------------------------------------------------
+   RINCÓN DE JUGUETES
+--------------------------------------------------------- */
+
+#catGardenToyShelf{
+  position:absolute;
+  right:25%;
+  bottom:7%;
+  z-index:6;
+
+  display:flex;
+  align-items:flex-end;
+  gap:6px;
+
+  padding:5px 7px;
+
+  border:
+    1px solid
+    rgba(
+      240,
+      185,
+      218,
+      .16
+    );
+
+  border-radius:12px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(21,19,31,.42),
+      rgba(5,8,13,.55)
+    );
+
+  box-shadow:
+    0 6px 16px
+    rgba(0,0,0,.18);
+
+  opacity:0;
+  visibility:hidden;
+  transform:
+    translateY(8px)
+    scale(.96);
+
+  pointer-events:none;
+
+  transition:.25s;
+}
+
+#catGardenToyShelf.show{
+  opacity:1;
+  visibility:visible;
+  transform:
+    translateY(0)
+    scale(1);
+
+  pointer-events:auto;
+}
+
+#catGardenToyShelf.disabled{
+  opacity:.42;
+  pointer-events:none;
+}
+
+#catGardenToyShelf button{
+  position:relative;
+  width:43px;
+  height:43px;
+  padding:3px;
+
+  border:
+    1px solid
+    transparent;
+
+  border-radius:50%;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      .025
+    );
+
+  -webkit-tap-highlight-color:transparent;
+}
+
+#catGardenToyShelf button.active{
+  border-color:
+    rgba(
+      248,
+      189,
+      221,
+      .48
+    );
+
+  background:
+    rgba(
+      225,
+      149,
+      195,
+      .09
+    );
+
+  box-shadow:
+    0 0 14px
+    rgba(
+      239,
+      157,
+      204,
+      .10
+    );
+}
+
+#catGardenToyShelf img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  filter:
+    drop-shadow(
+      0 3px 4px
+      rgba(0,0,0,.28)
+    );
+}
+
+#catGardenToyShelf button:active{
+  transform:scale(.9);
+}
+
+/* ---------------------------------------------------------
+   CLIMA: se siente afuera, no invade el refugio
+--------------------------------------------------------- */
+
+#catGarden::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  opacity:0;
+}
+
+#catGarden[data-weather="storm"]::after{
+  opacity:1;
+  background:
+    radial-gradient(
+      circle at 78% 8%,
+      rgba(205,218,255,.10),
+      transparent 30%
+    );
+  animation:
+    catGardenDistantLightning
+    6.8s
+    infinite;
+}
+
+#catGarden[data-weather="rain"]::after{
+  opacity:1;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(115,148,181,.06),
+      transparent 45%
+    );
+}
+
+#catGarden[data-weather="snow"]::after{
+  opacity:1;
+  background:
+    radial-gradient(
+      circle at 50% 4%,
+      rgba(222,235,255,.08),
+      transparent 45%
+    );
+}
+
+#catGarden[data-weather="stars"]::after{
+  opacity:1;
+  background:
+    radial-gradient(
+      circle at 56% 8%,
+      rgba(196,174,255,.07),
+      transparent 42%
+    );
+}
+
+@keyframes catGardenDistantLightning{
+  0%,71%,73%,100%{
+    opacity:0;
+  }
+  72%{
+    opacity:.9;
+  }
+}
+
+/* ---------------------------------------------------------
+   BOTONES DEL JARDÍN MÁS INTEGRADOS
+--------------------------------------------------------- */
+
+#catGardenActions button,
+#catGardenCareActions button{
+  border-color:
+    rgba(
+      241,
+      190,
+      220,
+      .24
+    );
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(28,22,38,.69),
+      rgba(7,9,16,.72)
+    );
+
+  box-shadow:
+    0 4px 12px
+    rgba(0,0,0,.18),
+    inset 0 1px
+    rgba(255,255,255,.025);
+}
+
+#catGardenActions button:active,
+#catGardenCareActions button:active{
+  transform:scale(.95);
+}
+
+/* Móvil */
+@media(max-width:600px){
+
+  #catGardenMewoSpot.using-scratcher{
+    left:76%;
+    bottom:17%;
+    width:min(17vw,72px);
+  }
+
+  #catGardenMewoSpot.using-toy{
+    left:55%;
+    bottom:21%;
+    width:min(18vw,77px);
+  }
+
+  #catGardenMewoSpot.weather-shelter{
+    left:29%;
+    bottom:22%;
+  }
+
+  #catGardenMewoSpot.weather-watch{
+    left:44%;
+    bottom:26%;
+  }
+
+  #catGardenScratcherZone{
+    right:1%;
+    bottom:7%;
+    width:29vw;
+    height:31vh;
+  }
+
+  #catGardenScratcherHint{
+    max-width:100px;
+    font-size:5.5px;
+  }
+
+  #catGardenToyShelf{
+    right:24%;
+    bottom:8%;
+    gap:3px;
+    padding:4px;
+  }
+
+  #catGardenToyShelf button{
+    width:34px;
+    height:34px;
+  }
+}
+
+
+/* =========================================================
+   CLIMA EN LOS BORDES DEL REFUGIO
+   El centro del Jardín sigue protegido.
+   Los efectos solo "entran" por los bordes.
+========================================================= */
+
+#catGarden::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  opacity:0;
+
+  /*
+    La máscara deja visibles principalmente los bordes
+    y mantiene el centro del refugio despejado.
+  */
+  -webkit-mask-image:
+    linear-gradient(
+      90deg,
+      #000 0%,
+      #000 13%,
+      transparent 31%,
+      transparent 69%,
+      #000 87%,
+      #000 100%
+    );
+
+  mask-image:
+    linear-gradient(
+      90deg,
+      #000 0%,
+      #000 13%,
+      transparent 31%,
+      transparent 69%,
+      #000 87%,
+      #000 100%
+    );
+}
+
+
+/* ---------------------------------------------------------
+   LLUVIA
+   Gotas suaves solo en izquierda y derecha.
+--------------------------------------------------------- */
+
+#catGarden[data-weather="rain"]::before{
+  opacity:.46;
+
+  background-image:
+    repeating-linear-gradient(
+      112deg,
+      transparent 0 15px,
+      rgba(180,210,235,.34) 16px 17px,
+      transparent 18px 29px
+    );
+
+  background-size:
+    90px 130px;
+
+  animation:
+    catGardenEdgeRain
+    1.05s
+    linear
+    infinite;
+}
+
+
+/* ---------------------------------------------------------
+   TORMENTA
+   Más lluvia en bordes, pero el interior sigue protegido.
+--------------------------------------------------------- */
+
+#catGarden[data-weather="storm"]::before{
+  opacity:.62;
+
+  background-image:
+    repeating-linear-gradient(
+      110deg,
+      transparent 0 10px,
+      rgba(200,222,246,.46) 11px 13px,
+      transparent 14px 24px
+    );
+
+  background-size:
+    72px 112px;
+
+  animation:
+    catGardenEdgeStorm
+    .72s
+    linear
+    infinite;
+}
+
+
+/* ---------------------------------------------------------
+   NIEVE
+   Copos pequeños que entran apenas por los extremos.
+--------------------------------------------------------- */
+
+#catGarden[data-weather="snow"]::before{
+  opacity:.72;
+
+  background-image:
+    radial-gradient(
+      circle,
+      rgba(244,249,255,.92) 0 1.2px,
+      transparent 1.8px
+    ),
+    radial-gradient(
+      circle,
+      rgba(220,232,255,.72) 0 1px,
+      transparent 1.7px
+    ),
+    radial-gradient(
+      circle,
+      rgba(255,255,255,.60) 0 1.5px,
+      transparent 2.1px
+    );
+
+  background-size:
+    47px 63px,
+    71px 79px,
+    96px 112px;
+
+  background-position:
+    0 0,
+    22px -20px,
+    -18px -44px;
+
+  animation:
+    catGardenEdgeSnow
+    7.2s
+    linear
+    infinite;
+}
+
+
+/* ---------------------------------------------------------
+   NEBLINA
+   Un poco de bruma se desliza por ambos lados.
+--------------------------------------------------------- */
+
+#catGarden[data-weather="fog"]::before{
+  opacity:.50;
+
+  background:
+    radial-gradient(
+      ellipse at 0% 48%,
+      rgba(191,205,219,.20),
+      transparent 43%
+    ),
+    radial-gradient(
+      ellipse at 100% 55%,
+      rgba(185,200,218,.18),
+      transparent 44%
+    );
+
+  animation:
+    catGardenEdgeFog
+    6.5s
+    ease-in-out
+    infinite alternate;
+}
+
+
+/* ---------------------------------------------------------
+   LLUVIA DE ESTRELLAS
+   Destellos pequeños aparecen cerca de los árboles laterales.
+--------------------------------------------------------- */
+
+#catGarden[data-weather="stars"]::before{
+  opacity:.74;
+
+  background-image:
+    radial-gradient(
+      circle,
+      rgba(255,241,187,.95) 0 1px,
+      rgba(241,209,255,.35) 1.4px,
+      transparent 2.4px
+    ),
+    radial-gradient(
+      circle,
+      rgba(218,204,255,.80) 0 1px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle,
+      rgba(255,222,242,.72) 0 1.2px,
+      transparent 2.3px
+    );
+
+  background-size:
+    88px 92px,
+    121px 116px,
+    149px 136px;
+
+  background-position:
+    12px 0,
+    -30px 35px,
+    46px 18px;
+
+  animation:
+    catGardenEdgeStars
+    4.8s
+    ease-in-out
+    infinite;
+}
+
+
+/* ---------------------------------------------------------
+   ANIMACIONES
+--------------------------------------------------------- */
+
+@keyframes catGardenEdgeRain{
+  from{
+    background-position:
+      0 -130px;
+  }
+
+  to{
+    background-position:
+      -24px 130px;
+  }
+}
+
+
+@keyframes catGardenEdgeStorm{
+  from{
+    background-position:
+      0 -112px;
+  }
+
+  to{
+    background-position:
+      -36px 112px;
+  }
+}
+
+
+@keyframes catGardenEdgeSnow{
+  from{
+    background-position:
+      0 -80px,
+      22px -120px,
+      -18px -170px;
+  }
+
+  to{
+    background-position:
+      13px 190px,
+      -8px 230px,
+      16px 260px;
+  }
+}
+
+
+@keyframes catGardenEdgeFog{
+  from{
+    transform:
+      translateX(-1.5%);
+    filter:blur(1px);
+  }
+
+  to{
+    transform:
+      translateX(1.5%);
+    filter:blur(4px);
+  }
+}
+
+
+@keyframes catGardenEdgeStars{
+  0%,
+  100%{
+    opacity:.35;
+    filter:
+      brightness(.95);
+  }
+
+  50%{
+    opacity:.82;
+    filter:
+      brightness(1.25);
+  }
+}
+
+
+/* ---------------------------------------------------------
+   MÓVIL
+   Los efectos son todavía más discretos.
+--------------------------------------------------------- */
+
+@media(max-width:600px){
+
+  #catGarden::before{
+    -webkit-mask-image:
+      linear-gradient(
+        90deg,
+        #000 0%,
+        #000 17%,
+        transparent 34%,
+        transparent 66%,
+        #000 83%,
+        #000 100%
+      );
+
+    mask-image:
+      linear-gradient(
+        90deg,
+        #000 0%,
+        #000 17%,
+        transparent 34%,
+        transparent 66%,
+        #000 83%,
+        #000 100%
+      );
+  }
+
+  #catGarden[data-weather="rain"]::before{
+    opacity:.37;
+  }
+
+  #catGarden[data-weather="storm"]::before{
+    opacity:.50;
+  }
+
+  #catGarden[data-weather="snow"]::before{
+    opacity:.58;
+  }
+
+  #catGarden[data-weather="fog"]::before{
+    opacity:.40;
+  }
+
+  #catGarden[data-weather="stars"]::before{
+    opacity:.62;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   RESPETO A REDUCIR MOVIMIENTO
+--------------------------------------------------------- */
+
+@media(prefers-reduced-motion:reduce){
+
+  #catGarden::before{
+    animation:none !important;
+  }
+}
+
+
+/* =========================================================
+   CARTITAS DEL JARDÍN
+========================================================= */
+
+#catGardenLetterDrop{
+  position:absolute;
+  left:22%;
+  top:31%;
+  z-index:12;
+  width:62px;
+  height:54px;
+  padding:0;
+  border:0;
+  background:transparent;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transform:
+    translateY(12px)
+    scale(.76)
+    rotate(-5deg);
+  filter:
+    drop-shadow(
+      0 6px 6px
+      rgba(0,0,0,.34)
+    );
+  transition:
+    opacity .28s,
+    visibility .28s,
+    transform .28s;
+  -webkit-tap-highlight-color:transparent;
+}
+
+#catGardenLetterDrop.show{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:
+    translateY(0)
+    scale(1)
+    rotate(-5deg);
+  animation:
+    catGardenLetterFloat
+    2.6s
+    ease-in-out
+    infinite;
+}
+
+.catGardenMiniEnvelope{
+  position:absolute;
+  left:7px;
+  top:8px;
+  width:47px;
+  height:32px;
+  border:
+    2px solid
+    rgba(95,55,84,.78);
+  border-radius:4px;
+  background:
+    linear-gradient(
+      145deg,
+      #f3cfdf,
+      #e7afcf 58%,
+      #d990bb
+    );
+  box-shadow:
+    inset 0 1px
+    rgba(255,255,255,.42);
+}
+
+.catGardenMiniEnvelope::before,
+.catGardenMiniEnvelope::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:3px;
+  width:27px;
+  height:27px;
+  border-left:
+    2px solid
+    rgba(95,55,84,.47);
+  border-bottom:
+    2px solid
+    rgba(95,55,84,.47);
+  transform-origin:center;
+}
+
+.catGardenMiniEnvelope::before{
+  transform:
+    translateX(-50%)
+    rotate(-45deg);
+}
+
+.catGardenMiniEnvelope::after{
+  top:-12px;
+  width:23px;
+  height:23px;
+  background:
+    rgba(245,217,232,.93);
+  transform:
+    translateX(-50%)
+    rotate(-45deg);
+}
+
+.catGardenMiniEnvelope > span{
+  position:absolute;
+  left:50%;
+  top:50%;
+  z-index:3;
+  transform:
+    translate(-50%,-30%);
+  color:#844867;
+  font:
+    900 13px/1
+    monospace;
+}
+
+.catGardenLetterSpark{
+  position:absolute;
+  right:1px;
+  top:0;
+  color:#ffe3a4;
+  font:
+    900 13px/1
+    monospace;
+  text-shadow:
+    0 0 8px
+    rgba(255,223,157,.78);
+  animation:
+    catGardenLetterSpark
+    1.35s
+    ease-in-out
+    infinite;
+}
+
+#catGardenLetterCount{
+  position:absolute;
+  right:-3px;
+  bottom:0;
+  min-width:18px;
+  height:18px;
+  padding:3px;
+  border:
+    1px solid
+    rgba(255,208,233,.35);
+  border-radius:10px;
+  background:
+    rgba(11,8,16,.86);
+  color:#ffd9ec;
+  font:
+    800 7px/10px
+    monospace;
+  text-align:center;
+}
+
+#catGardenLetterCount:empty{
+  display:none;
+}
+
+#catGardenLetterDrop:active{
+  transform:
+    translateY(2px)
+    scale(.92)
+    rotate(-5deg);
+}
+
+@keyframes catGardenLetterFloat{
+  0%,100%{ margin-top:0; }
+  50%{ margin-top:-7px; }
+}
+
+@keyframes catGardenLetterSpark{
+  0%,100%{
+    opacity:.40;
+    transform:scale(.76);
+  }
+  50%{
+    opacity:1;
+    transform:scale(1.18);
+  }
+}
+
+@media(max-width:600px){
+  #catGardenLetterDrop{
+    left:19%;
+    top:34%;
+    width:54px;
+    height:49px;
+    transform:
+      translateY(10px)
+      scale(.72)
+      rotate(-5deg);
+  }
+
+  #catGardenLetterDrop.show{
+    transform:
+      translateY(0)
+      scale(.91)
+      rotate(-5deg);
+  }
+}
+
+
+/* =========================================================
+   FAMILIA DEL REFUGIO — GATITA GRIS + GATITO NARANJA
+========================================================= */
+
+#refugeFamilyCats{
+  position:absolute;
+  inset:0;
+  z-index:6;
+  pointer-events:none;
+}
+
+
+/*
+  Los dos gatos existen SOLO dentro de #catGarden.
+  Por eso nunca pueden aparecer en el campo.
+*/
+.refugeFamilyCat{
+  position:absolute;
+
+  display:block;
+
+  width:min(7.4vw,76px);
+  aspect-ratio:1/1;
+
+  padding:0;
+  border:0;
+
+  background:transparent;
+
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+
+  transform:
+    translateY(8px)
+    scale(.92);
+
+  transition:
+    left .45s ease,
+    bottom .45s ease,
+    opacity .35s,
+    visibility .35s,
+    transform .35s;
+
+  -webkit-tap-highlight-color:transparent;
+}
+
+
+.refugeFamilyCat.arrived{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+
+  transform:
+    translateY(0)
+    scale(1);
+}
+
+
+.refugeFamilyCat img{
+  position:absolute;
+  inset:0;
+
+  display:block;
+
+  width:100%;
+  height:100%;
+
+  object-fit:contain;
+
+  pointer-events:none;
+
+  image-rendering:auto;
+
+  filter:
+    drop-shadow(
+      0 4px 5px
+      rgba(0,0,0,.35)
+    );
+}
+
+
+/* Gatita gris y blanca */
+.refugeGrayCat{
+  left:31%;
+  bottom:15%;
+}
+
+
+/* Gatito naranja */
+.refugeOrangeCat{
+  left:65%;
+  bottom:15%;
+}
+
+
+/*
+  Cuando ya están los dos,
+  abrimos un poquito el espacio entre ellos.
+*/
+#refugeFamilyCats.both-arrived
+.refugeGrayCat{
+  left:29%;
+}
+
+
+#refugeFamilyCats.both-arrived
+.refugeOrangeCat{
+  left:68%;
+}
+
+
+.refugeFamilyCat:active{
+  transform:
+    translateY(1px)
+    scale(.94);
+}
+
+
+.refugeFamilyCat.arrival{
+  animation:
+    refugeCatArrival
+    1.55s
+    ease
+    both;
+}
+
+
+@keyframes refugeCatArrival{
+
+  0%{
+    opacity:0;
+    transform:
+      translateY(12px)
+      scale(.72);
+  }
+
+  42%{
+    opacity:1;
+    transform:
+      translateY(-4px)
+      scale(1.06);
+  }
+
+  72%{
+    transform:
+      translateY(1px)
+      scale(.98);
+  }
+
+  100%{
+    opacity:1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+
+/* Símbolo de la emoción, siempre externo al cuerpo. */
+.refugeFamilyMood{
+  position:absolute;
+  right:-8px;
+  top:-6px;
+  z-index:3;
+
+  min-width:18px;
+
+  color:#fff0f7;
+
+  font:
+    900 12px/1
+    monospace;
+
+  text-align:center;
+
+  text-shadow:
+    0 0 8px
+    rgba(
+      255,
+      184,
+      218,
+      .58
+    );
+
+  pointer-events:none;
+}
+
+
+/* Corazoncito/estrella al tocarlos o llegar. */
+.refugeArrivalBurst{
+  position:absolute;
+
+  left:50%;
+  top:4%;
+
+  z-index:5;
+
+  color:#ffb7d8;
+
+  font:
+    900 17px/1
+    monospace;
+
+  text-shadow:
+    0 0 9px
+    rgba(
+      255,
+      156,
+      205,
+      .75
+    );
+
+  pointer-events:none;
+
+  animation:
+    refugeArrivalBurst
+    1.65s
+    ease-out
+    forwards;
+}
+
+
+@keyframes refugeArrivalBurst{
+
+  0%{
+    opacity:0;
+    transform:
+      translate(-50%,7px)
+      scale(.72);
+  }
+
+  18%{
+    opacity:1;
+  }
+
+  100%{
+    opacity:0;
+
+    transform:
+      translate(-50%,-31px)
+      scale(1.25);
+  }
+}
+
+
+/*
+  Los sprites tienen el mismo lienzo y tamaño CSS.
+  Así no vuelven a aparecer saltos gigantes de escala.
+*/
+.refugeGrayCat img,
+.refugeOrangeCat img{
+  max-width:100%;
+  max-height:100%;
+}
+
+
+/* ---------------------------------------------------------
+   MÓVIL / VERTICAL
+--------------------------------------------------------- */
+
+@media(max-width:600px){
+
+  .refugeFamilyCat{
+    width:min(17vw,74px);
+  }
+
+
+  .refugeGrayCat{
+    left:28%;
+    bottom:21%;
+  }
+
+
+  .refugeOrangeCat{
+    left:67%;
+    bottom:21%;
+  }
+
+
+  #refugeFamilyCats.both-arrived
+  .refugeGrayCat{
+    left:25%;
+  }
+
+
+  #refugeFamilyCats.both-arrived
+  .refugeOrangeCat{
+    left:70%;
+  }
+
+
+  .refugeFamilyMood{
+    right:-5px;
+    top:-4px;
+
+    font-size:10px;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   PANTALLAS MUY BAJAS / HORIZONTAL
+--------------------------------------------------------- */
+
+@media(max-height:430px){
+
+  .refugeFamilyCat{
+    width:min(8.5vw,68px);
+  }
+
+
+  .refugeGrayCat{
+    bottom:14%;
+  }
+
+
+  .refugeOrangeCat{
+    bottom:14%;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   REDUCIR MOVIMIENTO
+--------------------------------------------------------- */
+
+@media(prefers-reduced-motion:reduce){
+
+  .refugeFamilyCat,
+  .refugeArrivalBurst{
+    animation:none !important;
+    transition:none !important;
+  }
+}

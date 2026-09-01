@@ -1,0 +1,214 @@
+/* =========================================================
+   PARADOX143 — CINEMÁTICAS DEL ACTO I
+========================================================= */
+
+#act1Cinematic{
+  position:fixed;
+  inset:0;
+  z-index:220;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 64%,rgba(66,58,91,.38),transparent 34%),
+    linear-gradient(#02040b,#071121 62%,#07100d);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .72s ease,visibility .72s;
+  font-family:monospace;
+}
+
+#act1Cinematic.show{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+
+.act1CineAtmosphere{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+
+.act1CineAtmosphere span{
+  position:absolute;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:#ffe49a;
+  box-shadow:0 0 9px #ffe49a,0 0 22px rgba(255,219,135,.42);
+  opacity:.42;
+  animation:act1CineDrift 5s ease-in-out infinite alternate;
+}
+.act1CineAtmosphere span:nth-child(1){left:14%;top:25%;animation-delay:-1s}
+.act1CineAtmosphere span:nth-child(2){left:28%;top:67%;animation-delay:-3s}
+.act1CineAtmosphere span:nth-child(3){left:48%;top:18%;animation-delay:-2s}
+.act1CineAtmosphere span:nth-child(4){right:30%;top:42%;animation-delay:-4s}
+.act1CineAtmosphere span:nth-child(5){right:13%;top:24%;animation-delay:-.5s}
+.act1CineAtmosphere span:nth-child(6){right:21%;bottom:18%;animation-delay:-2.5s}
+
+@keyframes act1CineDrift{
+  from{translate:-6px 5px;opacity:.25;scale:.75}
+  to{translate:8px -10px;opacity:.82;scale:1.15}
+}
+
+.act1CineStage{
+  position:relative;
+  width:min(88vw,620px);
+  min-height:330px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+#act1CineVisual{
+  position:relative;
+  width:min(70vw,430px);
+  height:155px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  margin-bottom:8px;
+}
+
+#act1CineCats{
+  position:relative;
+  z-index:3;
+  height:100%;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  gap:12px;
+}
+
+#act1CineCats img{
+  width:min(16vw,88px);
+  max-height:110px;
+  object-fit:contain;
+  image-rendering:pixelated;
+  filter:drop-shadow(0 7px 10px rgba(0,0,0,.4));
+  animation:act1CineCatArrive 1.25s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay:calc(var(--i) * .16s);
+}
+
+@keyframes act1CineCatArrive{
+  from{opacity:0;translate:18px 4px;scale:.82}
+  to{opacity:1;translate:0 0;scale:1}
+}
+
+#act1CineProp{
+  position:absolute;
+  right:20%;
+  bottom:0;
+  z-index:4;
+  width:min(10vw,66px);
+  max-height:70px;
+  object-fit:contain;
+  opacity:0;
+  filter:drop-shadow(0 0 12px rgba(255,210,230,.3));
+}
+#act1CineProp.show{opacity:1;animation:act1CinePropFloat 2.2s ease-in-out infinite alternate}
+@keyframes act1CinePropFloat{to{translate:0 -7px;rotate:3deg}}
+
+#act1CineFlower{
+  position:absolute;
+  left:50%;bottom:5px;
+  width:95px;height:90px;
+  transform:translateX(-50%);
+  opacity:0;
+}
+#act1CineFlower i{
+  position:absolute;left:50%;bottom:8px;
+  width:30px;height:52px;
+  border-radius:60% 60% 48% 48%;
+  background:linear-gradient(#9187df,#d6a5dd);
+  transform-origin:50% 90%;
+  box-shadow:0 0 13px rgba(180,157,255,.28);
+}
+#act1CineFlower i:nth-child(1){rotate:-48deg}
+#act1CineFlower i:nth-child(2){rotate:0deg}
+#act1CineFlower i:nth-child(3){rotate:48deg}
+
+#act1CineLantern{
+  position:absolute;left:50%;bottom:20px;
+  width:45px;height:57px;
+  display:grid;place-items:center;
+  border:1px solid rgba(255,224,172,.4);
+  border-radius:6px;
+  background:rgba(100,65,38,.28);
+  color:#ffe29b;
+  opacity:0;
+  transform:translateX(-50%);
+  box-shadow:0 0 26px rgba(255,216,134,.3),inset 0 0 12px rgba(255,224,155,.2);
+}
+
+#act1CineMark{
+  display:block;
+  margin:6px 0 12px;
+  color:#ffd9ec;
+  font:900 32px/1 monospace;
+  text-shadow:0 0 17px rgba(255,184,221,.38);
+}
+
+#act1CineText{
+  min-height:72px;
+  max-width:540px;
+  margin:0;
+  color:#fff0f8;
+  font:800 13px/1.68 monospace;
+  opacity:0;
+  translate:0 9px;
+  transition:opacity .55s ease,translate .55s ease;
+}
+#act1CineText.visible{opacity:1;translate:0 0}
+
+#act1CineContinue{
+  position:absolute;
+  left:50%;
+  bottom:max(28px,calc(env(safe-area-inset-bottom) + 18px));
+  padding:10px 15px;
+  border:1px solid rgba(255,205,232,.32);
+  border-radius:8px;
+  background:rgba(25,14,29,.84);
+  color:#ffeaf5;
+  font:800 10px/1 monospace;
+  opacity:0;
+  visibility:hidden;
+  transform:translateX(-50%);
+  pointer-events:none;
+  transition:.32s;
+}
+#act1CineContinue.ready{opacity:1;visibility:visible;pointer-events:auto}
+
+/* Temas */
+#act1Cinematic[data-theme="fireflies"] .act1CineAtmosphere span{animation-duration:2.8s;opacity:.78}
+#act1Cinematic[data-theme="flower"] #act1CineFlower{opacity:1;animation:act1CineFlowerBloom 2.2s ease both}
+#act1Cinematic[data-theme="flower"] #act1CineCats{display:none}
+#act1Cinematic[data-theme="light"] #act1CineLantern{opacity:1;animation:act1CineLight 2.5s ease-in-out infinite alternate}
+#act1Cinematic[data-theme="night"]{background:radial-gradient(circle at 50% 68%,rgba(54,55,82,.34),transparent 35%),linear-gradient(#01030a,#050d1c 62%,#050b09)}
+#act1Cinematic[data-theme="nook"]{background:radial-gradient(ellipse at 50% 70%,rgba(82,125,91,.25),transparent 38%),linear-gradient(#02050c,#071323 60%,#07130e)}
+#act1Cinematic[data-theme="marie"]{background:radial-gradient(ellipse at 50% 70%,rgba(231,177,211,.12),transparent 36%),linear-gradient(#02050c,#081123 60%,#08100f)}
+
+@keyframes act1CineFlowerBloom{
+  from{scale:.45;filter:brightness(.55)}
+  to{scale:1;filter:brightness(1.1) drop-shadow(0 0 18px rgba(184,164,255,.32))}
+}
+@keyframes act1CineLight{to{box-shadow:0 0 45px rgba(255,216,134,.55),inset 0 0 18px rgba(255,224,155,.3);scale:1.04}}
+
+/* El lector directo debe estar por encima de cualquier escena. */
+#letterReader{z-index:235 !important}
+
+@media(max-width:600px){
+  .act1CineStage{min-height:290px}
+  #act1CineVisual{height:130px}
+  #act1CineCats img{width:min(22vw,78px);max-height:92px}
+  #act1CineText{max-width:84vw;font-size:11px}
+  #act1CineMark{font-size:28px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #act1Cinematic *{animation-duration:.01ms!important;animation-iteration-count:1!important}
+}

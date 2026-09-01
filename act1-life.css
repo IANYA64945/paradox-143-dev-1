@@ -1,0 +1,1766 @@
+/* =========================================================
+   PARADOX143 — ACTO I · ETAPA 1
+   PEQUEÑOS DÍAS
+========================================================= */
+
+#act1LifeLayer{
+  position:fixed;
+  inset:0;
+  z-index:125;
+  pointer-events:none;
+  font-family:monospace;
+}
+
+
+/* =========================================================
+   SUSURROS AMBIENTALES
+========================================================= */
+
+#act1Whisper{
+  position:fixed;
+  left:50%;
+  bottom:max(
+    82px,
+    calc(
+      env(safe-area-inset-bottom) + 72px
+    )
+  );
+
+  z-index:145;
+
+  max-width:min(
+    78vw,
+    430px
+  );
+
+  padding:
+    8px 11px;
+
+  border:
+    1px solid
+    rgba(255,216,235,.22);
+
+  border-radius:8px;
+
+  background:
+    rgba(5,8,15,.76);
+
+  color:#ffeef8;
+
+  box-shadow:
+    0 8px 20px
+    rgba(0,0,0,.28);
+
+  backdrop-filter:
+    blur(4px);
+
+  font:
+    700 10px/1.45
+    monospace;
+
+  text-align:center;
+
+  opacity:0;
+
+  transform:
+    translate(-50%,8px);
+
+  transition:
+    opacity .28s ease,
+    transform .28s ease;
+
+  pointer-events:none;
+}
+
+
+#act1Whisper.show{
+  opacity:1;
+
+  transform:
+    translate(-50%,0);
+}
+
+
+/* =========================================================
+   PEQUEÑO SOBRE DE RECUERDO
+========================================================= */
+
+#act1MemoryDrop{
+  position:fixed;
+
+  right:max(
+    14px,
+    calc(
+      env(safe-area-inset-right) + 10px
+    )
+  );
+
+  bottom:max(
+    118px,
+    calc(
+      env(safe-area-inset-bottom) + 108px
+    )
+  );
+
+  z-index:146;
+
+  width:47px;
+  height:47px;
+
+  padding:0;
+
+  border:
+    1px solid
+    rgba(255,201,231,.38);
+
+  border-radius:12px;
+
+  background:
+    rgba(7,9,17,.82);
+
+  box-shadow:
+    0 7px 18px
+    rgba(0,0,0,.32),
+    0 0 15px
+    rgba(255,144,205,.13);
+
+  opacity:0;
+  visibility:hidden;
+
+  transform:
+    translateY(8px)
+    scale(.88);
+
+  pointer-events:none;
+
+  transition:
+    opacity .25s ease,
+    visibility .25s,
+    transform .25s ease;
+
+  -webkit-tap-highlight-color:
+    transparent;
+}
+
+
+#act1MemoryDrop.show{
+  opacity:1;
+  visibility:visible;
+
+  transform:
+    translateY(0)
+    scale(1);
+
+  pointer-events:auto;
+
+  animation:
+    act1MemoryFloat
+    2.6s
+    ease-in-out
+    infinite;
+}
+
+
+#act1MemoryDrop:active{
+  transform:scale(.91);
+}
+
+
+.act1MemoryEnvelope{
+  display:grid;
+  place-items:center;
+
+  width:100%;
+  height:100%;
+
+  font-size:23px;
+}
+
+
+.act1MemorySpark{
+  position:absolute;
+
+  right:2px;
+  top:-5px;
+
+  color:#ffe5a6;
+
+  font-size:12px;
+
+  text-shadow:
+    0 0 9px
+    rgba(255,229,166,.7);
+
+  animation:
+    act1Spark
+    1.4s
+    ease-in-out
+    infinite;
+}
+
+
+.act1MemoryCount{
+  position:absolute;
+
+  right:-5px;
+  bottom:-5px;
+
+  min-width:18px;
+  height:18px;
+
+  display:grid;
+  place-items:center;
+
+  padding:0 3px;
+
+  border:
+    1px solid
+    rgba(255,220,239,.45);
+
+  border-radius:999px;
+
+  background:#15101a;
+
+  color:#ffd9ee;
+
+  font:
+    900 9px/1
+    monospace;
+}
+
+
+@keyframes act1MemoryFloat{
+  0%,100%{
+    translate:0 0;
+  }
+
+  50%{
+    translate:0 -3px;
+  }
+}
+
+
+@keyframes act1Spark{
+  0%,100%{
+    opacity:.35;
+    scale:.8;
+  }
+
+  50%{
+    opacity:1;
+    scale:1.15;
+  }
+}
+
+
+/* =========================================================
+   CAPAS DE ACTIVIDAD
+========================================================= */
+
+#act1GardenActivityLayer,
+#act1FieldActivityLayer{
+  position:fixed;
+  inset:0;
+
+  pointer-events:none;
+}
+
+
+#act1GardenActivityLayer{
+  z-index:104;
+}
+
+
+#act1FieldActivityLayer{
+  z-index:44;
+}
+
+
+/* =========================================================
+   TULUZ — PELOTITA PERDIDA
+========================================================= */
+
+#act1LostBall{
+  position:absolute;
+
+  width:min(10vw,64px);
+  aspect-ratio:1/1;
+
+  padding:0;
+
+  border:0;
+
+  border-radius:50%;
+
+  background:
+    rgba(255,255,255,.02);
+
+  pointer-events:auto;
+
+  transform:
+    translate(-50%,-50%);
+
+  filter:
+    drop-shadow(
+      0 5px 8px
+      rgba(0,0,0,.35)
+    );
+
+  transition:
+    left .62s ease,
+    top .62s ease;
+
+  -webkit-tap-highlight-color:
+    transparent;
+}
+
+
+#act1LostBall img{
+  width:100%;
+  height:100%;
+
+  object-fit:contain;
+}
+
+
+#act1LostBall > span{
+  position:absolute;
+
+  right:-2px;
+  top:-6px;
+
+  color:#fff0a8;
+
+  font:
+    900 15px/1
+    monospace;
+
+  text-shadow:
+    0 0 8px
+    rgba(255,230,140,.55);
+}
+
+
+#act1LostBall.hop{
+  animation:
+    act1BallHop
+    .58s
+    ease;
+}
+
+
+#act1LostBall.found{
+  animation:
+    act1BallFound
+    .8s
+    ease
+    forwards;
+}
+
+
+@keyframes act1BallHop{
+  0%,100%{
+    scale:1;
+  }
+
+  50%{
+    scale:1.14;
+    translate:0 -8px;
+  }
+}
+
+
+@keyframes act1BallFound{
+  to{
+    opacity:0;
+    scale:.45;
+    translate:17vw 17vh;
+  }
+}
+
+
+/* =========================================================
+   MARIE — HUELLITAS
+========================================================= */
+
+.act1PawStep{
+  position:absolute;
+
+  z-index:5;
+
+  width:44px;
+  height:44px;
+
+  display:grid;
+  place-items:center;
+
+  padding:0;
+
+  border:0;
+
+  background:transparent;
+
+  font-size:25px;
+
+  opacity:.82;
+
+  transform:
+    translate(-50%,-50%);
+
+  filter:
+    grayscale(.15)
+    drop-shadow(
+      0 0 8px
+      rgba(255,221,236,.4)
+    );
+
+  pointer-events:auto;
+
+  animation:
+    act1PawAppear
+    .5s
+    ease
+    both;
+}
+
+
+@keyframes act1PawAppear{
+  from{
+    opacity:0;
+    scale:.55;
+  }
+
+  to{
+    opacity:.82;
+    scale:1;
+  }
+}
+
+
+#refugeGrayCat.act1-marie-found{
+  animation:
+    act1MarieFound
+    .8s
+    ease-in-out
+    4 !important;
+}
+
+
+@keyframes act1MarieFound{
+  0%,100%{
+    filter:none;
+  }
+
+  50%{
+    filter:
+      drop-shadow(
+        0 0 12px
+        rgba(255,190,223,.65)
+      );
+  }
+}
+
+
+/* =========================================================
+   LUCIÉRNAGAS
+========================================================= */
+
+#act1FireflyGame{
+  position:absolute;
+  inset:0;
+
+  pointer-events:none;
+}
+
+
+.act1Firefly{
+  --delay:0s;
+  --drift:0px;
+
+  position:absolute;
+
+  width:28px;
+  height:28px;
+
+  margin:-14px 0 0 -14px;
+
+  border:0;
+  border-radius:50%;
+
+  background:transparent;
+
+  pointer-events:auto;
+
+  animation:
+    act1FireflyDrift
+    2.6s
+    var(--delay)
+    ease-in-out
+    infinite
+    alternate;
+}
+
+
+.act1Firefly::before{
+  content:"";
+
+  position:absolute;
+
+  left:50%;
+  top:50%;
+
+  width:6px;
+  height:6px;
+
+  border-radius:50%;
+
+  background:#ffe39a;
+
+  box-shadow:
+    0 0 7px #ffe39a,
+    0 0 17px
+    rgba(255,220,118,.72);
+
+  transform:
+    translate(-50%,-50%);
+}
+
+
+.act1Firefly.caught{
+  pointer-events:none;
+
+  animation:
+    act1FireflyCaught
+    .52s
+    ease
+    forwards;
+}
+
+
+@keyframes act1FireflyDrift{
+  from{
+    translate:
+      calc(var(--drift) * -.35)
+      -5px;
+  }
+
+  to{
+    translate:
+      var(--drift)
+      9px;
+  }
+}
+
+
+@keyframes act1FireflyCaught{
+  to{
+    opacity:0;
+    scale:1.9;
+  }
+}
+
+
+/* =========================================================
+   CHARQUITOS DESPUÉS DE LA LLUVIA
+========================================================= */
+
+#act1Puddles{
+  position:absolute;
+  inset:0;
+
+  pointer-events:none;
+}
+
+
+.act1Puddle{
+  position:absolute;
+
+  width:min(16vw,110px);
+  height:min(6vw,34px);
+
+  min-height:24px;
+
+  border:
+    1px solid
+    rgba(191,220,255,.13);
+
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(182,215,255,.15),
+      rgba(65,104,147,.05) 55%,
+      transparent 72%
+    );
+
+  transform:
+    translate(-50%,-50%);
+
+  pointer-events:auto;
+
+  overflow:visible;
+}
+
+
+.act1Puddle span{
+  position:absolute;
+
+  left:50%;
+  top:50%;
+
+  color:#dcecff;
+
+  text-shadow:
+    0 0 10px
+    rgba(193,226,255,.75);
+
+  animation:
+    act1PuddleSpark
+    1.5s
+    ease-in-out
+    infinite;
+}
+
+
+.act1Puddle.seen{
+  animation:
+    act1PuddleSeen
+    .75s
+    ease
+    forwards;
+}
+
+
+@keyframes act1PuddleSpark{
+  0%,100%{
+    opacity:.25;
+    scale:.7;
+  }
+
+  50%{
+    opacity:1;
+    scale:1.15;
+  }
+}
+
+
+@keyframes act1PuddleSeen{
+  to{
+    opacity:0;
+    scale:1.4;
+  }
+}
+
+
+/* =========================================================
+   JUGUETE AFUERA
+========================================================= */
+
+#act1OutsideToy{
+  position:absolute;
+
+  right:2%;
+  bottom:11%;
+
+  width:min(11vw,74px);
+  aspect-ratio:1/1;
+
+  padding:0;
+
+  border:0;
+
+  background:transparent;
+
+  pointer-events:auto;
+
+  animation:
+    act1OutsideToyShake
+    .7s
+    ease-in-out
+    infinite
+    alternate;
+}
+
+
+#act1OutsideToy img{
+  width:100%;
+  height:100%;
+
+  object-fit:contain;
+
+  filter:
+    brightness(.86)
+    drop-shadow(
+      0 5px 8px
+      rgba(0,0,0,.38)
+    );
+}
+
+
+#act1OutsideToy span{
+  position:absolute;
+
+  right:1px;
+  top:-8px;
+
+  color:#fff;
+
+  font:
+    900 18px/1
+    monospace;
+}
+
+
+#act1OutsideToy.rescued{
+  animation:
+    act1ToyRescued
+    1.05s
+    cubic-bezier(.22,.8,.2,1)
+    forwards;
+}
+
+
+@keyframes act1OutsideToyShake{
+  from{
+    rotate:-3deg;
+  }
+
+  to{
+    rotate:3deg;
+  }
+}
+
+
+@keyframes act1ToyRescued{
+  to{
+    right:34%;
+    bottom:18%;
+    opacity:0;
+    scale:.72;
+  }
+}
+
+
+/* =========================================================
+   ESTRELLITA DEL CAMPO
+========================================================= */
+
+#act1FallenStar{
+  position:absolute;
+
+  width:58px;
+  height:58px;
+
+  margin:-29px 0 0 -29px;
+
+  display:grid;
+  place-items:center;
+
+  padding:0;
+
+  border:0;
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,229,152,.13),
+      transparent 63%
+    );
+
+  color:#ffe49b;
+
+  font:
+    900 27px/1
+    monospace;
+
+  text-shadow:
+    0 0 9px #ffe49b,
+    0 0 21px
+    rgba(255,226,142,.6);
+
+  pointer-events:auto;
+
+  animation:
+    act1StarHover
+    2.3s
+    ease-in-out
+    infinite;
+}
+
+
+#act1FallenStar.tap{
+  animation:
+    act1StarTap
+    .42s
+    ease;
+}
+
+
+#act1FallenStar.found{
+  animation:
+    act1StarFound
+    .95s
+    ease
+    forwards;
+}
+
+
+@keyframes act1StarHover{
+  0%,100%{
+    translate:0 0;
+    opacity:.65;
+  }
+
+  50%{
+    translate:0 -7px;
+    opacity:1;
+  }
+}
+
+
+@keyframes act1StarTap{
+  50%{
+    scale:1.35;
+  }
+}
+
+
+@keyframes act1StarFound{
+  to{
+    opacity:0;
+    translate:0 55px;
+    scale:.35;
+  }
+}
+
+
+/* =========================================================
+   MARCADOR DE OTRA VUELTA
+========================================================= */
+
+#act1FieldLoopMarker{
+  position:absolute;
+
+  left:53%;
+  top:61%;
+
+  width:54px;
+  height:54px;
+
+  display:grid;
+  place-items:center;
+
+  border:
+    1px solid
+    rgba(255,196,225,.22);
+
+  border-radius:50%;
+
+  background:
+    rgba(8,11,18,.22);
+
+  color:#ffd0e8;
+
+  pointer-events:auto;
+
+  animation:
+    act1LoopPulse
+    2s
+    ease-in-out
+    infinite;
+}
+
+
+#act1FieldLoopMarker span{
+  font-size:20px;
+}
+
+
+#act1FieldLoopMarker small{
+  position:absolute;
+  bottom:-15px;
+
+  color:
+    rgba(255,235,246,.7);
+
+  font:
+    800 9px/1
+    monospace;
+}
+
+
+#act1FieldLoopMarker.found{
+  animation:
+    act1LoopFound
+    .8s
+    ease
+    forwards;
+}
+
+
+@keyframes act1LoopPulse{
+  0%,100%{
+    box-shadow:
+      0 0 0
+      rgba(255,187,220,0);
+  }
+
+  50%{
+    box-shadow:
+      0 0 18px
+      rgba(255,187,220,.2);
+  }
+}
+
+
+@keyframes act1LoopFound{
+  to{
+    opacity:0;
+    scale:1.5;
+  }
+}
+
+
+/* =========================================================
+   PLANTAR NUESTRO TULIPÁN
+========================================================= */
+
+#act1PlantPrompt{
+  position:fixed;
+
+  left:50%;
+  bottom:max(
+    88px,
+    calc(
+      env(safe-area-inset-bottom) + 80px
+    )
+  );
+
+  z-index:142;
+
+  opacity:0;
+  visibility:hidden;
+
+  transform:
+    translate(-50%,10px);
+
+  transition:
+    opacity .25s,
+    transform .25s,
+    visibility .25s;
+
+  pointer-events:none;
+}
+
+
+#act1PlantPrompt.show{
+  opacity:1;
+  visibility:visible;
+
+  transform:
+    translate(-50%,0);
+
+  pointer-events:auto;
+}
+
+
+#act1PlantPrompt > div{
+  min-width:min(78vw,320px);
+
+  padding:
+    10px 12px;
+
+  border:
+    1px solid
+    rgba(255,202,229,.25);
+
+  border-radius:10px;
+
+  background:
+    rgba(5,8,15,.78);
+
+  box-shadow:
+    0 8px 22px
+    rgba(0,0,0,.3);
+
+  backdrop-filter:
+    blur(4px);
+
+  text-align:center;
+}
+
+
+#act1PlantPrompt span{
+  display:block;
+
+  margin-bottom:4px;
+
+  color:#ffb5d7;
+
+  font-size:17px;
+}
+
+
+#act1PlantPrompt p{
+  margin:0 0 8px;
+
+  color:#f7e9f1;
+
+  font:
+    700 9px/1.4
+    monospace;
+}
+
+
+#act1PlantPrompt button{
+  padding:8px 11px;
+
+  border:
+    1px solid
+    rgba(255,184,220,.35);
+
+  border-radius:7px;
+
+  background:
+    rgba(41,17,35,.76);
+
+  color:#ffeaf5;
+
+  font:
+    800 9px/1
+    monospace;
+}
+
+
+body.act1-planting
+#app{
+  cursor:crosshair;
+}
+
+
+body.act1-planting
+#app::after{
+  content:"✿";
+
+  position:fixed;
+
+  left:50%;
+  top:50%;
+
+  z-index:45;
+
+  color:
+    rgba(255,173,209,.65);
+
+  font-size:28px;
+
+  transform:
+    translate(-50%,-50%);
+
+  pointer-events:none;
+
+  animation:
+    act1PlantHint
+    1.2s
+    ease-in-out
+    infinite;
+}
+
+
+@keyframes act1PlantHint{
+  0%,100%{
+    opacity:.35;
+    scale:.86;
+  }
+
+  50%{
+    opacity:.9;
+    scale:1.08;
+  }
+}
+
+
+#act1SpecialTulip{
+  position:absolute;
+
+  z-index:2;
+
+  width:54px;
+  height:90px;
+
+  padding:0;
+
+  border:0;
+
+  background:transparent;
+
+  opacity:0;
+  visibility:hidden;
+
+  transform:
+    translate(-50%,-82%);
+
+  pointer-events:none;
+
+  transition:
+    opacity .25s,
+    visibility .25s;
+}
+
+
+#act1SpecialTulip.show{
+  opacity:1;
+  visibility:visible;
+
+  pointer-events:auto;
+}
+
+
+#act1SpecialTulip > span{
+  position:absolute;
+  inset:0;
+
+  background-image:
+    url("tulip_atlas.webp");
+
+  background-size:
+    300% 100%;
+
+  background-position:
+    left center;
+
+  background-repeat:no-repeat;
+
+  filter:
+    saturate(1.12)
+    brightness(1.07)
+    drop-shadow(
+      0 0 9px
+      rgba(255,110,181,.34)
+    );
+}
+
+
+#act1SpecialTulip > i{
+  position:absolute;
+
+  right:-3px;
+  top:8px;
+
+  color:#ffd2e8;
+
+  font:
+    900 10px/1
+    monospace;
+
+  text-shadow:
+    0 0 8px
+    rgba(255,195,224,.55);
+
+  animation:
+    act1TulipHeart
+    2.1s
+    ease-in-out
+    infinite;
+}
+
+
+@keyframes act1TulipHeart{
+  0%,100%{
+    opacity:.35;
+    translate:0 0;
+  }
+
+  50%{
+    opacity:1;
+    translate:0 -3px;
+  }
+}
+
+
+/* =========================================================
+   ELEGIR DÓNDE QUEDARSE
+========================================================= */
+
+#act1ChoiceScene{
+  position:fixed;
+  inset:0;
+
+  z-index:151;
+
+  display:grid;
+  place-items:center;
+
+  padding:20px;
+
+  background:
+    rgba(2,5,10,.45);
+
+  opacity:0;
+  visibility:hidden;
+
+  pointer-events:none;
+
+  transition:
+    opacity .28s,
+    visibility .28s;
+}
+
+
+#act1ChoiceScene.show{
+  opacity:1;
+  visibility:visible;
+
+  pointer-events:auto;
+}
+
+
+#act1ChoiceScene section{
+  width:min(
+    88vw,
+    390px
+  );
+
+  padding:
+    17px 16px;
+
+  border:
+    1px solid
+    rgba(255,215,235,.25);
+
+  border-radius:13px;
+
+  background:
+    rgba(7,10,17,.88);
+
+  box-shadow:
+    0 14px 32px
+    rgba(0,0,0,.34);
+
+  text-align:center;
+}
+
+
+.act1ChoiceMark{
+  color:#ffc8e2;
+
+  font-size:25px;
+}
+
+
+#act1ChoiceScene p{
+  margin:7px 0 13px;
+
+  color:#fff0f7;
+
+  font:
+    800 11px/1.4
+    monospace;
+}
+
+
+#act1ChoiceScene section > div{
+  display:grid;
+  gap:7px;
+}
+
+
+#act1ChoiceScene button{
+  padding:
+    10px 11px;
+
+  border:
+    1px solid
+    rgba(255,196,226,.24);
+
+  border-radius:8px;
+
+  background:
+    rgba(28,19,31,.85);
+
+  color:#ffeaf5;
+
+  font:
+    800 9px/1.25
+    monospace;
+}
+
+
+#catGarden.act1-place-tree
+.refugeGrayCat,
+#catGarden.act1-place-tree
+.refugeOrangeCat{
+  left:37% !important;
+  bottom:23% !important;
+}
+
+
+#catGarden.act1-place-flowers
+.refugeGrayCat{
+  left:22% !important;
+  bottom:16% !important;
+}
+
+
+#catGarden.act1-place-flowers
+.refugeOrangeCat{
+  left:33% !important;
+  bottom:16% !important;
+}
+
+
+#catGarden.act1-place-cats
+.refugeGrayCat{
+  left:39% !important;
+  bottom:15% !important;
+}
+
+
+#catGarden.act1-place-cats
+.refugeOrangeCat{
+  left:61% !important;
+  bottom:15% !important;
+}
+
+
+#catGarden.act1-place-cats
+#catGardenMewoSpot.show{
+  left:50% !important;
+  bottom:15% !important;
+}
+
+
+/* =========================================================
+   MONTAJE "NUESTRO PEQUEÑO MUNDO"
+========================================================= */
+
+#act1Montage{
+  position:fixed;
+  inset:0;
+
+  z-index:180;
+
+  display:grid;
+  place-items:center;
+
+  overflow:hidden;
+
+  background:
+    radial-gradient(
+      circle at 50% 67%,
+      rgba(43,46,75,.48),
+      transparent 31%
+    ),
+    linear-gradient(
+      #02050d,
+      #071020 58%,
+      #07100d
+    );
+
+  opacity:0;
+  visibility:hidden;
+
+  pointer-events:none;
+
+  transition:
+    opacity .65s,
+    visibility .65s;
+}
+
+
+#act1Montage.show{
+  opacity:1;
+  visibility:visible;
+
+  pointer-events:auto;
+}
+
+
+.act1MontageSky{
+  position:absolute;
+  inset:0;
+
+  pointer-events:none;
+}
+
+
+.act1MontageSky span{
+  position:absolute;
+
+  color:
+    rgba(255,220,239,.65);
+
+  text-shadow:
+    0 0 13px
+    rgba(255,184,221,.35);
+
+  animation:
+    act1MontageFloat
+    4s
+    ease-in-out
+    infinite;
+}
+
+
+.act1MontageSky span:nth-child(1){
+  left:17%;
+  top:22%;
+}
+
+
+.act1MontageSky span:nth-child(2){
+  right:18%;
+  top:17%;
+  font-size:26px;
+}
+
+
+.act1MontageSky span:nth-child(3){
+  left:27%;
+  bottom:20%;
+}
+
+
+.act1MontageSky span:nth-child(4){
+  right:26%;
+  bottom:24%;
+}
+
+
+@keyframes act1MontageFloat{
+  0%,100%{
+    translate:0 0;
+    opacity:.35;
+  }
+
+  50%{
+    translate:0 -7px;
+    opacity:.85;
+  }
+}
+
+
+.act1MontageCenter{
+  position:relative;
+
+  width:min(
+    84vw,
+    520px
+  );
+
+  min-height:300px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  text-align:center;
+}
+
+
+.act1MontageTulip{
+  width:70px;
+  height:134px;
+
+  background-image:
+    url("tulip_atlas.webp");
+
+  background-size:
+    300% 100%;
+
+  background-position:
+    left center;
+
+  background-repeat:no-repeat;
+
+  filter:
+    drop-shadow(
+      0 0 16px
+      rgba(255,121,187,.32)
+    );
+
+  animation:
+    act1MontageTulip
+    3.2s
+    ease-in-out
+    infinite;
+}
+
+
+@keyframes act1MontageTulip{
+  0%,100%{
+    translate:0 0;
+  }
+
+  50%{
+    translate:0 -4px;
+  }
+}
+
+
+.act1MontagePaws{
+  display:flex;
+  gap:18px;
+
+  margin:
+    -3px 0 20px;
+
+  opacity:.72;
+
+  font-size:18px;
+}
+
+
+#act1MontageText{
+  min-height:54px;
+
+  margin:0;
+
+  color:#fff0f7;
+
+  font:
+    800 13px/1.6
+    monospace;
+
+  text-shadow:
+    0 2px 12px
+    rgba(0,0,0,.4);
+
+  opacity:0;
+
+  transform:
+    translateY(8px);
+
+  transition:
+    opacity .5s,
+    transform .5s;
+}
+
+
+#act1MontageText.visible{
+  opacity:1;
+
+  transform:
+    translateY(0);
+}
+
+
+#act1MontageClose{
+  position:absolute;
+
+  left:50%;
+  bottom:max(
+    28px,
+    calc(
+      env(safe-area-inset-bottom) + 18px
+    )
+  );
+
+  padding:
+    9px 14px;
+
+  border:
+    1px solid
+    rgba(255,203,230,.28);
+
+  border-radius:8px;
+
+  background:
+    rgba(23,14,27,.8);
+
+  color:#ffeaf5;
+
+  font:
+    800 10px/1
+    monospace;
+
+  opacity:0;
+  visibility:hidden;
+
+  transform:
+    translateX(-50%);
+
+  pointer-events:none;
+
+  transition:
+    opacity .3s,
+    visibility .3s;
+}
+
+
+#act1MontageClose.ready{
+  opacity:1;
+  visibility:visible;
+
+  pointer-events:auto;
+}
+
+
+/* =========================================================
+   MÓVIL
+========================================================= */
+
+@media(max-width:600px){
+
+  #act1MemoryDrop{
+    right:max(
+      9px,
+      calc(
+        env(safe-area-inset-right) + 7px
+      )
+    );
+
+    bottom:max(
+      108px,
+      calc(
+        env(safe-area-inset-bottom) + 98px
+      )
+    );
+
+    width:43px;
+    height:43px;
+  }
+
+
+  #act1Whisper{
+    bottom:max(
+      71px,
+      calc(
+        env(safe-area-inset-bottom) + 64px
+      )
+    );
+
+    max-width:82vw;
+
+    font-size:9px;
+  }
+
+
+  #act1LostBall{
+    width:min(15vw,58px);
+  }
+
+
+  #act1OutsideToy{
+    width:min(16vw,66px);
+  }
+
+
+  #act1SpecialTulip{
+    width:46px;
+    height:84px;
+  }
+
+
+  #act1MontageText{
+    font-size:11px;
+  }
+}
+
+
+/* =========================================================
+   REDUCIR MOVIMIENTO
+========================================================= */
+
+@media(prefers-reduced-motion:reduce){
+
+  #act1LifeLayer *,
+  #act1LifeLayer *::before,
+  #act1LifeLayer *::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+  }
+}
+
+
+/* =========================================================
+   CORRECCIÓN DE VISIBILIDAD · ACTO I
+   El Claro usa z-index 90. Antes esta capa completa estaba
+   debajo del jardín, por eso algunos eventos sí ocurrían pero
+   eran prácticamente invisibles.
+========================================================= */
+
+#act1MemoryDrop{
+  display:none !important;
+}
+
+#act1LostBall,
+.act1PawStep,
+.act1Firefly,
+.act1Puddle,
+#act1OutsideToy,
+#act1FallenStar,
+#act1FieldLoopMarker{
+  isolation:isolate;
+}
+
+#act1LostBall,
+#act1OutsideToy{
+  min-width:64px;
+  filter:
+    drop-shadow(0 0 9px rgba(255,184,220,.62))
+    drop-shadow(0 7px 10px rgba(0,0,0,.42));
+}
+
+#act1LostBall::before,
+#act1OutsideToy::before,
+#act1FallenStar::before,
+#act1FieldLoopMarker::before,
+.act1PawStep::before,
+.act1Puddle::before{
+  content:"";
+  position:absolute;
+  inset:-10px;
+  z-index:-1;
+  border:1px solid rgba(255,221,239,.38);
+  border-radius:999px;
+  box-shadow:0 0 20px rgba(255,169,215,.18);
+  animation:act1VisibleRing 1.25s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.act1PawStep{
+  width:58px;
+  height:58px;
+  font-size:31px;
+  filter:
+    drop-shadow(0 0 9px rgba(255,222,238,.72))
+    drop-shadow(0 4px 7px rgba(0,0,0,.4));
+}
+
+.act1Firefly{
+  width:42px;
+  height:42px;
+  margin:-21px 0 0 -21px;
+}
+
+.act1Firefly::before{
+  width:9px;
+  height:9px;
+  box-shadow:
+    0 0 9px #ffe39a,
+    0 0 23px rgba(255,220,118,.9),
+    0 0 40px rgba(255,198,100,.32);
+}
+
+.act1Puddle{
+  min-width:95px;
+  min-height:36px;
+  border-color:rgba(205,230,255,.32);
+  box-shadow:0 0 17px rgba(169,211,255,.13);
+}
+
+#act1FieldLoopMarker{
+  width:68px;
+  height:68px;
+  background:rgba(8,11,18,.5);
+  border-color:rgba(255,196,225,.45);
+}
+
+@keyframes act1VisibleRing{
+  0%,100%{opacity:.28;scale:.86}
+  50%{opacity:.9;scale:1.08}
+}

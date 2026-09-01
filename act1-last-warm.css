@@ -1,0 +1,480 @@
+/* =========================================================
+   ACTO I · ETAPA 5 — TODO LO QUE GUARDAMOS
+========================================================= */
+
+#act1LastWarmCue{
+  position:fixed;
+
+  z-index:189;
+
+  min-width:50px;
+  min-height:50px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  gap:8px;
+
+  padding:
+    9px 12px;
+
+  border:
+    1px solid
+    rgba(255,222,188,.32);
+
+  border-radius:999px;
+
+  background:
+    rgba(10,10,17,.86);
+
+  box-shadow:
+    0 9px 25px
+    rgba(0,0,0,.36),
+    0 0 24px
+    rgba(255,207,174,.12);
+
+  color:#fff0e9;
+
+  opacity:0;
+  visibility:hidden;
+
+  pointer-events:none;
+
+  transform:
+    translate(-50%,8px)
+    scale(.9);
+
+  transition:
+    opacity .32s,
+    visibility .32s,
+    transform .32s;
+
+  -webkit-tap-highlight-color:
+    transparent;
+}
+
+#act1LastWarmCue.show{
+  opacity:1;
+  visibility:visible;
+
+  pointer-events:auto;
+
+  transform:
+    translate(-50%,0)
+    scale(1);
+
+  animation:
+    act1WarmCueFloat
+    3s
+    ease-in-out
+    infinite;
+}
+
+#act1LastWarmIcon{
+  color:#ffe0b8;
+
+  font:
+    900 19px/1
+    monospace;
+
+  text-shadow:
+    0 0 10px
+    rgba(255,218,173,.48);
+}
+
+#act1LastWarmText{
+  max-width:190px;
+
+  color:
+    rgba(255,242,236,.8);
+
+  font:
+    700 8px/1.35
+    monospace;
+
+  text-align:left;
+}
+
+@keyframes act1WarmCueFloat{
+  0%,100%{
+    translate:0 0;
+  }
+
+  50%{
+    translate:0 -4px;
+  }
+}
+
+#act1LastWarmCue[data-zone="garden"]{
+  left:50%;
+  bottom:18%;
+}
+
+#act1LastWarmCue[data-zone="field"]{
+  left:50%;
+  top:60%;
+}
+
+#act1LastWarmCue[data-zone="box"]{
+  left:42%;
+  bottom:13%;
+}
+
+#act1LastWarmCue[data-zone="sky"]{
+  left:73%;
+  top:20%;
+}
+
+#act1LastWarmCue[data-zone="cats"]{
+  left:51%;
+  bottom:22%;
+}
+
+#act1LastWarmCue[data-zone="final"]{
+  left:50%;
+  top:50%;
+
+  padding:
+    12px 17px;
+
+  border-color:
+    rgba(255,222,189,.5);
+
+  background:
+    rgba(15,11,17,.92);
+
+  box-shadow:
+    0 0 34px
+    rgba(255,191,203,.18),
+    0 14px 34px
+    rgba(0,0,0,.42);
+}
+
+
+/* =========================================================
+   TEMAS CINEMATOGRÁFICOS 90–99
+========================================================= */
+
+#act1Cinematic[data-theme="warm-restart"]{
+  background:
+    radial-gradient(
+      circle at 50% 70%,
+      rgba(193,113,155,.10),
+      transparent 32%
+    ),
+    linear-gradient(
+      #02040b,
+      #081222 63%,
+      #07110d
+    );
+}
+
+#act1Cinematic[data-theme="warm-changed"]{
+  background:
+    radial-gradient(
+      ellipse at 50% 80%,
+      rgba(255,151,199,.10),
+      transparent 35%
+    ),
+    linear-gradient(
+      #01040d,
+      #07142a 60%,
+      #07110d
+    );
+}
+
+#act1Cinematic[data-theme="warm-remains"]{
+  background:
+    radial-gradient(
+      circle at 50% 64%,
+      rgba(229,176,141,.10),
+      transparent 25%
+    ),
+    linear-gradient(
+      #02040b,
+      #0b111d 65%,
+      #0a0e0b
+    );
+}
+
+#act1Cinematic[data-theme="warm-night"]{
+  background:
+    radial-gradient(
+      ellipse at 50% 72%,
+      rgba(91,79,123,.24),
+      transparent 40%
+    ),
+    linear-gradient(
+      #010309,
+      #050b18 62%,
+      #050a08
+    );
+}
+
+#act1Cinematic[data-theme="warm-stars"]{
+  background:
+    radial-gradient(
+      circle at 70% 22%,
+      rgba(255,231,165,.12),
+      transparent 24%
+    ),
+    linear-gradient(
+      #01030b,
+      #07132c 65%,
+      #07100e
+    );
+}
+
+#act1Cinematic[data-theme="warm-stars"]
+.act1CineAtmosphere span{
+  opacity:.9;
+
+  box-shadow:
+    0 0 12px
+    rgba(255,229,164,.58);
+}
+
+#act1Cinematic[data-theme="warm-tulip"]
+#act1CineCats{
+  display:none;
+}
+
+#act1Cinematic[data-theme="warm-tulip"]
+#act1CineVisual::before{
+  content:"";
+
+  position:absolute;
+
+  left:50%;
+  bottom:0;
+
+  width:78px;
+  height:145px;
+
+  background:
+    url("tulip_atlas.webp")
+    left bottom /
+    300% 100%
+    no-repeat;
+
+  transform:
+    translateX(-50%);
+
+  filter:
+    brightness(1.09)
+    saturate(1.12)
+    drop-shadow(
+      0 0 17px
+      rgba(255,130,191,.37)
+    );
+
+  animation:
+    act1WarmTulip
+    3.4s
+    ease-in-out
+    infinite;
+}
+
+@keyframes act1WarmTulip{
+  0%,100%{
+    rotate:-1deg;
+  }
+
+  50%{
+    rotate:1.5deg;
+    translate:0 -3px;
+  }
+}
+
+#act1Cinematic[data-theme="warm-cats"]{
+  background:
+    radial-gradient(
+      ellipse at 50% 72%,
+      rgba(119,91,126,.20),
+      transparent 38%
+    ),
+    linear-gradient(
+      #02040a,
+      #091322 62%,
+      #07100e
+    );
+}
+
+#act1Cinematic[data-theme="warm-world"]{
+  background:
+    radial-gradient(
+      circle at 24% 62%,
+      rgba(255,141,198,.08),
+      transparent 22%
+    ),
+    radial-gradient(
+      circle at 74% 24%,
+      rgba(255,225,166,.09),
+      transparent 20%
+    ),
+    linear-gradient(
+      #02040a,
+      #081323 62%,
+      #07110e
+    );
+}
+
+#act1Cinematic[data-theme="warm-tomorrow"]{
+  background:
+    radial-gradient(
+      circle at 50% 18%,
+      rgba(255,215,146,.12),
+      transparent 24%
+    ),
+    linear-gradient(
+      #02040b,
+      #0a1630 60%,
+      #0a130f
+    );
+}
+
+#act1Cinematic[data-theme="warm-final"]{
+  background:
+    radial-gradient(
+      ellipse at 50% 66%,
+      rgba(184,104,151,.18),
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 50% 20%,
+      rgba(255,224,170,.11),
+      transparent 23%
+    ),
+    linear-gradient(
+      #020309,
+      #09101e 61%,
+      #080d0b
+    );
+}
+
+#act1Cinematic[data-theme="warm-final"]
+#act1CineMark{
+  font-size:43px;
+
+  color:#ffd6e8;
+
+  text-shadow:
+    0 0 16px
+    rgba(255,193,222,.55);
+
+  animation:
+    act1WarmFinalHeart
+    2.6s
+    ease-in-out
+    infinite;
+}
+
+@keyframes act1WarmFinalHeart{
+  0%,100%{
+    scale:.9;
+    opacity:.74;
+  }
+
+  50%{
+    scale:1.1;
+    opacity:1;
+  }
+}
+
+
+/* celebración suave al guardar la 99 */
+body.act1-warm-complete::after{
+  content:"✦   ♡   ✦";
+
+  position:fixed;
+
+  left:50%;
+  top:16%;
+
+  z-index:260;
+
+  color:
+    rgba(255,225,190,.88);
+
+  font:
+    900 18px/1
+    monospace;
+
+  text-shadow:
+    0 0 16px
+    rgba(255,198,220,.5);
+
+  pointer-events:none;
+
+  transform:
+    translateX(-50%);
+
+  animation:
+    act1WarmComplete
+    6.4s
+    ease
+    forwards;
+}
+
+@keyframes act1WarmComplete{
+  0%{
+    opacity:0;
+    translate:0 8px;
+  }
+
+  18%,72%{
+    opacity:1;
+    translate:0 0;
+  }
+
+  100%{
+    opacity:0;
+    translate:0 -9px;
+  }
+}
+
+
+@media(max-width:600px){
+
+  #act1LastWarmCue{
+    min-height:44px;
+
+    padding:
+      7px 9px;
+  }
+
+  #act1LastWarmText{
+    max-width:140px;
+
+    font-size:7px;
+  }
+
+  #act1LastWarmCue[data-zone="sky"]{
+    left:70%;
+    top:22%;
+  }
+
+  #act1LastWarmCue[data-zone="field"]{
+    top:59%;
+  }
+
+  #act1Cinematic[data-theme="warm-tulip"]
+  #act1CineVisual::before{
+    width:63px;
+    height:120px;
+  }
+}
+
+
+@media(prefers-reduced-motion:reduce){
+
+  #act1LastWarmCue,
+  #act1Cinematic[data-theme^="warm-"] *{
+    animation-duration:
+      .01ms !important;
+
+    animation-iteration-count:
+      1 !important;
+  }
+}

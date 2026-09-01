@@ -1,0 +1,86 @@
+ACTUALIZACIÓN GRANDE — MEWO 2.0 + JARDÍN + TALLER + CARTA AL PERDER + CANASTA OCULTABLE
+
+IMPORTANTE
+==========
+Este paquete está preparado para subirlo a la RAÍZ de tu repositorio paradox143.
+No borres tus MP3, tulip_atlas.webp, grass_night.webp, basket.png, mewo.png ni los demás archivos que no aparecen aquí.
+
+FORMA MÁS FÁCIL
+===============
+1. Descomprime este ZIP.
+2. En GitHub entra a la raíz de paradox143.
+3. Sube TODOS los archivos del ZIP juntos.
+4. Cuando GitHub pregunte, reemplaza los archivos que ya existan.
+5. Commit changes.
+6. Espera a GitHub Pages y haz recarga fuerte.
+
+QUÉ CAMBIA
+==========
+
+1) MEWO 2.0
+- Se incluyen estados visuales nuevos de Mewo manteniendo su cuerpo simplificado.
+- El humor se representa con ojos abiertos/cerrados y símbolos externos.
+- Mewo puede estar en el Jardín o junto a la canasta.
+- Puede reaccionar a lluvia, nieve, tormenta, neblina y estrellas.
+
+2) ALMOHADAS / TALLER
+- Los materiales empiezan a aparecer durante la exploración del campo.
+- Materiales: algodón, tela, huella, estrella, luna, madera y cuerda.
+- Tres almohadas fabricables: Huellita, Luna y Estrellas.
+- El antiguo sistema de "5 clics" se reemplaza por un taller de 3 pasos:
+  a) coser el borde siguiendo puntadas,
+  b) atrapar/rellenar con algodón,
+  c) arrastrar y colocar el aplique.
+- Las almohadas fabricadas quedan guardadas.
+- Puedes elegir cuál dejar activa en el rincón de Mewo.
+
+3) DESBLOQUEO DEL JARDÍN
+- Después de que Mewo sea residente y termines la primera almohada, pasa un poco de tiempo.
+- Mewo te pedirá que la sigas.
+- Al seguirla se descubre el claro protegido del Jardín de Gatos.
+- Desde entonces aparece el botón de patita para volver cuando quieras.
+- El Jardín es una pantalla separada y el clima NO cae directamente sobre los gatos.
+
+4) RASCADOR
+- Se construye en 4 etapas con madera y cuerda.
+- Se muestran las etapas con los PNG que generaste.
+- Cuando termina, queda permanentemente en el Jardín.
+
+5) REACCIONES AL CLIMA
+- Tormenta: Mewo se muestra alerta/confundida y escucha los truenos desde el refugio.
+- Lluvia: mira/escucha la lluvia desde adentro.
+- Nieve: se acurruca y duerme más.
+- Neblina: se muestra curiosa.
+- Estrellas: se pone feliz mirando el cielo.
+
+6) CARTA EXTRA AL PERDER EL MINIJUEGO PRINCIPAL
+- Aparece el botón "Abrir cartita ♡" en la pantalla de derrota.
+- Nombre: "No te rindas ♡".
+- Texto: "Mientras sigas intentando, jamás habrás fracasado para mí.."
+- Puede guardarse en la canasta como una carta más.
+
+7) MINIJUEGO PRINCIPAL MÁS JUSTO
+- Duración ajustada a 30 segundos.
+- Ataques un poco menos frecuentes.
+- Corazón un poco más rápido.
+- Invulnerabilidad tras recibir daño aumentada ligeramente.
+
+8) CANASTA OCULTABLE
+- Aparece una pequeña pestaña al lado de la canasta.
+- ◀ oculta la canasta.
+- ♡ vuelve a mostrarla.
+- La elección queda guardada.
+- Durante el minijuego principal la canasta se oculta automáticamente para no tapar la arena.
+
+ARCHIVOS NUEVOS IMPORTANTES
+===========================
+cat-garden.js
+cat-garden.css
+cat-crafting.js
+cat-crafting.css
+
+Además se incluyen todos los PNG necesarios ya renombrados para que NO tengas que cambiar nombres manualmente.
+
+NOTA SOBRE OTROS GATOS
+======================
+Esta versión deja preparado el Jardín, los objetos, el rascador y la estructura de estado de Mewo. Los gatos adicionales todavía no se activan porque no hay sprites definidos para cada nuevo gato. Es mejor añadirlos después sobre este sistema ya estable, sin volver a rehacer el Jardín.

@@ -1,0 +1,1810 @@
+/* =========================================================
+   PARADOX143 — ACTO I · ETAPA 2
+   PEQUEÑAS AVENTURAS
+========================================================= */
+
+#act1AdventureLayer{
+  position:fixed;
+  inset:0;
+
+  z-index:126;
+
+  pointer-events:none;
+
+  font-family:monospace;
+}
+
+
+#act1AdventureGarden,
+#act1AdventureField{
+  position:fixed;
+  inset:0;
+
+  pointer-events:none;
+}
+
+
+#act1AdventureGarden{
+  z-index:112;
+}
+
+
+#act1AdventureField{
+  z-index:46;
+}
+
+
+/* =========================================================
+   SUSURRO
+========================================================= */
+
+#act1AdventureWhisper{
+  position:fixed;
+
+  left:50%;
+  top:max(
+    18px,
+    calc(
+      env(safe-area-inset-top) + 12px
+    )
+  );
+
+  z-index:170;
+
+  max-width:min(
+    80vw,
+    430px
+  );
+
+  padding:
+    8px 11px;
+
+  border:
+    1px solid
+    rgba(255,218,238,.2);
+
+  border-radius:8px;
+
+  background:
+    rgba(5,8,15,.78);
+
+  color:#fff0f8;
+
+  box-shadow:
+    0 8px 22px
+    rgba(0,0,0,.3);
+
+  backdrop-filter:
+    blur(4px);
+
+  font:
+    700 10px/1.45
+    monospace;
+
+  text-align:center;
+
+  opacity:0;
+
+  transform:
+    translate(-50%,-7px);
+
+  transition:
+    opacity .28s ease,
+    transform .28s ease;
+
+  pointer-events:none;
+}
+
+
+#act1AdventureWhisper.show{
+  opacity:1;
+
+  transform:
+    translate(-50%,0);
+}
+
+
+/* =========================================================
+   TULUZ — TESORITO
+========================================================= */
+
+.act1AdvTreasure{
+  position:absolute;
+
+  width:min(
+    10vw,
+    64px
+  );
+
+  aspect-ratio:1/1;
+
+  padding:0;
+
+  border:0;
+
+  background:transparent;
+
+  pointer-events:auto;
+
+  transform:
+    translate(-50%,-50%);
+
+  transition:
+    left .68s ease,
+    top .68s ease;
+}
+
+
+.act1AdvTreasure img{
+  width:100%;
+  height:100%;
+
+  object-fit:contain;
+
+  filter:
+    drop-shadow(
+      0 5px 8px
+      rgba(0,0,0,.32)
+    );
+}
+
+
+.act1AdvTreasure span{
+  position:absolute;
+
+  right:-2px;
+  top:-4px;
+
+  color:#ffe7a0;
+
+  text-shadow:
+    0 0 9px
+    rgba(255,226,150,.7);
+}
+
+
+.act1AdvTreasure.move{
+  animation:
+    act1AdvTreasureHop
+    .62s
+    ease;
+}
+
+
+.act1AdvTreasure.found{
+  animation:
+    act1AdvTreasureFound
+    1s
+    ease
+    forwards;
+}
+
+
+@keyframes act1AdvTreasureHop{
+  0%,100%{
+    scale:1;
+  }
+
+  50%{
+    scale:1.12;
+    translate:0 -6px;
+  }
+}
+
+
+@keyframes act1AdvTreasureFound{
+  to{
+    opacity:0;
+    scale:.55;
+    translate:14vw 13vh;
+  }
+}
+
+
+/* =========================================================
+   MARIE GUÍA
+========================================================= */
+
+body.act1-adventure-open
+#refugeGrayCat.act1Adv-MarieStep{
+  animation:
+    act1AdvMarieWalk
+    .56s
+    ease-in-out
+    2 !important;
+}
+
+
+@keyframes act1AdvMarieWalk{
+  0%,100%{
+    translate:0 0;
+  }
+
+  50%{
+    translate:0 -4px;
+  }
+}
+
+
+.act1AdvHiddenCorner{
+  position:absolute;
+
+  left:20%;
+  top:25%;
+
+  width:150px;
+  height:95px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(255,217,171,.12),
+      rgba(255,217,171,.025) 58%,
+      transparent 75%
+    );
+
+  color:#ffe8f3;
+
+  text-align:center;
+
+  pointer-events:none;
+
+  animation:
+    act1AdvCornerAppear
+    .8s
+    ease
+    both;
+}
+
+
+.act1AdvHiddenCorner > span{
+  color:#ffe7a8;
+
+  text-shadow:
+    0 0 12px
+    rgba(255,226,157,.65);
+}
+
+
+.act1AdvHiddenCorner small{
+  margin-top:7px;
+
+  max-width:130px;
+
+  font:
+    700 8px/1.35
+    monospace;
+}
+
+
+@keyframes act1AdvCornerAppear{
+  from{
+    opacity:0;
+    scale:.7;
+  }
+
+  to{
+    opacity:1;
+    scale:1;
+  }
+}
+
+
+/* =========================================================
+   MEWO NO QUIERE DORMIR
+========================================================= */
+
+.act1AdvMewoPanel{
+  position:absolute;
+
+  left:50%;
+  bottom:9%;
+
+  width:min(
+    86vw,
+    390px
+  );
+
+  padding:
+    11px 12px;
+
+  border:
+    1px solid
+    rgba(255,205,232,.23);
+
+  border-radius:11px;
+
+  background:
+    rgba(6,9,16,.84);
+
+  box-shadow:
+    0 10px 25px
+    rgba(0,0,0,.34);
+
+  transform:
+    translateX(-50%);
+
+  pointer-events:auto;
+}
+
+
+.act1AdvMewoPanel p{
+  margin:
+    0 0 10px;
+
+  color:#fff0f7;
+
+  font:
+    800 10px/1.4
+    monospace;
+
+  text-align:center;
+}
+
+
+.act1AdvMewoPanel > div{
+  display:grid;
+
+  grid-template-columns:
+    repeat(3,1fr);
+
+  gap:6px;
+}
+
+
+.act1AdvMewoPanel button{
+  min-height:38px;
+
+  padding:
+    7px 5px;
+
+  border:
+    1px solid
+    rgba(255,197,225,.22);
+
+  border-radius:7px;
+
+  background:
+    rgba(35,20,35,.82);
+
+  color:#ffe9f5;
+
+  font:
+    800 8px/1.2
+    monospace;
+}
+
+
+.act1AdvMewoPanel.done{
+  opacity:.3;
+
+  pointer-events:none;
+}
+
+
+.act1AdvMewoSymbol{
+  position:absolute;
+
+  left:50%;
+  bottom:43%;
+
+  color:#ffd8ed;
+
+  font:
+    900 22px/1
+    monospace;
+
+  opacity:0;
+
+  transform:
+    translateX(-50%)
+    scale(.7);
+
+  text-shadow:
+    0 0 10px
+    rgba(255,191,225,.55);
+
+  pointer-events:none;
+}
+
+
+.act1AdvMewoSymbol.show{
+  animation:
+    act1AdvMewoSymbol
+    1.4s
+    ease
+    forwards;
+}
+
+
+@keyframes act1AdvMewoSymbol{
+  0%{
+    opacity:0;
+    translate:0 6px;
+    scale:.7;
+  }
+
+  30%{
+    opacity:1;
+  }
+
+  100%{
+    opacity:0;
+    translate:0 -22px;
+    scale:1.1;
+  }
+}
+
+
+/* =========================================================
+   ESTRELLA QUE VUELVE AL CIELO
+========================================================= */
+
+.act1AdvStarStep{
+  position:absolute;
+
+  width:45px;
+  height:45px;
+
+  margin:
+    -22px 0 0 -22px;
+
+  display:grid;
+  place-items:center;
+
+  border:0;
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,229,155,.13),
+      transparent 64%
+    );
+
+  color:#ffe49b;
+
+  font:
+    900 18px/1
+    monospace;
+
+  text-shadow:
+    0 0 8px #ffe49b,
+    0 0 18px
+    rgba(255,226,142,.55);
+
+  pointer-events:auto;
+
+  animation:
+    act1AdvStarPulse
+    1.55s
+    ease-in-out
+    infinite;
+}
+
+
+.act1AdvReturnStar{
+  position:absolute;
+
+  left:50%;
+  top:47%;
+
+  width:70px;
+  height:70px;
+
+  display:grid;
+  place-items:center;
+
+  border:0;
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,228,151,.18),
+      transparent 65%
+    );
+
+  color:#ffe6a2;
+
+  font:
+    900 32px/1
+    monospace;
+
+  text-shadow:
+    0 0 11px #ffe6a2,
+    0 0 24px
+    rgba(255,226,147,.65);
+
+  transform:
+    translate(-50%,-50%);
+
+  pointer-events:auto;
+}
+
+
+.act1AdvReturnStar.home{
+  animation:
+    act1AdvStarHome
+    1.45s
+    cubic-bezier(.2,.75,.25,1)
+    forwards;
+}
+
+
+@keyframes act1AdvStarPulse{
+  0%,100%{
+    opacity:.45;
+    scale:.8;
+  }
+
+  50%{
+    opacity:1;
+    scale:1.12;
+  }
+}
+
+
+@keyframes act1AdvStarHome{
+  to{
+    top:-10%;
+    opacity:0;
+    scale:.55;
+  }
+}
+
+
+/* =========================================================
+   OVILLO
+========================================================= */
+
+.act1AdvYarnGame{
+  position:absolute;
+  inset:0;
+
+  pointer-events:none;
+}
+
+
+.act1AdvYarnGame svg{
+  position:absolute;
+  inset:0;
+
+  width:100%;
+  height:100%;
+}
+
+
+.act1AdvYarnGame polyline{
+  fill:none;
+
+  stroke:
+    rgba(245,196,216,.43);
+
+  stroke-width:.7;
+
+  stroke-dasharray:
+    2 1.4;
+
+  vector-effect:
+    non-scaling-stroke;
+
+  filter:
+    drop-shadow(
+      0 0 3px
+      rgba(255,182,215,.28)
+    );
+}
+
+
+.act1AdvYarnBall{
+  position:absolute;
+
+  left:13%;
+  top:58%;
+
+  width:min(
+    10vw,
+    62px
+  );
+
+  transform:
+    translate(-50%,-50%);
+
+  filter:
+    drop-shadow(
+      0 4px 7px
+      rgba(0,0,0,.3)
+    );
+}
+
+
+.act1AdvYarnBall.done{
+  animation:
+    act1AdvYarnDone
+    1.1s
+    ease
+    forwards;
+}
+
+
+.act1AdvYarnPoint{
+  position:absolute;
+
+  width:35px;
+  height:35px;
+
+  display:grid;
+  place-items:center;
+
+  border:
+    1px solid
+    rgba(255,211,232,.22);
+
+  border-radius:50%;
+
+  background:
+    rgba(31,16,29,.48);
+
+  color:#ffd4e8;
+
+  transform:
+    translate(-50%,-50%);
+
+  pointer-events:auto;
+
+  animation:
+    act1AdvYarnPointPulse
+    1.3s
+    ease-in-out
+    infinite;
+}
+
+
+.act1AdvYarnPoint.done{
+  opacity:0;
+
+  pointer-events:none;
+
+  transition:
+    opacity .25s;
+}
+
+
+@keyframes act1AdvYarnPointPulse{
+  0%,100%{
+    scale:.88;
+  }
+
+  50%{
+    scale:1.08;
+  }
+}
+
+
+@keyframes act1AdvYarnDone{
+  to{
+    left:60%;
+    top:66%;
+
+    rotate:180deg;
+  }
+}
+
+
+/* =========================================================
+   RESCATE BAJO LLUVIA
+========================================================= */
+
+.act1AdvRainItem{
+  position:absolute;
+
+  width:min(
+    11vw,
+    68px
+  );
+
+  aspect-ratio:1/1;
+
+  padding:0;
+
+  border:0;
+
+  background:transparent;
+
+  transform:
+    translate(-50%,-50%);
+
+  pointer-events:auto;
+
+  animation:
+    act1AdvRainShake
+    .7s
+    ease-in-out
+    infinite
+    alternate;
+}
+
+
+.act1AdvRainItem img{
+  width:100%;
+  height:100%;
+
+  object-fit:contain;
+
+  filter:
+    brightness(.85)
+    drop-shadow(
+      0 5px 8px
+      rgba(0,0,0,.4)
+    );
+}
+
+
+.act1AdvRainItem.saved{
+  animation:
+    act1AdvRainSaved
+    .95s
+    ease
+    forwards;
+}
+
+
+@keyframes act1AdvRainShake{
+  from{
+    rotate:-2deg;
+  }
+
+  to{
+    rotate:2deg;
+  }
+}
+
+
+@keyframes act1AdvRainSaved{
+  to{
+    left:50%;
+    top:72%;
+    opacity:0;
+    scale:.65;
+  }
+}
+
+
+/* =========================================================
+   TULIPANES ALTOS
+========================================================= */
+
+.act1AdvTallZone{
+  position:absolute;
+  left:5%;
+  right:5%;
+  bottom:2%;
+
+  height:45%;
+
+  border-radius:
+    48% 48% 0 0;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(3,16,12,.25),
+      transparent 70%
+    );
+
+  pointer-events:auto;
+
+  overflow:hidden;
+}
+
+
+.act1AdvTallTulip{
+  --height:110px;
+  --delay:0s;
+
+  position:absolute;
+
+  bottom:0;
+
+  width:58px;
+  height:var(--height);
+
+  padding:0;
+
+  border:0;
+
+  background:
+    url("tulip_atlas.webp")
+    left bottom /
+    300% 100%
+    no-repeat;
+
+  filter:
+    brightness(.83)
+    saturate(.94)
+    drop-shadow(
+      0 0 6px
+      rgba(245,112,176,.18)
+    );
+
+  transform:
+    translateX(-50%);
+
+  transform-origin:
+    center bottom;
+
+  animation:
+    act1AdvTallSway
+    3.7s
+    var(--delay)
+    ease-in-out
+    infinite
+    alternate;
+}
+
+
+.act1AdvTallTulip.awake{
+  filter:
+    brightness(1.1)
+    saturate(1.18)
+    drop-shadow(
+      0 0 12px
+      rgba(255,126,190,.42)
+    );
+
+  animation:
+    act1AdvTallWake
+    .7s
+    ease
+    both;
+}
+
+
+@keyframes act1AdvTallSway{
+  from{
+    rotate:-1.8deg;
+  }
+
+  to{
+    rotate:1.8deg;
+  }
+}
+
+
+@keyframes act1AdvTallWake{
+  50%{
+    scale:1.12;
+  }
+}
+
+
+/* =========================================================
+   FLOR DE MEDIANOCHE
+========================================================= */
+
+.act1AdvMidnightFlower{
+  position:absolute;
+
+  left:50%;
+  top:62%;
+
+  width:95px;
+  height:95px;
+
+  padding:0;
+
+  border:0;
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(132,136,255,.1),
+      transparent 66%
+    );
+
+  transform:
+    translate(-50%,-50%);
+
+  pointer-events:auto;
+}
+
+
+.act1AdvMidnightFlower > span{
+  position:absolute;
+
+  left:50%;
+  top:50%;
+
+  width:30px;
+  height:42px;
+
+  border-radius:
+    65% 65% 55% 55%;
+
+  background:
+    linear-gradient(
+      #968ce0,
+      #d4a6dc
+    );
+
+  transform-origin:
+    50% 90%;
+
+  opacity:.45;
+
+  filter:
+    drop-shadow(
+      0 0 8px
+      rgba(182,165,255,.34)
+    );
+
+  transition:
+    transform .55s ease,
+    opacity .55s ease;
+}
+
+
+.act1AdvMidnightFlower > span:nth-child(1){
+  transform:
+    translate(-50%,-50%)
+    rotate(-35deg)
+    scale(.62);
+}
+
+
+.act1AdvMidnightFlower > span:nth-child(2){
+  transform:
+    translate(-50%,-50%)
+    rotate(0deg)
+    scale(.62);
+}
+
+
+.act1AdvMidnightFlower > span:nth-child(3){
+  transform:
+    translate(-50%,-50%)
+    rotate(35deg)
+    scale(.62);
+}
+
+
+.act1AdvMidnightFlower > i{
+  position:absolute;
+
+  left:50%;
+  top:50%;
+
+  color:#fff3b2;
+
+  opacity:.35;
+
+  transform:
+    translate(-50%,-50%);
+
+  text-shadow:
+    0 0 12px
+    rgba(255,240,169,.75);
+
+  transition:
+    opacity .5s,
+    scale .5s;
+}
+
+
+.act1AdvMidnightFlower.open-1
+> span:nth-child(1),
+.act1AdvMidnightFlower.open-2
+> span:nth-child(-n+2),
+.act1AdvMidnightFlower.open-3
+> span{
+  opacity:1;
+}
+
+
+.act1AdvMidnightFlower.open-1
+> span:nth-child(1){
+  transform:
+    translate(-50%,-50%)
+    rotate(-58deg)
+    scale(.95);
+}
+
+
+.act1AdvMidnightFlower.open-2
+> span:nth-child(2){
+  transform:
+    translate(-50%,-50%)
+    rotate(0deg)
+    scale(1);
+}
+
+
+.act1AdvMidnightFlower.open-3
+> span:nth-child(3){
+  transform:
+    translate(-50%,-50%)
+    rotate(58deg)
+    scale(.95);
+}
+
+
+.act1AdvMidnightFlower.open-3
+> i{
+  opacity:1;
+  scale:1.3;
+}
+
+
+/* =========================================================
+   DOS CAMINOS / DETALLITO
+========================================================= */
+
+#act1AdventureChoice{
+  position:fixed;
+  inset:0;
+
+  z-index:175;
+
+  display:grid;
+  place-items:center;
+
+  padding:18px;
+
+  background:
+    rgba(2,5,10,.48);
+
+  opacity:0;
+  visibility:hidden;
+
+  pointer-events:none;
+
+  transition:
+    opacity .28s,
+    visibility .28s;
+}
+
+
+#act1AdventureChoice.show{
+  opacity:1;
+  visibility:visible;
+
+  pointer-events:auto;
+}
+
+
+#act1AdventureChoice section{
+  width:min(
+    88vw,
+    410px
+  );
+
+  padding:
+    17px 16px;
+
+  border:
+    1px solid
+    rgba(255,215,236,.25);
+
+  border-radius:13px;
+
+  background:
+    rgba(7,10,17,.9);
+
+  box-shadow:
+    0 14px 34px
+    rgba(0,0,0,.36);
+
+  text-align:center;
+}
+
+
+#act1AdventureChoice section > span{
+  color:#ffd7ea;
+
+  font-size:24px;
+}
+
+
+#act1AdventureChoice p{
+  margin:
+    8px 0 14px;
+
+  color:#fff0f8;
+
+  font:
+    800 10px/1.45
+    monospace;
+}
+
+
+#act1AdventureChoice section > div{
+  display:grid;
+
+  gap:8px;
+}
+
+
+#act1AdventureChoice button{
+  padding:
+    10px 11px;
+
+  border:
+    1px solid
+    rgba(255,198,227,.24);
+
+  border-radius:8px;
+
+  background:
+    rgba(30,18,31,.86);
+
+  color:#ffeaf5;
+
+  font:
+    800 9px/1.2
+    monospace;
+}
+
+
+.act1AdvCharmChoice
+> div{
+  grid-template-columns:
+    repeat(3,1fr);
+}
+
+
+.act1AdvCharmChoice button{
+  display:flex;
+
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  gap:5px;
+}
+
+
+.act1AdvCharmChoice img{
+  width:38px;
+  height:38px;
+
+  object-fit:contain;
+}
+
+
+/* Escenas visuales de ruta */
+#catGarden.act1Adv-route-marie
+.refugeGrayCat{
+  left:25% !important;
+  bottom:20% !important;
+}
+
+
+#catGarden.act1Adv-route-marie
+.refugeOrangeCat{
+  left:70% !important;
+  bottom:14% !important;
+
+  opacity:.6;
+}
+
+
+#catGarden.act1Adv-route-tuluz
+.refugeOrangeCat{
+  left:67% !important;
+  bottom:23% !important;
+}
+
+
+#catGarden.act1Adv-route-tuluz
+.refugeGrayCat{
+  left:24% !important;
+  bottom:14% !important;
+
+  opacity:.65;
+}
+
+
+/* =========================================================
+   PICNIC
+========================================================= */
+
+.act1AdvPicnic{
+  position:absolute;
+  inset:0;
+
+  pointer-events:none;
+}
+
+
+.act1AdvPicnicBlanket{
+  position:absolute;
+
+  left:50%;
+  bottom:7%;
+
+  width:min(
+    34vw,
+    270px
+  );
+
+  height:min(
+    12vw,
+    92px
+  );
+
+  border:
+    1px solid
+    rgba(255,211,229,.13);
+
+  border-radius:15px;
+
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(149,87,118,.23) 0 10px,
+      rgba(99,72,111,.2) 10px 20px
+    );
+
+  box-shadow:
+    0 7px 16px
+    rgba(0,0,0,.25);
+
+  transform:
+    translateX(-50%)
+    perspective(300px)
+    rotateX(55deg);
+
+  transform-origin:
+    center bottom;
+}
+
+
+.act1AdvPicnicSlots{
+  position:absolute;
+  inset:0;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  gap:12px;
+}
+
+
+.act1AdvPicnicSlots span{
+  width:42px;
+  height:42px;
+
+  display:grid;
+  place-items:center;
+}
+
+
+.act1AdvPicnicSlots img{
+  width:100%;
+  height:100%;
+
+  object-fit:contain;
+}
+
+
+.act1AdvPicnicTray{
+  position:absolute;
+
+  left:50%;
+  bottom:1%;
+
+  display:flex;
+  gap:8px;
+
+  transform:
+    translateX(-50%);
+
+  pointer-events:auto;
+}
+
+
+.act1AdvPicnicTray button{
+  width:50px;
+  height:50px;
+
+  display:grid;
+  place-items:center;
+
+  padding:4px;
+
+  border:
+    1px solid
+    rgba(255,208,232,.22);
+
+  border-radius:9px;
+
+  background:
+    rgba(10,12,19,.76);
+}
+
+
+.act1AdvPicnicTray img{
+  width:100%;
+  height:100%;
+
+  object-fit:contain;
+}
+
+
+.act1AdvPicnicTray
+button.placed{
+  opacity:.25;
+
+  pointer-events:none;
+}
+
+
+#catGarden.act1Adv-picnic
+.refugeGrayCat{
+  left:38% !important;
+  bottom:13% !important;
+}
+
+
+#catGarden.act1Adv-picnic
+#catGardenMewoSpot.show{
+  left:50% !important;
+  bottom:13% !important;
+}
+
+
+#catGarden.act1Adv-picnic
+.refugeOrangeCat{
+  left:62% !important;
+  bottom:13% !important;
+}
+
+
+/* =========================================================
+   DETALLE PERMANENTE DEL REFUGIO
+========================================================= */
+
+#act1AdventureCharm{
+  position:absolute;
+
+  right:14%;
+  top:14%;
+
+  z-index:8;
+
+  width:44px;
+  height:72px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+
+  pointer-events:none;
+
+  transform-origin:
+    50% 0;
+
+  animation:
+    act1AdvCharmSway
+    4.8s
+    ease-in-out
+    infinite
+    alternate;
+}
+
+
+#act1AdventureCharm > span{
+  width:1px;
+  height:34px;
+
+  background:
+    linear-gradient(
+      rgba(255,220,235,.2),
+      rgba(255,220,235,.65)
+    );
+}
+
+
+#act1AdventureCharm img{
+  width:33px;
+  height:33px;
+
+  object-fit:contain;
+
+  filter:
+    drop-shadow(
+      0 0 8px
+      rgba(255,204,228,.28)
+    );
+}
+
+
+@keyframes act1AdvCharmSway{
+  from{
+    rotate:-2deg;
+  }
+
+  to{
+    rotate:2deg;
+  }
+}
+
+
+/* =========================================================
+   CINEMÁTICA DE CIERRE
+========================================================= */
+
+#act1AdventureCinema{
+  position:fixed;
+  inset:0;
+
+  z-index:190;
+
+  display:grid;
+  place-items:center;
+
+  overflow:hidden;
+
+  background:
+    radial-gradient(
+      circle at 50% 65%,
+      rgba(53,46,82,.4),
+      transparent 33%
+    ),
+    linear-gradient(
+      #02050c,
+      #081225 60%,
+      #07110f
+    );
+
+  opacity:0;
+  visibility:hidden;
+
+  pointer-events:none;
+
+  transition:
+    opacity .65s,
+    visibility .65s;
+}
+
+
+#act1AdventureCinema.show{
+  opacity:1;
+  visibility:visible;
+
+  pointer-events:auto;
+}
+
+
+.act1AdvCinemaStars{
+  position:absolute;
+  inset:0;
+
+  pointer-events:none;
+}
+
+
+.act1AdvCinemaStars span{
+  position:absolute;
+
+  color:
+    rgba(255,221,239,.6);
+
+  text-shadow:
+    0 0 12px
+    rgba(255,187,221,.35);
+
+  animation:
+    act1AdvCinemaFloat
+    4s
+    ease-in-out
+    infinite;
+}
+
+
+.act1AdvCinemaStars
+span:nth-child(1){
+  left:17%;
+  top:22%;
+}
+
+
+.act1AdvCinemaStars
+span:nth-child(2){
+  right:19%;
+  top:29%;
+}
+
+
+.act1AdvCinemaStars
+span:nth-child(3){
+  left:25%;
+  bottom:20%;
+}
+
+
+.act1AdvCinemaStars
+span:nth-child(4){
+  right:26%;
+  bottom:23%;
+}
+
+
+@keyframes act1AdvCinemaFloat{
+  0%,100%{
+    translate:0 0;
+    opacity:.3;
+  }
+
+  50%{
+    translate:0 -8px;
+    opacity:.85;
+  }
+}
+
+
+.act1AdvCinemaCard{
+  width:min(
+    82vw,
+    520px
+  );
+
+  min-height:240px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  text-align:center;
+}
+
+
+#act1AdvCinemaIcon{
+  margin-bottom:18px;
+
+  color:#ffd9ea;
+
+  font-size:34px;
+
+  text-shadow:
+    0 0 18px
+    rgba(255,181,218,.34);
+}
+
+
+#act1AdvCinemaText{
+  min-height:70px;
+
+  margin:0;
+
+  color:#fff0f7;
+
+  font:
+    800 13px/1.65
+    monospace;
+
+  opacity:0;
+
+  transform:
+    translateY(8px);
+
+  transition:
+    opacity .5s,
+    transform .5s;
+}
+
+
+#act1AdvCinemaText.visible{
+  opacity:1;
+
+  transform:
+    translateY(0);
+}
+
+
+#act1AdvCinemaClose{
+  position:absolute;
+
+  left:50%;
+  bottom:max(
+    28px,
+    calc(
+      env(safe-area-inset-bottom) + 18px
+    )
+  );
+
+  padding:
+    9px 14px;
+
+  border:
+    1px solid
+    rgba(255,203,231,.28);
+
+  border-radius:8px;
+
+  background:
+    rgba(24,14,28,.82);
+
+  color:#ffeaf5;
+
+  font:
+    800 10px/1
+    monospace;
+
+  opacity:0;
+  visibility:hidden;
+
+  transform:
+    translateX(-50%);
+
+  pointer-events:none;
+
+  transition:
+    opacity .3s,
+    visibility .3s;
+}
+
+
+#act1AdvCinemaClose.ready{
+  opacity:1;
+  visibility:visible;
+
+  pointer-events:auto;
+}
+
+
+/* =========================================================
+   MÓVIL
+========================================================= */
+
+@media(max-width:600px){
+
+  #act1AdventureWhisper{
+    top:max(
+      10px,
+      calc(
+        env(safe-area-inset-top) + 7px
+      )
+    );
+
+    max-width:84vw;
+
+    font-size:9px;
+  }
+
+
+  .act1AdvTreasure,
+  .act1AdvRainItem{
+    width:min(
+      15vw,
+      58px
+    );
+  }
+
+
+  .act1AdvMewoPanel{
+    bottom:8%;
+
+    width:90vw;
+  }
+
+
+  .act1AdvMewoPanel
+  > div{
+    gap:4px;
+  }
+
+
+  .act1AdvMewoPanel button{
+    font-size:7px;
+  }
+
+
+  .act1AdvPicnicBlanket{
+    width:58vw;
+    height:20vw;
+  }
+
+
+  #act1AdventureCharm{
+    right:10%;
+    top:16%;
+
+    width:38px;
+  }
+
+
+  #act1AdvCinemaText{
+    font-size:11px;
+  }
+}
+
+
+/* =========================================================
+   REDUCIR MOVIMIENTO
+========================================================= */
+
+@media(prefers-reduced-motion:reduce){
+
+  #act1AdventureLayer *,
+  #act1AdventureCharm{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+  }
+}
+
+
+/* =========================================================
+   ACTIVIDADES MÁS VISIBLES
+========================================================= */
+
+.act1AdvTreasure,
+.act1AdvStarStep,
+.act1AdvReturnStar,
+.act1AdvYarnPoint,
+.act1AdvRainItem,
+.act1AdvTallTulip,
+.act1AdvMidnightFlower{
+  filter:
+    drop-shadow(0 0 11px rgba(255,204,229,.38))
+    drop-shadow(0 6px 9px rgba(0,0,0,.38));
+}
+
+.act1AdvTreasure::before,
+.act1AdvStarStep::before,
+.act1AdvYarnPoint::before,
+.act1AdvRainItem::before,
+.act1AdvMidnightFlower::before{
+  content:"";
+  position:absolute;
+  inset:-9px;
+  border:1px solid rgba(255,225,240,.4);
+  border-radius:999px;
+  box-shadow:0 0 20px rgba(255,176,217,.2);
+  animation:act1AdvVisiblePulse 1.2s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.act1AdvTreasure,
+.act1AdvRainItem{
+  min-width:67px;
+}
+
+.act1AdvYarnPoint{
+  width:48px;
+  height:48px;
+  background:rgba(48,22,41,.72);
+  border-color:rgba(255,215,236,.48);
+  font-size:18px;
+}
+
+.act1AdvStarStep{
+  width:58px;
+  height:58px;
+  margin:-29px 0 0 -29px;
+  font-size:25px;
+}
+
+#act1AdventureWhisper{
+  border-color:rgba(255,218,238,.42);
+  box-shadow:
+    0 8px 22px rgba(0,0,0,.36),
+    0 0 18px rgba(255,172,214,.14);
+  font-size:11px;
+}
+
+@keyframes act1AdvVisiblePulse{
+  0%,100%{opacity:.3;scale:.88}
+  50%{opacity:.95;scale:1.08}
+}

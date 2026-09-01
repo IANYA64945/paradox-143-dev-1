@@ -1,0 +1,164 @@
+/* =========================================================
+   PARADOX143 — TALLER / CRAFTING
+========================================================= */
+
+#catCraftToast{position:fixed;left:50%;bottom:18%;z-index:120;transform:translate(-50%,12px);padding:8px 12px;border:1px solid rgba(244,190,219,.35);border-radius:8px;background:rgba(6,8,14,.9);color:#ffe7f5;font:700 9px monospace;opacity:0;visibility:hidden;pointer-events:none;transition:.2s}
+#catCraftToast.show{opacity:1;visibility:visible;transform:translate(-50%,0)}
+
+.catMaterialDrop{position:fixed;z-index:24;width:58px;height:58px;padding:0;border:0;background:transparent;transform:translate(-50%,-50%) scale(.55);opacity:0;cursor:pointer;filter:drop-shadow(0 4px 8px rgba(0,0,0,.38));transition:opacity .25s,transform .25s;-webkit-tap-highlight-color:transparent}
+.catMaterialDrop.show{opacity:1;transform:translate(-50%,-50%) scale(1);animation:catDropFloat 2.2s ease-in-out infinite}
+.catMaterialDrop img{width:100%;height:100%;object-fit:contain}.catMaterialDrop span{position:absolute;right:-2px;top:-4px;color:#fff0bb;text-shadow:0 0 7px #fff;font:800 12px monospace}
+.catMaterialDrop.collected{animation:none;opacity:0;transform:translate(-50%,-65%) scale(1.35)}.catMaterialDrop.leave{opacity:0;transform:translate(-50%,-30%) scale(.7)}
+@keyframes catDropFloat{50%{transform:translate(-50%,-56%) scale(1.05)}}
+body.cat-garden-open .catMaterialDrop{display:none}
+
+#catCraftOverlay{position:fixed;inset:0;z-index:112;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,4,9,.82);backdrop-filter:blur(5px);opacity:0;visibility:hidden;pointer-events:none;transition:.2s}
+#catCraftOverlay.show{opacity:1;visibility:visible;pointer-events:auto}
+#catCraftPanel{position:relative;width:min(94vw,680px);max-height:88vh;overflow:auto;padding:34px 18px 20px;border:2px solid rgba(229,158,199,.55);border-radius:12px;background:linear-gradient(180deg,rgba(16,14,24,.99),rgba(7,8,14,.99));color:#fff;box-shadow:0 18px 55px rgba(0,0,0,.55);font-family:monospace}
+#catCraftClose{position:absolute;right:8px;top:6px;width:30px;height:30px;border:0;background:transparent;color:#fff;font:22px monospace}
+.catCraftTitle{text-align:center;color:#ffd3ea;font:800 13px monospace;letter-spacing:.04em;margin-bottom:12px}
+#catCraftInventory{display:grid;grid-template-columns:repeat(7,minmax(54px,1fr));gap:5px;margin-bottom:14px}
+.catInvItem{display:grid;grid-template-columns:25px 1fr;grid-template-rows:auto auto;align-items:center;gap:0 4px;padding:5px;border:1px solid rgba(255,255,255,.07);border-radius:6px;background:rgba(255,255,255,.025);opacity:.44}.catInvItem.has{opacity:1}.catInvItem img{grid-row:1/3;width:25px;height:25px;object-fit:contain}.catInvItem span{font-size:6px;color:#cbbdc8}.catInvItem strong{font-size:10px;color:#fff}
+.catCraftSectionTitle{margin:14px 0 7px;color:#eec1da;font:800 9px monospace}
+.catRecipeGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.catRecipe{display:flex;flex-direction:column;align-items:center;min-height:150px;padding:8px;border:1px solid rgba(233,172,206,.17);border-radius:8px;background:rgba(255,255,255,.025);color:#fff}.catRecipe img{width:100%;height:82px;object-fit:contain}.catRecipe strong{font:800 9px monospace}.catRecipe small{margin-top:4px;color:#d7c2cf;font:700 8px monospace}.catRecipe em{margin-top:auto;padding-top:5px;color:#9db19f;font:normal 7px monospace}
+.scratcherBuildCard{display:grid;grid-template-columns:min(42%,190px) 1fr;gap:10px;align-items:center;padding:8px;border:1px solid rgba(230,181,208,.16);border-radius:8px;background:rgba(255,255,255,.025)}.scratcherBuildCard img{width:100%;height:150px;object-fit:contain}.scratcherBuildCard strong,.scratcherBuildCard small{display:block}.scratcherBuildCard small{margin:6px 0;color:#c8bac4;font-size:8px}.scratcherBuildCard button,.craftComplete button{padding:8px;border:1px solid #eaa7ca;border-radius:6px;background:#1a101b;color:#ffe5f3;font:700 8px monospace}
+.ownedPillowRow{display:flex;gap:6px;overflow:auto}.ownedPillowRow button{min-width:118px;padding:5px;border:1px solid rgba(255,255,255,.12);border-radius:7px;background:rgba(255,255,255,.025);color:#ddd}.ownedPillowRow button.active{border-color:#f2afd2;background:rgba(232,137,189,.10)}.ownedPillowRow img{width:105px;height:55px;object-fit:contain}.ownedPillowRow span{display:block;font:7px monospace}
+
+.craftGameTitle{text-align:center;color:#ffd4ea;font:800 12px monospace}.craftGameHint{text-align:center;color:#cbbcc7;font:8px/1.4 monospace;margin:7px 0 12px}
+#sewingBoard,#stuffingBoard,#appliqueBoard{position:relative;width:min(78vw,420px);height:min(62vw,360px);min-height:270px;margin:0 auto 12px;border:1px solid rgba(244,184,218,.18);border-radius:10px;background:radial-gradient(circle,rgba(102,63,92,.12),rgba(2,4,9,.42));overflow:hidden;touch-action:none}
+.sewingPillowBase,.appliqueBase{position:absolute;left:50%;top:50%;width:72%;height:72%;object-fit:contain;transform:translate(-50%,-50%);opacity:.72}
+#stitchCanvas,#stitchDots{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.stitchDot{position:absolute;z-index:3;width:24px;height:24px;margin:-12px 0 0 -12px;padding:0;border:1px solid rgba(255,227,244,.5);border-radius:50%;background:rgba(52,19,43,.84);color:#ffe3a6;font:800 11px monospace;pointer-events:auto;box-shadow:0 0 12px rgba(245,149,204,.2)}.stitchDot.done{background:#d983b4;color:#fff}.stitchDot.wrong{animation:stitchWrong .25s}.stitchDot.done{pointer-events:none}
+#sewingNeedle{position:absolute;z-index:4;width:32px;height:46px;object-fit:contain;transform:translate(-50%,-60%) rotate(35deg);pointer-events:none;transition:left .15s,top .15s}
+@keyframes stitchWrong{50%{transform:scale(1.25);border-color:#ff697e}}
+
+#stuffCount{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:4;padding:5px 8px;border-radius:6px;background:rgba(3,5,9,.62);font:800 9px monospace}.cottonPuff{position:absolute;width:58px;height:58px;padding:0;border:0;background:transparent;animation:cottonFloat 2.1s ease-in-out infinite}.cottonPuff img{width:100%;height:100%;object-fit:contain}.cottonPuff.caught{animation:none;opacity:0;transform:scale(.2);transition:.28s}@keyframes cottonFloat{50%{transform:translateY(-10px) rotate(5deg)}}
+
+#appliqueTarget{position:absolute;left:50%;top:50%;width:88px;height:88px;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;border:2px dashed rgba(255,200,231,.68);border-radius:50%;color:#ffe6ad;font-size:22px;box-shadow:0 0 25px rgba(239,148,202,.11)}
+#appliqueDrag{position:absolute;left:18%;top:72%;z-index:4;width:86px;height:86px;object-fit:contain;transform:translate(-50%,-50%);touch-action:none;cursor:grab;filter:drop-shadow(0 4px 8px rgba(0,0,0,.35))}#appliqueDrag.returning{transition:left .25s,top .25s}
+.craftCancelBtn{display:block;margin:0 auto;padding:7px 11px;border:1px solid rgba(255,255,255,.18);border-radius:6px;background:transparent;color:#c9bdc6;font:700 8px monospace}
+.craftComplete{text-align:center}.craftComplete>span{display:block;font-size:24px;color:#ffb7dd}.craftComplete strong{display:block;color:#ffe0f1;font:800 13px monospace}.craftComplete img{display:block;width:min(80%,420px);height:200px;object-fit:contain;margin:6px auto}.craftComplete p{color:#cdbfca;font:8px monospace}
+
+@media(max-width:600px){
+  #catCraftInventory{grid-template-columns:repeat(4,1fr)}
+  .catRecipeGrid{grid-template-columns:1fr}
+  .catRecipe{min-height:112px;display:grid;grid-template-columns:100px 1fr;grid-template-rows:auto auto auto;text-align:left}.catRecipe img{grid-row:1/4;width:95px;height:90px}.catRecipe em{margin:0;padding:0}
+  #sewingBoard,#stuffingBoard,#appliqueBoard{width:86vw;height:78vw;min-height:300px}
+}
+
+
+/* =========================================================
+   PULIDO VISUAL DEL TALLER — COHERENTE CON EL JARDÍN
+========================================================= */
+
+#catCraftOverlay{
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(65,50,89,.18),
+      rgba(2,4,9,.84) 58%
+    );
+
+  backdrop-filter:blur(6px);
+}
+
+#catCraftPanel{
+  border:
+    1px solid
+    rgba(
+      235,
+      180,
+      212,
+      .46
+    );
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(91,70,109,.14),
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(20,18,29,.98),
+      rgba(7,9,15,.99)
+    );
+
+  box-shadow:
+    0 18px 55px
+    rgba(0,0,0,.48),
+    0 0 35px
+    rgba(222,145,190,.06),
+    inset 0 1px
+    rgba(255,255,255,.025);
+}
+
+#catCraftPanel::before{
+  content:"✦  ♡  ✦";
+  display:block;
+  position:absolute;
+  left:50%;
+  top:10px;
+  transform:translateX(-50%);
+  color:rgba(246,193,222,.42);
+  font:700 7px/1 monospace;
+  letter-spacing:.28em;
+  pointer-events:none;
+}
+
+.catInvItem,
+.catRecipe,
+.scratcherBuildCard,
+.ownedPillowRow button{
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.034),
+      rgba(255,255,255,.014)
+    );
+}
+
+.catRecipe,
+.scratcherBuildCard{
+  box-shadow:
+    inset 0 1px
+    rgba(255,255,255,.018);
+}
+
+.catRecipe img,
+.scratcherBuildCard img,
+.ownedPillowRow img{
+  filter:
+    drop-shadow(
+      0 5px 7px
+      rgba(0,0,0,.21)
+    );
+}
+
+.catRecipe:active,
+.ownedPillowRow button:active,
+.scratcherBuildCard button:active{
+  transform:scale(.985);
+}
+
+#sewingBoard,
+#stuffingBoard,
+#appliqueBoard{
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      rgba(112,77,112,.14),
+      rgba(4,7,12,.52) 68%
+    );
+
+  box-shadow:
+    inset 0 0 28px
+    rgba(224,149,195,.025);
+}
+
+.craftComplete img{
+  filter:
+    drop-shadow(
+      0 9px 12px
+      rgba(0,0,0,.25)
+    );
+}

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#030713">
+<title>paradox143</title>
+
+<!-- MÓDULOS DE ESTILO -->
+<link rel="stylesheet" href="styles-base.css">
+<link rel="stylesheet" href="styles-intro.css">
+<link rel="stylesheet" href="styles-game.css">
+<link rel="stylesheet" href="styles-pixel.css">
+<link rel="stylesheet" href="letters.css">
+<link rel="stylesheet" href="mewo-event.css">
+<link rel="stylesheet" href="magic-events.css">
+<link rel="stylesheet" href="climate-menu.css">
+<link rel="stylesheet" href="cat-garden.css">
+<link rel="stylesheet" href="refuge-arrival-events.css">
+<link rel="stylesheet" href="refuge-family-life.css">
+<link rel="stylesheet" href="refuge-secrets.css">
+<link rel="stylesheet" href="cat-crafting.css">
+<link rel="stylesheet" href="basket-collection.css">
+<link rel="stylesheet" href="act1-life.css">
+<link rel="stylesheet" href="act1-adventures.css">
+<link rel="stylesheet" href="act1-growth.css">
+<link rel="stylesheet" href="act1-cinematics.css">
+<link rel="stylesheet" href="basket-hints.css">
+<link rel="stylesheet" href="garden-layout.css">
+<link rel="stylesheet" href="world-habits.css">
+<link rel="stylesheet" href="act1-staying.css">
+<link rel="stylesheet" href="act1-last-warm.css">
+</head>
+
+<body class="intro-active">
+<div id="app"><canvas id="scene"></canvas></div>
+<button id="fsBtn" aria-label="Pantalla completa">⛶</button>
+<div id="tip"></div>
+<div id="loader"><div class="loadBox"><div class="loadText">Loading...</div><div class="loadBar"><div id="loadFill"></div></div></div></div>
+
+
+<!-- CARTA DE INTRODUCCIÓN -->
+<div id="intro">
+  <div class="introWrap">
+    <div class="introHint">Toca la carta</div>
+    <div class="envelopeStage" id="introEnvelope" role="button" aria-label="Abrir carta">
+      <div class="envelopeBody"></div>
+      <div class="introCard">
+        <div class="forYou">PARA TI ♡</div>
+        <div class="mainPhrase">“Te amaré un día más<br>por cada tulipán aquí plantado.”</div>
+        <div class="heartMark">♡</div>
+      </div>
+      <div class="envFront"></div>
+      <div class="envFlap"></div>
+    </div>
+    <button id="introContinue">Entrar al campo ♡</button>
+  </div>
+</div>
+
+<div id="bloomTransition"></div>
+
+<!-- CARTA ESCONDIDA -->
+<button id="secretLetterBtn" aria-label="Carta escondida">
+  <span class="miniEnv"></span>
+  <span class="secretSpark">✦</span>
+</button>
+
+<!-- MINIJUEGO -->
+<div id="gameOverlay">
+  <canvas id="gameCanvas"></canvas>
+
+  <div id="challengePanel" class="gamePanel">
+    <h2>Encontraste otra carta.</h2>
+    <p>Está sellada. Para abrirla, sobrevive a los pétalos de luz.<br><br>En celular, arrastra el corazón con el dedo.<br>En computadora, usa WASD o las flechas.</p>
+    <button id="startGameBtn" class="gameBtn">Comenzar ♡</button>
+    <button id="closeChallengeBtn" class="gameBtn">Volver al campo</button>
+  </div>
+
+  <div id="gameHud">
+    <span id="phaseText">FASE 1</span>
+    <div id="pixelLives" aria-label="3 vidas">
+      <img src="pixel_hearts.png" alt="Vidas" class="pixelArt">
+      <span id="livesCover"></span>
+    </div>
+    <span id="timeText">24 s</span>
+  </div>
+
+  <div id="losePanel" class="gamePanel hidden">
+    <h2>La carta sigue cerrada.</h2>
+    <p>Estuviste cerca. Puedes intentarlo otra vez.</p>
+    <button id="retryGameBtn" class="gameBtn">Intentar otra vez</button>
+    <button id="leaveGameBtn" class="gameBtn">Volver al campo</button>
+  </div>
+
+  <div id="finalLetter" class="gamePanel">
+    <div class="finalPaper">
+      <div class="seal">♡</div>
+      <h2>Para ti</h2>
+      <p>Y si algún día dudas de cuánto te quiero, vuelve a mirar este campo. Todavía quedan infinitos tulipanes por contar.</p>
+    </div>
+    <button id="playAgainBtn" class="gameBtn">Jugar otra vez</button>
+    <button id="backToFieldBtn" class="gameBtn">Volver al campo ♡</button>
+  </div>
+</div>
+
+<!-- MÚSICA: si luego subes musica.mp3, se activa automáticamente -->
+<audio id="bgMusic" src="musica.mp3" loop preload="auto"></audio>
+<button id="musicBtn" aria-label="Música">♫</button>
+
+<!--
+  MÓDULOS JAVASCRIPT.
+  IMPORTANTE: mantener este orden.
+-->
+<script src="core.js"></script>
+<script src="field.js"></script>
+<script src="intro.js"></script>
+<script src="game.js"></script>
+<script src="letters.js"></script>
+<script src="mewo-event.js"></script>
+<script src="magic-events.js"></script>
+<script src="climate-menu.js"></script>
+<script src="cat-garden.js"></script>
+<script src="refuge-arrival-events.js"></script>
+<script src="refuge-family-life.js"></script>
+<script src="refuge-secrets.js"></script>
+<script src="cat-crafting.js"></script>
+<script src="main.js"></script>
+<script src="basket-collection.js"></script>
+<script src="act1-life.js"></script>
+<script src="act1-adventures.js"></script>
+<script src="act1-growth.js"></script>
+<script src="act1-cinematics.js"></script>
+<script src="basket-hints.js"></script>
+<script src="world-habits.js"></script>
+<script src="progress-repair.js"></script>
+<script src="act1-staying.js"></script>
+<script src="act1-last-warm.js"></script>
+
+</body>
+</html>
