@@ -59,6 +59,11 @@
 
   let state=load();
 
+  const IS_DEV=
+    new URLSearchParams(
+      location.search
+    ).has('dev');
+
   let root=null;
   let track=null;
   let world=null;
@@ -1388,25 +1393,30 @@
 
     eventOverlay.innerHTML=`
       <div class="v4FalseReturn">
-        <div class="v4FalseSky">
-          <button data-error="moon" class="v4FalseMoon">☾</button>
-        </div>
+        <div class="v4FalseSky"></div>
+
+        <button
+          data-error="moon"
+          class="v4FalseMoon"
+          type="button"
+          aria-label="Revisar la luna"
+        >☾</button>
 
         <div class="v4FalseGarden">
           <div class="v4FalseBg"></div>
 
-          <button data-error="letter" class="v4FalseLetter">♡</button>
-          <button data-error="clock" class="v4FalseClock">00:00</button>
+          <button data-error="letter" class="v4FalseLetter" type="button">♡</button>
+          <button data-error="clock" class="v4FalseClock" type="button">00:00</button>
 
-          <button data-error="mewo" class="v4FalseCat mewo">
+          <button data-error="mewo" class="v4FalseCat mewo" type="button">
             <img src="mewo_idle.png" alt="">
           </button>
 
-          <button data-error="marie" class="v4FalseCat marie">
+          <button data-error="marie" class="v4FalseCat marie" type="button">
             <img src="cat_gray_idle.png" alt="">
           </button>
 
-          <button data-error="tuluz" class="v4FalseCat tuluz">
+          <button data-error="tuluz" class="v4FalseCat tuluz" type="button">
             <img src="cat_orange_idle.png" alt="">
           </button>
 
@@ -1481,23 +1491,70 @@
 
     startNormalMusic();
 
+    const inspectFalseError=(button)=>{
+      if(!button) return;
+
+      const id=button.dataset.error;
+      if(!id || !messages[id]) return;
+
+      inspected.add(id);
+
+      button.classList.add('noticed');
+
+      line.querySelector('span').textContent=
+        messages[id][0];
+
+      line.querySelector('small').textContent=
+        messages[id][1];
+
+      if(inspected.size>=6){
+        exit.classList.add('show');
+      }
+    };
+
     eventOverlay
       .querySelectorAll('[data-error]')
       .forEach(b=>{
-        b.addEventListener('click',()=>{
-          const id=b.dataset.error;
-          inspected.add(id);
-
-          b.classList.add('noticed');
-
-          line.querySelector('span').textContent=messages[id][0];
-          line.querySelector('small').textContent=messages[id][1];
-
-          if(inspected.size>=6){
-            exit.classList.add('show');
+        b.addEventListener(
+          'click',
+          ()=>{
+            inspectFalseError(b);
           }
-        });
+        );
       });
+
+    /*
+      Fallback específico para la luna:
+      si alguna capa del navegador móvil/desktop vuelve a interferir
+      con el hit-test del botón, tocar dentro de su círculo igualmente
+      registra la anomalía.
+    */
+    eventOverlay.addEventListener(
+      'pointerup',
+      e=>{
+        const moon=
+          eventOverlay.querySelector(
+            '.v4FalseMoon'
+          );
+
+        if(!moon) return;
+
+        const r=
+          moon.getBoundingClientRect();
+
+        const pad=18;
+
+        const inside=
+          e.clientX>=r.left-pad &&
+          e.clientX<=r.right+pad &&
+          e.clientY>=r.top-pad &&
+          e.clientY<=r.bottom+pad;
+
+        if(inside){
+          inspectFalseError(moon);
+        }
+      }
+    );
 
     exit.addEventListener('click',()=>{
       if(inspected.size<6) return;
@@ -1978,6 +2035,13 @@
           <small>ENTER MEMORY INDEX</small>
         </div>
 
+        <button
+          id="v4RelayRecall"
+          type="button"
+        >
+          ↺ RECUPERAR PORTADORA
+        </button>
+
         <div id="v4RelayKeys"></div>
 
         <div class="v4RelayActions">
@@ -2011,6 +2075,57 @@
 
       keys.appendChild(b);
     }
+
+    const recall=
+      eventOverlay.querySelector(
+        '#v4RelayRecall'
+      );
+
+    let recalling=false;
+
+    recall?.addEventListener(
+      'click',
+      ()=>{
+        if(recalling) return;
+        recalling=true;
+        recall.disabled=true;
+
+        entry='';
+        display.textContent='---';
+
+        const sequence=[
+          ['1--','CARRIER: 1...'],
+          ['14-','CARRIER: 1... 4...'],
+          ['143','CARRIER: 1... 4... 3...'],
+          ['---','MEMORY INDEX RECOVERED']
+        ];
+
+        let i=0;
+
+        const play=()=>{
+          const frame=
+            sequence[i++];
+
+          display.textContent=
+            frame[0];
+
+          sub.textContent=
+            frame[1];
+
+          if(i<sequence.length){
+            setTimeout(
+              play,
+              520
+            );
+          }else{
+            recalling=false;
+            recall.disabled=false;
+          }
+        };
+
+        play();
+      }
+    );
 
     eventOverlay.querySelector('#v4RelayErase')
       ?.addEventListener('click',()=>{
@@ -2054,9 +2169,11 @@
         display.textContent='---';
 
         sub.textContent=
-          failures>=3
-            ? '1... 4... 3... / SIGNAL REPEATING'
-            : 'NO CARRIER';
+          failures===1
+            ? 'CARRIER MEMORY: 1...'
+            : failures===2
+              ? 'CARRIER MEMORY: 1... 4...'
+              : 'CARRIER MEMORY: 1... 4... 3...';
 
         eventOverlay.classList.add('v4-relay-wrong');
 
@@ -2083,6 +2200,12 @@
       <div class="v4StillRoom">
         <div class="v4StillDot">·</div>
         <div id="v4StillText"></div>
+
+        ${
+          IS_DEV
+            ? '<div class="v4QaHint">DEV · no toques nada durante 12 segundos</div>'
+            : ''
+        }
       </div>
     `;
 
@@ -2193,6 +2316,15 @@
 
     core()?.suppressObjectives?.(true);
 
+    /*
+      En la historia normal el objetivo ya está en el extremo izquierdo.
+      En DEV se puede lanzar desde cualquier posición; por eso lo
+      colocamos automáticamente al inicio para que la prueba tenga sentido.
+    */
+    if(IS_DEV){
+      core()?.setWorldX?.(-760);
+    }
+
     playScene(
       {
         theme:'v4-final-walk',
@@ -2206,9 +2338,15 @@
       },
       ()=>{
         whisper(
-          'cruza el campo.',
-          '',
-          2200
+          IS_DEV
+            ? 'DEV · arrastra el campo hacia la derecha.'
+            : 'cruza el campo.',
+          IS_DEV
+            ? 've atravesando todas las zonas hasta el otro extremo.'
+            : '',
+          IS_DEV
+            ? 4200
+            : 2200
         );
 
         updateFinalWalk(
