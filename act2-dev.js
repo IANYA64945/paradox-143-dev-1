@@ -57,6 +57,19 @@
         <button id="devResetAct2">Reiniciar Acto II</button>
       </div>
 
+      <div class="devLabel">PUZZLES PRINCIPALES · QA</div>
+
+      <div class="devGrid">
+        <button data-core-puzzle="0">P0 Radio</button>
+        <button data-core-puzzle="1">P1 Tulipán</button>
+        <button data-core-puzzle="2">P2 Huellas</button>
+        <button data-core-puzzle="3">P3 Circuito</button>
+        <button data-core-puzzle="4">P4 Marie</button>
+        <button data-core-puzzle="5">P5 Tuluz</button>
+        <button data-core-puzzle="6">P6 Recuerdo/Copia</button>
+        <button data-core-puzzle="7">P7 Vacío</button>
+      </div>
+
       <div class="devLabel">V4 · RUPTURA TOTAL</div>
 
       <div class="devGrid">
@@ -127,6 +140,22 @@
       window.ParadoxAct2Fragments?.play?.(b.dataset.fr);
       refresh();
     }));
+
+    panel.querySelectorAll('[data-core-puzzle]').forEach(
+      b=>b.addEventListener('click',()=>{
+        panel.classList.remove('show');
+
+        const n=
+          Number(
+            b.dataset.corePuzzle
+          );
+
+        setTimeout(
+          ()=>window.ParadoxAct2?.openPuzzle?.(n),
+          120
+        );
+      })
+    );
 
     panel.querySelectorAll('[data-v4]').forEach(b=>b.addEventListener('click',()=>{
       panel.classList.remove('show');

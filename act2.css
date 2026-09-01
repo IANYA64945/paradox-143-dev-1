@@ -1552,3 +1552,215 @@ body.act2-active :is(
     height:52px;
   }
 }
+
+
+/* =========================================================
+   HOTFIX — PUZZLE DE HUELLAS
+   Hace evidente cuándo escuchar y cuándo tocar.
+========================================================= */
+
+.act2EchoPuzzle{
+  width:min(94%,520px);
+  text-align:center;
+}
+
+.act2PawGrid{
+  position:relative;
+  width:min(360px,78vw);
+  margin:0 auto;
+}
+
+.act2PawGrid button{
+  min-width:0;
+  min-height:0;
+  touch-action:manipulation;
+  cursor:pointer;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  position:relative;
+  z-index:4;
+}
+
+.act2EchoPuzzle.listening .act2PawGrid button{
+  cursor:wait;
+  opacity:.48;
+}
+
+.act2EchoPuzzle.ready .act2PawGrid button{
+  opacity:1;
+  border-color:rgba(214,226,228,.24);
+  background:rgba(220,230,232,.025);
+  box-shadow:
+    inset 0 0 26px rgba(220,230,232,.018),
+    0 0 0 1px rgba(220,230,232,.018);
+}
+
+.act2EchoPuzzle.ready .act2PawGrid button::after{
+  content:"";
+  position:absolute;
+  inset:8px;
+  border-radius:48%;
+  border:1px solid rgba(218,230,231,.04);
+  pointer-events:none;
+}
+
+.act2PawGrid button.echo{
+  opacity:1!important;
+  color:rgba(238,241,237,.98)!important;
+  background:rgba(211,226,218,.18)!important;
+  border-color:rgba(226,236,229,.46)!important;
+  box-shadow:
+    0 0 32px rgba(207,227,215,.22),
+    inset 0 0 30px rgba(228,238,232,.06)!important;
+  scale:1.07;
+}
+
+.act2PawGrid button.chosen,
+.act2PawGrid button.pressed{
+  color:rgba(241,244,240,.95)!important;
+  background:rgba(216,231,223,.13)!important;
+  border-color:rgba(229,237,232,.36)!important;
+  scale:.95;
+}
+
+.act2EchoPuzzle.wrong .act2PawGrid{
+  animation:act2PawWrong .28s steps(2);
+}
+
+@keyframes act2PawWrong{
+  33%{translate:-3px 0}
+  66%{translate:3px 0}
+}
+
+#act2PawReplay{
+  margin:14px auto 0;
+  min-height:34px;
+  padding:0 13px;
+  border:1px solid rgba(211,222,224,.11);
+  border-radius:5px;
+  background:rgba(255,255,255,.012);
+  color:rgba(220,228,229,.40);
+  font:800 7px/1 monospace;
+  letter-spacing:.04em;
+}
+
+#act2PawReplay:disabled{
+  opacity:.16;
+  pointer-events:none;
+}
+
+.act2EchoPuzzle.ready #act2PawReplay{
+  opacity:.72;
+  pointer-events:auto;
+}
+
+@media(max-width:600px){
+  .act2PawGrid{
+    width:min(76vw,340px);
+    gap:11px;
+  }
+
+  .act2PawGrid button{
+    min-height:96px;
+  }
+}
+
+
+/* =========================================================
+   REVISIÓN TOTAL DE PUZZLES — UX / MOBILE
+========================================================= */
+
+#act2RadioCapture,
+#act2TimelineSearch,
+#act2CircuitReset{
+  display:block;
+  margin:12px auto 0;
+  min-height:38px;
+  padding:0 14px;
+  border:1px solid rgba(211,223,225,.13);
+  border-radius:5px;
+  background:rgba(255,255,255,.014);
+  color:rgba(226,232,233,.48);
+  font:800 7px/1 monospace;
+  letter-spacing:.05em;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+
+#act2RadioCapture:active,
+#act2TimelineSearch:active,
+#act2CircuitReset:active{
+  scale:.97;
+  color:rgba(235,239,237,.80);
+  border-color:rgba(219,230,226,.30);
+}
+
+#act2RadioCapture:disabled,
+#act2TimelineSearch:disabled,
+#act2CircuitReset:disabled{
+  opacity:.25;
+  pointer-events:none;
+}
+
+.act2MarieProgress{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin:10px 0 5px;
+}
+
+.act2MarieProgress i{
+  width:17px;
+  height:3px;
+  border-radius:99px;
+  background:rgba(215,225,227,.08);
+  transition:.25s;
+}
+
+.act2MarieProgress i.current{
+  background:rgba(217,228,229,.27);
+}
+
+.act2MarieProgress i.done{
+  background:rgba(222,232,226,.57);
+  box-shadow:0 0 8px rgba(211,226,218,.10);
+}
+
+.act2CircuitGrid button,
+.act2PuzzlePieces button,
+#act2MarieAnswers button,
+.act2WeaveRow button,
+.act2GapSlots button{
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.act2CircuitGrid button:disabled,
+.act2PuzzlePieces button:disabled,
+.act2WeaveRow button:disabled,
+.act2GapSlots button:disabled{
+  cursor:default;
+}
+
+@media(max-width:600px){
+  #act2RadioCapture,
+  #act2TimelineSearch,
+  #act2CircuitReset{
+    min-height:44px;
+    font-size:8px;
+  }
+
+  #act2MarieAnswers button{
+    min-height:48px;
+  }
+
+  .act2WeaveRow button{
+    width:44px;
+    height:40px;
+  }
+
+  .act2GapSlots button{
+    touch-action:manipulation;
+  }
+}

@@ -1342,6 +1342,13 @@
           aria-label="Sintonizar frecuencia"
         >
 
+        <button
+          id="act2RadioCapture"
+          type="button"
+        >
+          CAPTURAR SEÑAL
+        </button>
+
         <p>
           No busca una canción.<br>
           Busca algo que todavía esté intentando hablar.
@@ -1370,6 +1377,11 @@
       )
     ];
 
+    const capture=
+      puzzleBody.querySelector(
+        '#act2RadioCapture'
+      );
+
     const update=()=>{
       const v=
         Number(dial.value);
@@ -1386,19 +1398,28 @@
         )
       );
 
-      const nearest=
-        Math.min(
-          ...targets.map(
-            t=>Math.abs(t-v)
-          )
+      const remaining=
+        targets.filter(
+          (_,i)=>!found.has(i)
         );
 
+      const nearest=
+        remaining.length
+          ? Math.min(
+              ...remaining.map(
+                t=>Math.abs(t-v)
+              )
+            )
+          : 999;
+
       carrier.textContent=
-        nearest<=4
-          ? 'CARRIER?'
-          : nearest<=10
-            ? '...'
-            : 'NO SIGNAL';
+        found.size>=targets.length
+          ? 'LOCKED'
+          : nearest<=4
+            ? 'CARRIER?'
+            : nearest<=10
+              ? '...'
+              : 'NO SIGNAL';
     };
 
     const lockStation=()=>{
@@ -1448,6 +1469,8 @@
         );
 
         if(found.size>=targets.length){
+          capture.disabled=true;
+
           setTimeout(
             ()=>completePuzzle(
               ch,
@@ -1455,6 +1478,15 @@
               'ninguna consigue terminar la frase.'
             ),
             850
+          );
+        }else{
+          setTimeout(
+            ()=>{
+              carrier.textContent=
+                'BUSCA OTRA';
+              update();
+            },
+            520
           );
         }
       }else{
@@ -1472,6 +1504,11 @@
 
     dial.addEventListener(
       'change',
+      lockStation
+    );
+
+    capture?.addEventListener(
+      'click',
       lockStation
     );
 
@@ -1503,6 +1540,7 @@
 
     let step=0;
     let failures=0;
+    let solved=false;
 
     puzzleBody.innerHTML=`
       <div class="act2TulipPuzzle">
@@ -1536,6 +1574,10 @@
 
         b.type='button';
         b.dataset.part=id;
+        b.setAttribute(
+          'aria-label',
+          `Parte: ${labels[id][1]}`
+        );
 
         b.innerHTML=`
           <strong>${labels[id][0]}</strong>
@@ -1545,6 +1587,8 @@
         b.addEventListener(
           'click',
           ()=>{
+            if(solved) return;
+
             if(
               order[step]===id
             ){
@@ -1576,6 +1620,16 @@
               );
 
               if(step>=order.length){
+                solved=true;
+
+                puzzleBody
+                  .querySelectorAll(
+                    '.act2PuzzlePieces button'
+                  )
+                  .forEach(btn=>{
+                    btn.disabled=true;
+                  });
+
                 setTimeout(
                   ()=>completePuzzle(
                     ch,
@@ -1629,15 +1683,24 @@
     let round=0;
     let input=[];
     let locked=true;
+    let flashing=false;
 
     puzzleBody.innerHTML=`
       <div class="act2EchoPuzzle">
         <div class="act2PawGrid">
-          <button data-pad="0">🐾</button>
-          <button data-pad="1">🐾</button>
-          <button data-pad="2">🐾</button>
-          <button data-pad="3">🐾</button>
+          <button data-pad="0" type="button" aria-label="Huella arriba izquierda">🐾</button>
+          <button data-pad="1" type="button" aria-label="Huella arriba derecha">🐾</button>
+          <button data-pad="2" type="button" aria-label="Huella abajo izquierda">🐾</button>
+          <button data-pad="3" type="button" aria-label="Huella abajo derecha">🐾</button>
         </div>
+
+        <button
+          id="act2PawReplay"
+          type="button"
+          aria-label="Repetir patrón"
+        >
+          ↺ repetir patrón
+        </button>
 
         <p>
           Las huellas no forman un camino.<br>
@@ -1646,84 +1709,196 @@
       </div>
     `;
 
+    const wrapper=
+      puzzleBody.querySelector(
+        '.act2EchoPuzzle'
+      );
+
     const pads=[
       ...puzzleBody.querySelectorAll(
         '[data-pad]'
       )
     ];
 
+    const replayButton=
+      puzzleBody.querySelector(
+        '#act2PawReplay'
+      );
+
+    const setReady=ready=>{
+      locked=!ready;
+
+      wrapper?.classList.toggle(
+        'ready',
+        ready
+      );
+
+      wrapper?.classList.toggle(
+        'listening',
+        !ready
+      );
+
+      pads.forEach(
+        b=>{
+          b.setAttribute(
+            'aria-disabled',
+            String(!ready)
+          );
+        }
+      );
+
+      if(replayButton){
+        replayButton.disabled=
+          !ready;
+      }
+    };
+
     const flash=async(sequence)=>{
-      locked=true;
+      if(flashing) return;
+
+      flashing=true;
       input=[];
+
+      setReady(false);
 
       setPuzzleStatus(
         'escucha.',
-        ''
+        'primero mira el patrón; después podrás tocar.'
       );
 
       await wait(650);
 
       for(const idx of sequence){
-        pads[idx]?.classList.add(
+        const pad=pads[idx];
+
+        pad?.classList.add(
           'echo'
         );
 
         setAct2SoundMode('hum');
 
-        await wait(330);
+        await wait(430);
 
-        pads[idx]?.classList.remove(
+        pad?.classList.remove(
           'echo'
         );
 
         setAct2SoundMode('silence');
 
-        await wait(240);
+        await wait(280);
       }
 
-      locked=false;
+      flashing=false;
+      setReady(true);
 
       setPuzzleStatus(
         'ahora tú.',
-        ''
+        'toca las huellas en el mismo orden.'
       );
     };
 
     const replay=()=>{
-      flash(rounds[round]);
+      if(flashing) return;
+
+      flash(
+        rounds[round]
+      );
     };
+
+    replayButton?.addEventListener(
+      'click',
+      ()=>{
+        if(!locked){
+          replay();
+        }
+      }
+    );
 
     pads.forEach(
       (b,idx)=>{
         b.addEventListener(
+          'pointerdown',
+          ()=>{
+            b.classList.add(
+              'pressed'
+            );
+          }
+        );
+
+        b.addEventListener(
+          'pointerup',
+          ()=>{
+            setTimeout(
+              ()=>b.classList.remove(
+                'pressed'
+              ),
+              120
+            );
+          }
+        );
+
+        b.addEventListener(
           'click',
           ()=>{
-            if(locked) return;
+            /*
+              Antes el click se ignoraba silenciosamente mientras
+              decía "escucha.", y parecía que el puzzle estaba roto.
+              Ahora responde claramente.
+            */
+            if(locked){
+              setPuzzleStatus(
+                'todavía no.',
+                'espera a que termine el patrón y aparezca “ahora tú”.'
+              );
 
-            b.classList.add('pressed');
+              return;
+            }
+
+            b.classList.add(
+              'chosen'
+            );
+
             setTimeout(
-              ()=>b.classList.remove('pressed'),
-              180
+              ()=>b.classList.remove(
+                'chosen'
+              ),
+              220
             );
 
             input.push(idx);
 
             const expected=
-              rounds[round][input.length-1];
+              rounds[round][
+                input.length-1
+              ];
 
             if(idx!==expected){
-              locked=true;
+              setReady(false);
 
               setPuzzleStatus(
                 'la huella se corta.',
-                'inténtalo otra vez.'
+                'te lo mostraré otra vez.'
               );
 
-              setAct2SoundMode('static');
+              setAct2SoundMode(
+                'static'
+              );
+
+              wrapper?.classList.add(
+                'wrong'
+              );
 
               setTimeout(
                 ()=>{
-                  setAct2SoundMode('silence');
+                  wrapper?.classList.remove(
+                    'wrong'
+                  );
+
+                  setAct2SoundMode(
+                    'silence'
+                  );
+
+                  flashing=false;
                   replay();
                 },
                 900
@@ -1731,6 +1906,11 @@
 
               return;
             }
+
+            setPuzzleStatus(
+              `${input.length}…`,
+              'sigue.'
+            );
 
             if(
               input.length>=
@@ -1741,7 +1921,7 @@
               if(
                 round>=rounds.length
               ){
-                locked=true;
+                setReady(false);
 
                 setPuzzleStatus(
                   'ahí estás.',
@@ -1754,19 +1934,22 @@
                     'las huellas ya no están solas.',
                     ''
                   ),
-                  800
+                  850
                 );
               }else{
-                locked=true;
+                setReady(false);
 
                 setPuzzleStatus(
-                  'otra vez.',
-                  'esta vez recuerda un poco más.'
+                  'bien.',
+                  'escucha el siguiente patrón.'
                 );
 
                 setTimeout(
-                  replay,
-                  900
+                  ()=>{
+                    flashing=false;
+                    replay();
+                  },
+                  1000
                 );
               }
             }
@@ -1775,11 +1958,20 @@
       }
     );
 
+    /*
+      Marcamos explícitamente el estado inicial para que visualmente
+      se entienda que primero es demostración y luego interacción.
+    */
+    setReady(false);
     replay();
 
     puzzleCleanup=()=>{
       locked=true;
-      setAct2SoundMode('silence');
+      flashing=false;
+
+      setAct2SoundMode(
+        'silence'
+      );
     };
   }
 
@@ -1793,6 +1985,7 @@
     ];
 
     let index=0;
+    let solved=false;
 
     puzzleBody.innerHTML=`
       <div class="act2CircuitPuzzle">
@@ -1802,6 +1995,13 @@
           <span>FUENTE</span>
           <span>LUZ</span>
         </div>
+
+        <button
+          id="act2CircuitReset"
+          type="button"
+        >
+          ↺ reiniciar corriente
+        </button>
 
         <p>
           La energía todavía conoce una ruta.<br>
@@ -1869,9 +2069,17 @@
             if(
               index>=path.length
             ){
+              solved=true;
+
               puzzleBody.classList.add(
                 'circuit-complete'
               );
+
+              grid
+                .querySelectorAll('button')
+                .forEach(btn=>{
+                  btn.disabled=true;
+                });
 
               setTimeout(
                 ()=>completePuzzle(
@@ -1904,6 +2112,36 @@
 
       grid.appendChild(b);
     }
+
+    puzzleBody
+      .querySelector(
+        '#act2CircuitReset'
+      )
+      ?.addEventListener(
+        'click',
+        ()=>{
+          if(solved) return;
+
+          index=0;
+
+          grid
+            .querySelectorAll('button')
+            .forEach(btn=>{
+              btn.classList.remove(
+                'active'
+              );
+            });
+
+          setPuzzleStatus(
+            'otra vez.',
+            'empieza desde FUENTE.'
+          );
+
+          setAct2SoundMode(
+            'silence'
+          );
+        }
+      );
 
     puzzleCleanup=()=>{};
   }
@@ -1941,10 +2179,16 @@
     ];
 
     let round=0;
+    let locked=false;
 
     puzzleBody.innerHTML=`
       <div class="act2MariePuzzle">
         <div id="act2MariePrompt"></div>
+
+        <div class="act2MarieProgress">
+          <i></i><i></i><i></i>
+        </div>
+
         <div id="act2MarieAnswers"></div>
       </div>
     `;
@@ -1959,11 +2203,33 @@
         '#act2MarieAnswers'
       );
 
+    const progressDots=[
+      ...puzzleBody.querySelectorAll(
+        '.act2MarieProgress i'
+      )
+    ];
+
     const render=()=>{
+      locked=false;
+
       const data=rounds[round];
 
       prompt.textContent=data.q;
       answers.innerHTML='';
+
+      progressDots.forEach(
+        (dot,i)=>{
+          dot.classList.toggle(
+            'done',
+            i<round
+          );
+
+          dot.classList.toggle(
+            'current',
+            i===round
+          );
+        }
+      );
 
       data.answers.forEach(
         ([label,correct])=>{
@@ -1978,7 +2244,10 @@
           b.addEventListener(
             'click',
             ()=>{
+              if(locked) return;
+
               if(correct){
+                locked=true;
                 b.classList.add(
                   'correct'
                 );
@@ -2006,6 +2275,8 @@
                   );
                 }
               }else{
+                locked=true;
+
                 b.classList.add(
                   'wrong'
                 );
@@ -2016,9 +2287,13 @@
                 );
 
                 setTimeout(
-                  ()=>b.classList.remove(
-                    'wrong'
-                  ),
+                  ()=>{
+                    b.classList.remove(
+                      'wrong'
+                    );
+
+                    locked=false;
+                  },
                   420
                 );
               }
@@ -2066,6 +2341,13 @@
           <span>DESPUÉS</span>
         </div>
 
+        <button
+          id="act2TimelineSearch"
+          type="button"
+        >
+          BUSCAR AQUÍ
+        </button>
+
         <p id="act2TimelineHint">
           El Archivo insiste en buscar antes.
         </p>
@@ -2090,6 +2372,11 @@
     const hint=
       puzzleBody.querySelector(
         '#act2TimelineHint'
+      );
+
+    const searchButton=
+      puzzleBody.querySelector(
+        '#act2TimelineSearch'
       );
 
     const update=()=>{
@@ -2225,6 +2512,18 @@
 
     dial.addEventListener(
       'change',
+      ()=>{
+        /*
+          El cambio actualiza la pantalla, pero la búsqueda se
+          confirma con el botón. Evita que algunos móviles
+          "pierdan" el evento al soltar el control.
+        */
+        update();
+      }
+    );
+
+    searchButton?.addEventListener(
+      'click',
       commit
     );
 
@@ -2306,6 +2605,13 @@
           )
           .forEach(
             b=>{
+              b.setAttribute(
+                'aria-label',
+                b.dataset.value==='remember'
+                  ? `Recuperar: ${row.label}`
+                  : `Dejar cambiar: ${row.label}`
+              );
+
               b.addEventListener(
                 'click',
                 ()=>{
@@ -2322,6 +2628,14 @@
                     item.classList.add(
                       'done'
                     );
+
+                    item
+                      .querySelectorAll(
+                        'button'
+                      )
+                      .forEach(btn=>{
+                        btn.disabled=true;
+                      });
 
                     b.classList.add(
                       'correct'
@@ -2384,6 +2698,7 @@
   function buildEmptyGapPuzzle(ch){
     let resistantHits=0;
     let filled=0;
+    let solved=false;
 
     puzzleBody.innerHTML=`
       <div class="act2GapPuzzle">
@@ -2422,6 +2737,8 @@
           b.addEventListener(
             'click',
             ()=>{
+              if(solved) return;
+
               const idx=
                 Number(
                   b.dataset.gap
@@ -2493,10 +2810,18 @@
 
               if(
                 resistantHits>=3 &&
-                filled>=3
+                filled>=4
               ){
                 leave.classList.add(
                   'show'
+                );
+              }else if(
+                resistantHits>=3 &&
+                filled<4
+              ){
+                setPuzzleStatus(
+                  'NO SOURCE',
+                  'todavía hay recuerdos que sí puedes recuperar.'
                 );
               }
             }
@@ -2507,6 +2832,18 @@
     leave.addEventListener(
       'click',
       ()=>{
+        if(solved) return;
+        solved=true;
+        leave.disabled=true;
+
+        puzzleBody
+          .querySelectorAll(
+            '.act2GapSlots button'
+          )
+          .forEach(btn=>{
+            btn.disabled=true;
+          });
+
         setPuzzleStatus(
           '...',
           'por primera vez el mundo deja de intentar.'

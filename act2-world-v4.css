@@ -1384,3 +1384,53 @@
     width:59%!important;
   }
 }
+
+
+/* =========================================================
+   REVISIÓN TOTAL DE PUZZLES V4
+========================================================= */
+
+.v4RelayActions{
+  display:grid;
+  grid-template-columns:1fr 2fr;
+  gap:8px;
+  margin-top:8px;
+}
+
+#v4RelayErase,
+#v4RelayEnter{
+  width:100%;
+  margin:0;
+  min-height:42px;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.v4SoundCorridor > button,
+.v4EdgePoint,
+.v4BlankCard,
+#v4FalseMemoryGrid button,
+#v4FalseMemoryChoice button,
+#v4ChaseForward,
+#v4RelayKeys button,
+#v4RelayErase,
+#v4RelayEnter{
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+
+@media(max-width:600px){
+  #v4RelayKeys button{
+    min-height:46px;
+  }
+
+  #v4RelayErase,
+  #v4RelayEnter{
+    min-height:46px;
+  }
+
+  .v4EdgePoint{
+    width:50px;
+    height:50px;
+  }
+}

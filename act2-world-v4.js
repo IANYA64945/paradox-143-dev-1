@@ -797,6 +797,7 @@
     eventOverlay.dataset.theme=theme;
 
     eventOverlay.innerHTML='';
+    eventOverlay.style.pointerEvents='';
     eventOverlay.classList.add('show');
     eventOverlay.setAttribute('aria-hidden','false');
 
@@ -808,6 +809,7 @@
 
     eventOverlay.classList.remove('show');
     eventOverlay.setAttribute('aria-hidden','true');
+    eventOverlay.style.pointerEvents='';
     eventOverlay.innerHTML='';
 
     document.body.classList.remove('act2-v4-event-open');
@@ -1229,6 +1231,8 @@
   function falseMemoryRoom(){
     beginEvent('false-memory');
 
+    let resolving=false;
+
     const memories=[
       {
         id:'pillow',
@@ -1328,7 +1332,10 @@
     choice.querySelectorAll('button')
       .forEach(b=>{
         b.addEventListener('click',()=>{
+          if(resolving) return;
+
           if(b.dataset.choice==='recognize'){
+            resolving=true;
             q.querySelector('span').textContent=
               'sí.';
 
@@ -1358,7 +1365,10 @@
               'tampoco puede sorprenderte.';
 
             setTimeout(
-              ()=>eventOverlay.classList.remove('v4-wrong-memory'),
+              ()=>{
+                eventOverlay.classList.remove('v4-wrong-memory');
+                resolving=false;
+              },
               450
             );
           }
@@ -1657,8 +1667,8 @@
           <small>escucha dónde queda algo.</small>
         </div>
 
-        <button data-side="left" type="button" aria-label="Izquierda"></button>
-        <button data-side="right" type="button" aria-label="Derecha"></button>
+        <button data-side="left" type="button" aria-label="Elegir señal izquierda"></button>
+        <button data-side="right" type="button" aria-label="Elegir señal derecha"></button>
 
         <div id="v4SoundPulse"></div>
       </div>
@@ -1970,9 +1980,15 @@
 
         <div id="v4RelayKeys"></div>
 
-        <button id="v4RelayEnter" type="button">
-          ENTER
-        </button>
+        <div class="v4RelayActions">
+          <button id="v4RelayErase" type="button">
+            BORRAR
+          </button>
+
+          <button id="v4RelayEnter" type="button">
+            ENTER
+          </button>
+        </div>
       </div>
     `;
 
@@ -1995,6 +2011,13 @@
 
       keys.appendChild(b);
     }
+
+    eventOverlay.querySelector('#v4RelayErase')
+      ?.addEventListener('click',()=>{
+        entry='';
+        display.textContent='---';
+        sub.textContent='ENTER MEMORY INDEX';
+      });
 
     eventOverlay.querySelector('#v4RelayEnter')
       .addEventListener('click',()=>{
@@ -2054,6 +2077,7 @@
     let touched=0;
     let elapsed=0;
     let timer=null;
+    let finished=false;
 
     eventOverlay.innerHTML=`
       <div class="v4StillRoom">
@@ -2068,6 +2092,8 @@
       );
 
     const reset=()=>{
+      if(finished) return;
+
       elapsed=0;
       touched++;
 
@@ -2080,10 +2106,14 @@
           'tal vez no tengas que hacer nada.';
       }
 
-      eventOverlay.classList.add('v4-still-disturbed');
+      eventOverlay.classList.add(
+        'v4-still-disturbed'
+      );
 
       setTimeout(
-        ()=>eventOverlay.classList.remove('v4-still-disturbed'),
+        ()=>eventOverlay.classList.remove(
+          'v4-still-disturbed'
+        ),
         260
       );
     };
@@ -2093,16 +2123,38 @@
       reset
     );
 
+    const cleanup=()=>{
+      eventOverlay.removeEventListener(
+        'pointerdown',
+        reset
+      );
+
+      if(timer){
+        clearInterval(timer);
+        timer=null;
+      }
+
+      eventOverlay.style.pointerEvents='';
+    };
+
     timer=setInterval(()=>{
       elapsed+=1;
 
-      if(elapsed===6 && touched===0){
+      if(
+        elapsed===6 &&
+        touched===0
+      ){
         text.textContent='';
       }
 
       if(elapsed>=12){
-        clearInterval(timer);
+        finished=true;
+        cleanup();
 
+        /*
+          Evitamos que un toque accidental durante las frases
+          finales reinicie el puzzle.
+        */
         eventOverlay.style.pointerEvents='none';
 
         text.textContent=
@@ -2117,6 +2169,8 @@
           save({
             stillRoomDone:true
           });
+
+          eventOverlay.style.pointerEvents='';
 
           endEvent();
         },2300);
