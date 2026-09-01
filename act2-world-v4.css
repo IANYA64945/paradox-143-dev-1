@@ -1434,3 +1434,94 @@
     height:50px;
   }
 }
+
+
+/* =========================================================
+   HOTFIX — FALSO ACTO I
+   Corrige capas que bloqueaban algunos objetos clicables.
+========================================================= */
+
+/*
+  El jardín ocupa toda la pantalla. Antes podía capturar el clic
+  aunque visualmente fuera transparente en la zona del cielo.
+  Ahora la capa general deja pasar el puntero y solo los objetos
+  interactivos reciben clics.
+*/
+.v4FalseGarden{
+  pointer-events:none;
+}
+
+.v4FalseBg{
+  pointer-events:none;
+}
+
+/* Cielo visible pero no bloquea los clics. */
+.v4FalseSky{
+  pointer-events:none;
+}
+
+/* Los seis errores sí son interactivos. */
+.v4FalseMoon,
+.v4FalseLetter,
+.v4FalseClock,
+.v4FalseCat,
+#v4FalseReturnExit{
+  pointer-events:auto!important;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/*
+  La luna necesitaba estar por encima de la capa del jardín.
+*/
+.v4FalseMoon{
+  z-index:25!important;
+}
+
+/*
+  Gatos también quedan claramente por encima de la imagen
+  del Claro para evitar zonas muertas al hacer clic.
+*/
+.v4FalseCat{
+  z-index:12!important;
+}
+
+#v4FalseReturnLine{
+  pointer-events:none;
+}
+
+/*
+  Después de detectar un error, el objeto pierde un poco de brillo
+  para dejar claro que YA fue revisado sin mostrar un contador.
+*/
+[data-error].noticed{
+  opacity:.58;
+}
+
+[data-error].noticed::after{
+  pointer-events:none;
+}
+
+/* En móvil aumentamos discretamente las áreas de toque. */
+@media(max-width:650px){
+  .v4FalseMoon{
+    width:88px;
+    height:88px;
+  }
+
+  .v4FalseLetter{
+    width:52px;
+    height:56px;
+  }
+
+  .v4FalseClock{
+    min-width:58px;
+    min-height:38px;
+  }
+
+  .v4FalseCat{
+    min-width:70px;
+    min-height:70px;
+  }
+}
