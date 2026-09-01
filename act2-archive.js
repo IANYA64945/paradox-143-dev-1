@@ -23,6 +23,7 @@
   let room=0;
   let openFlag=false;
   let seen=new Set();
+  let commandsSeen=new Set();
 
   const RECORDS=[
     {
@@ -185,7 +186,7 @@
       meta:'NEW FRAME CREATION = DISABLED',
       text:'El futuro tampoco contiene nada.',
       cls:'archive-future-null-2',
-      action:'...'
+      action:'BACK'
     },
     {
       title:'WORLD_LOCK',
@@ -250,10 +251,19 @@
 
         <pre id="act2ArchivePreview">selecciona un registro</pre>
 
+        <div id="act2ArchiveCommands">
+          <button type="button" data-cmd="recover">RECOVER</button>
+          <button type="button" data-cmd="replace">REPLACE</button>
+          <button type="button" data-cmd="ignore">IGNORE</button>
+          <button type="button" data-cmd="lock">LOCK</button>
+        </div>
+
         <button id="act2ArchiveStart" type="button" disabled>
-          REPRODUCIR LO RECUPERADO
+          LOCK WORLD
         </button>
       </div>
+
+      <div id="act2ArchivePhantom"></div>
 
       <div id="act2ArchivePlayback">
         <div id="act2ArchiveVisual">
@@ -311,6 +321,12 @@
 
     startButton.addEventListener('click',startPlayback);
     overlay.querySelector('#act2ArchiveAction').addEventListener('click',next);
+
+    overlay.querySelectorAll('#act2ArchiveCommands [data-cmd]').forEach(button=>{
+      button.addEventListener('click',()=>{
+        inspectCommand(button.dataset.cmd,button);
+      });
+    });
   }
 
   function inspectRecord(record,button){
@@ -330,14 +346,69 @@
     overlay.classList.add('record-flash');
 
     if(seen.size>=RECORDS.length){
-      startButton.disabled=false;
-      startButton.classList.add('ready');
+      overlay.classList.add('commands-ready');
 
       setTimeout(()=>{
         preview.textContent=
-          '9 REGISTROS LEÍDOS\n\nLOCK WORLD = AVAILABLE\n\ncrear nuevos frames será deshabilitado.';
+          '9 REGISTROS LEÍDOS\n\nCOMMAND INTERFACE = AVAILABLE\n\nno existe una opción que devuelva exactamente el mundo anterior.';
       },450);
     }
+  }
+
+
+  function inspectCommand(cmd,button){
+    if(seen.size<RECORDS.length) return;
+
+    commandsSeen.add(cmd);
+    button.classList.add('seen');
+
+    const messages={
+      recover:
+        'RECOVER\\n\\nvariaciones detectadas: 184\\nresultado: mundo recuperable, no idéntico.',
+      replace:
+        'REPLACE\\n\\nSOURCE REQUIRED\\nno existe una fuente perfecta que pueda reemplazar el presente.',
+      ignore:
+        'IGNORE\\n\\nRETURN PATH NOT FOUND\\nignorar los cambios no deshace que hayan ocurrido.',
+      lock:
+        'LOCK\\n\\nREAD ONLY MODE AVAILABLE\\nningún frame nuevo será permitido.'
+    };
+
+    preview.textContent=
+      messages[cmd] ||
+      'UNKNOWN COMMAND';
+
+    flashPhantom(
+      cmd==='lock'
+        ? 'NEW FRAME CREATION = DISABLED'
+        : cmd.toUpperCase(),
+      105
+    );
+
+    if(commandsSeen.size>=4){
+      startButton.disabled=false;
+      startButton.classList.add('ready');
+      startButton.textContent='LOCK WORLD';
+    }
+  }
+
+  function flashPhantom(text='',duration=90){
+    const el=
+      overlay?.querySelector(
+        '#act2ArchivePhantom'
+      );
+
+    if(!el) return;
+
+    el.textContent=text;
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+
+    clearTimeout(flashPhantom.timer);
+    flashPhantom.timer=setTimeout(
+      ()=>el.classList.remove('show'),
+      duration
+    );
   }
 
   function open(){
@@ -348,6 +419,7 @@
     openFlag=true;
     room=0;
     seen=new Set();
+    commandsSeen=new Set();
 
     window.ParadoxAct2?.suppressObjectives?.(true);
     document.body.classList.add('act2-archive-open');
@@ -359,7 +431,13 @@
     playbackView.classList.remove('show');
     startButton.disabled=true;
     startButton.classList.remove('ready');
+    startButton.textContent='LOCK WORLD';
     preview.textContent='selecciona un registro';
+    overlay.classList.remove('commands-ready');
+
+    overlay
+      .querySelectorAll('#act2ArchiveCommands [data-cmd]')
+      .forEach(b=>b.classList.remove('seen'));
 
     overlay
       .querySelectorAll('#act2ArchiveRecords button')
@@ -400,6 +478,27 @@
 
     visual.className=r.cls;
     overlay.dataset.room=String(room);
+
+    const phantomFrames={
+      1:'00:00:00:00',
+      3:'CARD_0100 = NOT SAVED',
+      6:'SHE LOOKED DIFFERENT',
+      9:'TULUZ_NULL',
+      11:'SOURCE DATE: AFTER BACKUP',
+      13:'NO NEW FRAMES',
+      16:'NOTHING HAPPENED',
+      18:'BACK'
+    };
+
+    if(phantomFrames[room]){
+      setTimeout(
+        ()=>flashPhantom(
+          phantomFrames[room],
+          room===18?180:78
+        ),
+        130
+      );
+    }
 
     /*
       Algunos cuadros parecen trabarse / repetirse a propósito.

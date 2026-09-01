@@ -56,6 +56,20 @@
         <button id="devAllFragments">7 fragmentos</button>
         <button id="devResetAct2">Reiniciar Acto II</button>
       </div>
+
+      <div class="devLabel">V4 · RUPTURA TOTAL</div>
+
+      <div class="devGrid">
+        <button data-v4="radio">Radio física</button>
+        <button data-v4="basket">Canasta vacía</button>
+        <button data-v4="false">Recuerdos falsos</button>
+        <button data-v4="return">Falso Acto I</button>
+        <button data-v4="sound">Puzzle sonido</button>
+        <button data-v4="edge">Borde + persecución</button>
+        <button data-v4="relay">Relay 1-4-3</button>
+        <button data-v4="still">No hacer nada</button>
+        <button data-v4="walk">Recorrido final</button>
+      </div>
       <pre id="devState"></pre>
     `;
     document.body.appendChild(panel);
@@ -71,6 +85,7 @@
       try{
         localStorage.removeItem('paradox143_act2_v1');
         localStorage.removeItem('paradox143_fragments_v1');
+        localStorage.removeItem('paradox143_act2_world_v4');
 
         const raw=
           localStorage.getItem(
@@ -113,6 +128,12 @@
       refresh();
     }));
 
+    panel.querySelectorAll('[data-v4]').forEach(b=>b.addEventListener('click',()=>{
+      panel.classList.remove('show');
+      window.ParadoxAct2WorldV4?.debug?.(b.dataset.v4);
+      setTimeout(refresh,300);
+    }));
+
     panel.querySelector('#devArchive').addEventListener('click',()=>window.ParadoxAct2Archive?.open?.());
     panel.querySelector('#devAllFragments').addEventListener('click',()=>{
       ['before','first','keep','missing','marie','tuluz','remains'].forEach(id=>window.ParadoxAct2Fragments?.collect?.(id));
@@ -131,13 +152,27 @@
     if(!panel) return;
     const state=window.ParadoxAct2?.state?.()||{};
     const fragments=window.ParadoxAct2Fragments?.found?.()||[];
+    const v4=window.ParadoxAct2WorldV4?.state?.()||{};
+
     panel.querySelector('#devState').textContent=JSON.stringify({
       chapter:state.chapter,
       chapterName:state.chapterName,
       exact:state.exactChoices,
       accept:state.acceptChoices,
       archive:state.archiveSeen,
-      fragments
+      fragments,
+      v4:{
+        radio:v4.radioFound,
+        basket:v4.emptyBasketSeen,
+        falseMemories:v4.falseMemoriesDone,
+        falseReturn:v4.falseReturnDone,
+        sound:v4.soundCorridorDone,
+        edge:v4.edgeDone,
+        relay143:v4.relay143Done,
+        still:v4.stillRoomDone,
+        finalWalk:v4.finalWalkDone,
+        futureGlimpse:v4.futureGlimpseSeen
+      }
     },null,2);
   }
 

@@ -2631,6 +2631,21 @@
     clearObjective();
 
     /*
+      ACTO II V4:
+      algunas zonas y set-pieces narrativos viven en un módulo
+      separado. Si el módulo necesita detener la progresión,
+      toma temporalmente el control antes de rastros/puzzles.
+    */
+    if(
+      window.ParadoxAct2WorldV4?.gate?.(
+        state.chapter,
+        {...state}
+      )
+    ){
+      return;
+    }
+
+    /*
       El recuerdo principal solo aparece después de que el jugador
       haya examinado todos los rastros de ese capítulo.
     */
@@ -3062,7 +3077,11 @@
   }
 
   function resetAct2(){
-    try{ localStorage.removeItem(ACT2_KEY); localStorage.removeItem(FRAGMENT_KEY); }catch(_){}
+    try{
+      localStorage.removeItem(ACT2_KEY);
+      localStorage.removeItem(FRAGMENT_KEY);
+      localStorage.removeItem('paradox143_act2_world_v4');
+    }catch(_){}
     const s=story();
     writeStory({...s,act:2,phase:'act2',act2Finished:false});
     location.reload();
@@ -3288,6 +3307,10 @@
     }),
     openPuzzle,
     isPuzzleOpen:()=>puzzleOpen,
+    showBrokenLine,
+    ambientMode:setAct2SoundMode,
+    ensureAmbient:ensureAct2Soundscape,
+    isSceneOpen:()=>sceneLock,
     isActive:()=>document.body.classList.contains('act2-active'),
     worldX:()=>state.worldX,
     setWorldX(x){

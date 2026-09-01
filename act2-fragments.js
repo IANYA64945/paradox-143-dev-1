@@ -145,57 +145,108 @@
   const SCENES={
     before:{theme:'fragment-before',mark:'·',frames:[
       {text:'El sonido desaparece antes que la imagen.',memory:'fragment-empty'},
+      {text:'Incluso la estática se corta.',memory:'fragment-empty'},
       {text:'Por un instante ves el campo sin caminos.',memory:'fragment-before'},
+      {text:'La luna está allí, pero no parece estar esperando a nadie.',memory:'fragment-before'},
+      {text:'Los tulipanes se mueven sin que ninguna huella los cruce.',memory:'fragment-before'},
       {text:'Sin refugio.',memory:'fragment-before'},
+      {text:'Sin caja.',memory:'fragment-before'},
       {text:'Sin huellitas.',memory:'fragment-before'},
+      {text:'No falta nada.',memory:'fragment-empty'},
+      {text:'Todavía no había nada que pudiera faltar.',memory:'fragment-empty'},
       {text:'Antes de recordarte...',memory:'fragment-before'},
       {text:'...también estaba vacío.',memory:'fragment-before'}
     ]},
 
     first:{theme:'fragment-first',mark:'✿',frames:[
       {text:'Una flor aparece antes de que el mundo termine de dibujarla.',memory:'fragment-tulip'},
+      {text:'El tallo cambia de lugar tres veces.',memory:'fragment-tulip'},
+      {text:'Los pétalos no coinciden con ninguna versión anterior.',memory:'fragment-tulip'},
+      {text:'Y aun así sabes cuál es.',memory:'fragment-tulip'},
       {text:'No era importante porque fuera la primera.',memory:'fragment-tulip'},
-      {text:'Fue la primera porque alguien decidió que no quería perderla.',memory:'fragment-tulip'},
+      {text:'Ni porque fuera perfecta.',memory:'fragment-tulip'},
+      {text:'Fue la primera porque alguien se detuvo.',memory:'fragment-tulip'},
+      {text:'La miró.',memory:'fragment-tulip'},
+      {text:'Y decidió que no quería perderla.',memory:'fragment-tulip'},
+      {text:'El mundo aprendió esa idea antes que muchas otras.',memory:'fragment-tulip'},
       {text:'Después vino todo lo demás.',memory:'fragment-tulip'}
     ]},
 
     keep:{theme:'fragment-keep',mark:'◇',frames:[
       {text:'La caja parece vacía.',memory:'fragment-box'},
-      {text:'Pero en la oscuridad flotan cosas que conoces.',memory:'fragment-objects'},
-      {text:'Una huella. Una estrella. Un hilo. Una flor.',memory:'fragment-objects'},
+      {text:'La abres otra vez.',memory:'fragment-box'},
+      {text:'Sigue vacía.',memory:'fragment-box'},
+      {text:'Entonces apagas la luz.',memory:'fragment-box'},
+      {text:'En la oscuridad aparecen cosas que conoces.',memory:'fragment-objects'},
+      {text:'Una huella.',memory:'fragment-objects'},
+      {text:'Una estrella.',memory:'fragment-objects'},
+      {text:'Un hilo.',memory:'fragment-objects'},
+      {text:'Una flor.',memory:'fragment-objects'},
+      {text:'No son objetos completos. Son la forma en que recuerdas haberlos encontrado.',memory:'fragment-objects'},
       {text:'Guardar todo parecía una forma de evitar perderlo.',memory:'fragment-objects'},
-      {text:'Durante un tiempo... funcionó.',memory:'fragment-box'}
+      {text:'Durante un tiempo... funcionó.',memory:'fragment-box'},
+      {text:'Hasta que también hubo que recordar cómo abrir la caja.',memory:'fragment-box'}
     ]},
 
     missing:{theme:'fragment-missing',mark:'□',frames:[
       {text:'El hueco intenta llenarse.',memory:'fragment-gap1'},
-      {text:'Falla.',memory:'fragment-gap2'},
+      {text:'Aparece una almohada.',memory:'fragment-gap1'},
+      {text:'No encaja.',memory:'fragment-gap2'},
+      {text:'Aparece una flor.',memory:'fragment-gap1'},
+      {text:'Tampoco.',memory:'fragment-gap2'},
+      {text:'Aparece una luz.',memory:'fragment-gap1'},
+      {text:'El mundo la apaga.',memory:'fragment-gap2'},
       {text:'Lo intenta de nuevo.',memory:'fragment-gap1'},
-      {text:'Vuelve a fallar.',memory:'fragment-gap2'},
+      {text:'Y otra vez.',memory:'fragment-gap2'},
       {text:'Entonces deja de intentarlo.',memory:'fragment-gap3'},
+      {text:'Pasan varios segundos.',memory:'fragment-gap3'},
+      {text:'El vacío no hace nada.',memory:'fragment-gap3'},
+      {text:'Y por primera vez no parece estar roto.',memory:'fragment-gap3'},
       {text:'No todo espacio vacío significa que algo se perdió.',memory:'fragment-gap3'}
     ]},
 
     marie:{theme:'fragment-marie',mark:'☾',frames:[
       {text:'Marie no parece estar esperando nada.',cats:['cat_gray_idle.png'],memory:'fragment-marie'},
-      {text:'Te mira igual.',cats:['cat_gray_idle.png'],memory:'fragment-marie'},
+      {text:'Vuelves a acercarte aunque su capítulo ya terminó.',cats:['cat_gray_idle.png'],memory:'fragment-marie'},
+      {text:'Durante un instante su silueta cambia.',cats:['cat_gray_idle.png'],memory:'fragment-marie'},
+      {text:'El color se vuelve demasiado claro.',cats:['cat_gray_idle.png'],memory:'fragment-marie'},
+      {text:'Después demasiado oscuro.',cats:['cat_gray_idle.png'],memory:'fragment-marie'},
+      {text:'Marie parpadea.',cats:['cat_gray_idle.png'],memory:'fragment-marie'},
+      {text:'Y vuelve a ser simplemente Marie.',cats:['cat_gray_happy.png'],memory:'fragment-marie'},
       {text:'Un recuerdo puede cambiar de forma.',cats:['cat_gray_happy.png'],memory:'fragment-marie'},
       {text:'Reconocerlo no siempre depende de que siga siendo idéntico.',cats:['cat_gray_happy.png'],memory:'fragment-marie'},
+      {text:'Ella no parece preocupada por ninguna de sus versiones.',cats:['cat_gray_happy.png'],memory:'fragment-marie'},
       {text:'Marie se acomoda a tu lado.',cats:['cat_gray_sleep.png'],memory:'fragment-marie'}
     ]},
 
     tuluz:{theme:'fragment-tuluz',mark:'✦',frames:[
       {text:'Aquí el mundo buscó durante mucho tiempo.',memory:'fragment-search'},
+      {text:'Abrió lluvia.',memory:'fragment-search'},
+      {text:'Abrió cartas.',memory:'fragment-search'},
+      {text:'Abrió noches anteriores.',memory:'fragment-search'},
+      {text:'Buscó una huella antes de que pudiera existir.',memory:'fragment-search'},
       {text:'No había nada que recuperar.',memory:'fragment-search'},
+      {text:'El Archivo lo llamó error.',memory:'fragment-search'},
+      {text:'El campo simplemente siguió esperando.',memory:'fragment-search'},
       {text:'No podía recordarlo.',memory:'fragment-search'},
+      {text:'Porque recordar mira hacia atrás.',memory:'fragment-search'},
+      {text:'Tuluz llegó desde otra dirección.',cats:['cat_orange_idle.png'],memory:'fragment-future'},
       {text:'Y aun así estaba aquí.',cats:['cat_orange_idle.png'],memory:'fragment-future'},
       {text:'Tal vez pertenecer no siempre significa haber estado antes.',cats:['cat_orange_happy.png'],memory:'fragment-future'}
     ]},
 
     remains:{theme:'fragment-remains',mark:'✦',frames:[
       {text:'El mundo se mira a sí mismo como si fueran muchas noches superpuestas.',memory:'fragment-layers'},
+      {text:'Una tiene menos flores.',memory:'fragment-layers'},
+      {text:'Otra tiene una luz que todavía no habías encendido.',memory:'fragment-layers'},
+      {text:'En una Mewo está sola.',memory:'fragment-layers'},
+      {text:'En otra Marie ya encontró su rincón.',memory:'fragment-layers'},
+      {text:'En otra Tuluz corre por un lugar que antes ni siquiera existía.',memory:'fragment-layers'},
       {text:'Ninguna coincide por completo con la anterior.',memory:'fragment-layers'},
+      {text:'Ninguna podría reemplazarla.',memory:'fragment-layers'},
       {text:'Y sin embargo todas se reconocen entre sí.',memory:'fragment-layers'},
+      {text:'Una detrás de otra parecen menos un archivo...',memory:'fragment-layers'},
+      {text:'...y más una vida.',memory:'fragment-layers'},
       {text:'Quizá recordar nunca fue mantenerlo todo igual.',memory:'fragment-layers'},
       {text:'Quizá era saber por qué todavía queremos volver.',memory:'fragment-star'}
     ]}
@@ -218,7 +269,12 @@
     window.ParadoxAct2?.suppressObjectives?.(true);
     window.ParadoxAct2?.playScene?.({
       theme:'fragment-star-secret',mark:'✦',frames:[
-        {text:'La estrella no intenta mostrarte otro recuerdo.',memory:'fragment-star'},
+        {text:'La estrella no estaba aquí antes.',memory:'fragment-star'},
+        {text:'No intenta mostrarte otro recuerdo.',memory:'fragment-star'},
+        {text:'No abre ninguna carta.',memory:'fragment-star'},
+        {text:'No recupera nada.',memory:'fragment-star'},
+        {text:'Solo permanece.',memory:'fragment-star'},
+        {text:'Como si hubiera aparecido después de que aprendiste a mirar los huecos de otra forma.',memory:'fragment-star'},
         {text:'Ahora sabes.',memory:'fragment-star'}
       ]
     },{onDone:()=>{
