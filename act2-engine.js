@@ -55,6 +55,13 @@
     */
     touches:{},
 
+    /*
+      Puzzles obligatorios del Acto II.
+      Se guardan por capítulo para poder cerrar la página
+      y volver sin perder lo resuelto.
+    */
+    puzzles:{},
+
     lastSeenAt:0
   };
 
@@ -76,6 +83,15 @@
   let tinyStar=null;
   let touchLayer=null;
   let brokenLine=null;
+
+  let puzzleOverlay=null;
+  let puzzleBody=null;
+  let puzzleTitle=null;
+  let puzzleKicker=null;
+  let puzzleStatus=null;
+  let puzzleOpen=false;
+  let puzzleCleanup=null;
+
   let activeScene=null;
   let sceneIndex=0;
   let sceneLock=false;
@@ -172,6 +188,379 @@
     }catch(_){}
   }
 
+
+  /* =======================================================
+     PAISAJE SONORO DEL ACTO II
+
+     No hay música al comienzo.
+     El silencio se alterna con:
+     - estática de radio;
+     - zumbido eléctrico;
+     - barridos de frecuencia;
+     - pequeños cortes de señal.
+
+     Todo se genera con WebAudio: no requiere subir archivos.
+  ======================================================= */
+
+  const ACT2_RADIO_LINES=[
+    ['¿sigues ah—',''],
+    ['señal...','perdida.'],
+    ['yo iba a dec—',''],
+    ['me...','...wo'],
+    ['la caja...','no está.'],
+    ['antes de que—',''],
+    ['no cierres—',''],
+    ['¿mañana...?',''],
+    ['algo se quedó del otr—',''],
+    ['esto no era as—',''],
+    ['no puedo oírte.',''],
+    ['143...','...sin portadora.']
+  ];
+
+  const sound={
+    ctx:null,
+    master:null,
+    noiseSource:null,
+    noiseFilter:null,
+    noiseGain:null,
+    hum:null,
+    humGain:null,
+    initialized:false,
+    timer:null,
+    cycle:0
+  };
+
+  function ensureAct2Soundscape(){
+    if(sound.initialized) {
+      try{
+        if(sound.ctx?.state==='suspended') sound.ctx.resume();
+      }catch(_){}
+      return true;
+    }
+
+    const AudioCtx=
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if(!AudioCtx) return false;
+
+    try{
+      const ctx=new AudioCtx();
+
+      const master=ctx.createGain();
+      master.gain.value=.82;
+      master.connect(ctx.destination);
+
+      const noiseBuffer=ctx.createBuffer(
+        1,
+        ctx.sampleRate*2,
+        ctx.sampleRate
+      );
+
+      const data=noiseBuffer.getChannelData(0);
+      for(let i=0;i<data.length;i++){
+        data[i]=(Math.random()*2-1)*.86;
+      }
+
+      const noise=ctx.createBufferSource();
+      noise.buffer=noiseBuffer;
+      noise.loop=true;
+
+      const noiseFilter=ctx.createBiquadFilter();
+      noiseFilter.type='bandpass';
+      noiseFilter.frequency.value=900;
+      noiseFilter.Q.value=.8;
+
+      const noiseGain=ctx.createGain();
+      noiseGain.gain.value=0;
+
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(master);
+
+      const hum=ctx.createOscillator();
+      hum.type='sine';
+      hum.frequency.value=48;
+
+      const humGain=ctx.createGain();
+      humGain.gain.value=0;
+
+      hum.connect(humGain);
+      humGain.connect(master);
+
+      noise.start();
+      hum.start();
+
+      sound.ctx=ctx;
+      sound.master=master;
+      sound.noiseSource=noise;
+      sound.noiseFilter=noiseFilter;
+      sound.noiseGain=noiseGain;
+      sound.hum=hum;
+      sound.humGain=humGain;
+      sound.initialized=true;
+
+      if(ctx.state==='suspended'){
+        ctx.resume().catch(()=>{});
+      }
+
+      setAct2SoundMode('silence');
+      scheduleAct2Ambience();
+
+      return true;
+    }catch(_){
+      return false;
+    }
+  }
+
+  function ramp(param,value,time=.12){
+    if(!param || !sound.ctx) return;
+
+    try{
+      const now=sound.ctx.currentTime;
+      param.cancelScheduledValues(now);
+      param.setValueAtTime(param.value,now);
+      param.linearRampToValueAtTime(value,now+time);
+    }catch(_){}
+  }
+
+  function setAct2SoundMode(mode='silence'){
+    if(!sound.initialized) return;
+
+    const f=sound.noiseFilter;
+    const ng=sound.noiseGain?.gain;
+    const hg=sound.humGain?.gain;
+
+    if(mode==='silence'){
+      ramp(ng,0,.35);
+      ramp(hg,0,.35);
+      return;
+    }
+
+    if(mode==='hum'){
+      ramp(ng,.010,.35);
+      ramp(hg,.022,.45);
+      try{
+        f.frequency.setTargetAtTime(
+          420,
+          sound.ctx.currentTime,
+          .22
+        );
+      }catch(_){}
+      return;
+    }
+
+    if(mode==='static'){
+      ramp(ng,.095,.12);
+      ramp(hg,.006,.2);
+      try{
+        f.frequency.setTargetAtTime(
+          1450,
+          sound.ctx.currentTime,
+          .12
+        );
+        f.Q.setTargetAtTime(
+          1.2,
+          sound.ctx.currentTime,
+          .12
+        );
+      }catch(_){}
+      return;
+    }
+
+    if(mode==='radio'){
+      ramp(ng,.070,.15);
+      ramp(hg,.012,.2);
+
+      try{
+        const now=sound.ctx.currentTime;
+
+        f.frequency.cancelScheduledValues(now);
+        f.frequency.setValueAtTime(330,now);
+        f.frequency.exponentialRampToValueAtTime(
+          3600,
+          now+2.8
+        );
+      }catch(_){}
+      return;
+    }
+
+    if(mode==='archive'){
+      ramp(ng,.135,.12);
+      ramp(hg,.012,.18);
+
+      try{
+        f.frequency.setTargetAtTime(
+          2100,
+          sound.ctx.currentTime,
+          .08
+        );
+        f.Q.setTargetAtTime(
+          2.8,
+          sound.ctx.currentTime,
+          .08
+        );
+      }catch(_){}
+      return;
+    }
+  }
+
+  function radioBurstLine(){
+    if(
+      !document.body.classList.contains('act2-active') ||
+      puzzleOpen ||
+      sceneLock ||
+      window.ParadoxAct2Archive?.isOpen?.()
+    ) return;
+
+    if(Math.random()>.48) return;
+
+    const line=
+      ACT2_RADIO_LINES[
+        Math.floor(
+          Math.random()*
+          ACT2_RADIO_LINES.length
+        )
+      ];
+
+    showBrokenLine(
+      line[0],
+      line[1]
+    );
+  }
+
+  function scheduleAct2Ambience(){
+    clearTimeout(sound.timer);
+
+    if(!sound.initialized) return;
+
+    sound.timer=setTimeout(
+      ()=>{
+        if(
+          !document.body.classList.contains('act2-active')
+        ){
+          setAct2SoundMode('silence');
+          scheduleAct2Ambience();
+          return;
+        }
+
+        if(
+          puzzleOpen ||
+          sceneLock ||
+          window.ParadoxAct2Archive?.isOpen?.()
+        ){
+          scheduleAct2Ambience();
+          return;
+        }
+
+        /*
+          Secuencia ambiental, no progresión narrativa.
+          El orden cambia para que el silencio siga teniendo peso.
+        */
+        const modes=[
+          'silence',
+          'static',
+          'silence',
+          'hum',
+          'radio',
+          'silence'
+        ];
+
+        const mode=
+          modes[
+            sound.cycle %
+            modes.length
+          ];
+
+        sound.cycle++;
+
+        setAct2SoundMode(mode);
+
+        if(
+          mode==='static' ||
+          mode==='radio'
+        ){
+          radioBurstLine();
+
+          setTimeout(
+            ()=>setAct2SoundMode('silence'),
+            mode==='radio'
+              ? 3400
+              : 2200
+          );
+        }
+
+        scheduleAct2Ambience();
+      },
+      9000+
+      Math.floor(
+        Math.random()*9000
+      )
+    );
+  }
+
+  function setPuzzleRadioTune(value,targets=[]){
+    ensureAct2Soundscape();
+
+    if(!sound.initialized) return;
+
+    const v=Math.max(
+      0,
+      Math.min(
+        100,
+        Number(value)||0
+      )
+    );
+
+    const distances=
+      targets.map(
+        t=>Math.abs(t-v)
+      );
+
+    const nearest=
+      distances.length
+        ? Math.min(...distances)
+        : 100;
+
+    const closeness=
+      Math.max(
+        0,
+        1-(nearest/18)
+      );
+
+    const staticGain=
+      .12-(closeness*.095);
+
+    const humGain=
+      .004+(closeness*.030);
+
+    ramp(
+      sound.noiseGain?.gain,
+      staticGain,
+      .035
+    );
+
+    ramp(
+      sound.humGain?.gain,
+      humGain,
+      .035
+    );
+
+    try{
+      sound.noiseFilter.frequency.setTargetAtTime(
+        280+(v*34),
+        sound.ctx.currentTime,
+        .025
+      );
+
+      sound.hum.frequency.setTargetAtTime(
+        52+(v*1.4),
+        sound.ctx.currentTime,
+        .025
+      );
+    }catch(_){}
+  }
+
   function build(){
     if(root) return;
 
@@ -226,6 +615,28 @@
         <p id="act2TitleSub"></p>
       </div>
 
+      <div id="act2Puzzle" aria-hidden="true">
+        <div id="act2PuzzleStatic"></div>
+
+        <section id="act2PuzzlePanel">
+          <header>
+            <div>
+              <small id="act2PuzzleKicker">SEÑAL INCOMPLETA</small>
+              <strong id="act2PuzzleTitle">...</strong>
+            </div>
+
+            <button id="act2PuzzleClose" type="button" aria-label="Volver al campo">×</button>
+          </header>
+
+          <div id="act2PuzzleBody"></div>
+
+          <div id="act2PuzzleStatus">
+            <span></span>
+            <small></small>
+          </div>
+        </section>
+      </div>
+
       <div id="act2Cine" aria-hidden="true">
         <div id="act2CineShade"></div>
         <div id="act2CineVisual">
@@ -269,6 +680,14 @@
     touchLayer=root.querySelector('#act2TouchLayer');
     brokenLine=root.querySelector('#act2BrokenLine');
 
+    puzzleOverlay=root.querySelector('#act2Puzzle');
+    puzzleBody=root.querySelector('#act2PuzzleBody');
+    puzzleTitle=root.querySelector('#act2PuzzleTitle');
+    puzzleKicker=root.querySelector('#act2PuzzleKicker');
+    puzzleStatus=root.querySelector('#act2PuzzleStatus');
+
+    root.querySelector('#act2PuzzleClose')?.addEventListener('click',closePuzzle);
+
     objective.addEventListener('click',onObjective);
     tinyStar.addEventListener('click',onSecretStar);
     root.querySelector('#act2ActEndBtn').addEventListener('click',()=>{
@@ -289,6 +708,14 @@
 
     bindWalking();
     bindCineAdvance();
+
+    root.addEventListener(
+      'pointerdown',
+      ()=>{
+        ensureAct2Soundscape();
+      },
+      {capture:true}
+    );
   }
 
   function activate(){
@@ -369,21 +796,27 @@
       {id:'dead-light',x:95,y:42,mark:'·',label:'una luz apagada',line:'no enciende.',sub:'antes sí.'},
       {id:'paw-half',x:330,y:67,mark:'🐾',label:'media huella',line:'me...',sub:'no puedo terminarlo.'},
       {id:'rain-mark',x:545,y:75,mark:'◇',label:'una marca húmeda',line:'llovió.',sub:'¿cuándo?'},
-      {id:'torn-promise',x:760,y:52,mark:'♡',label:'unas palabras incompletas',line:'te amaré un día m—',sub:'la frase se corta.'}
+      {id:'torn-promise',x:760,y:52,mark:'♡',label:'unas palabras incompletas',line:'te amaré un día m—',sub:'la frase se corta.'},
+      {id:'silent-bell',x:-760,y:44,mark:'○',label:'algo que debería sonar',line:'...',sub:'no hace ningún sonido.'},
+      {id:'lost-number',x:870,y:36,mark:'#',label:'un número incompleto',line:'1...4...3...',sub:'después solo hay estática.'}
     ],
 
     1:[
       {id:'pink',x:210,y:62,mark:'·',label:'un poco de color',line:'rosa.',sub:'eso sí.'},
       {id:'stem',x:325,y:70,mark:'│',label:'una línea verde',line:'debajo había...',sub:'algo que crecía.'},
       {id:'petal',x:445,y:55,mark:'✿',label:'un borde de pétalo',line:'faltan partes.',sub:'pero reconozco la forma.'},
-      {id:'soil',x:555,y:76,mark:'·',label:'tierra removida',line:'aquí.',sub:'era aquí.'}
+      {id:'soil',x:555,y:76,mark:'·',label:'tierra removida',line:'aquí.',sub:'era aquí.'},
+      {id:'dew',x:670,y:66,mark:'◇',label:'una gotita inmóvil',line:'todavía tiene agua.',sub:'no sabe de qué lluvia.'},
+      {id:'warm-pink',x:90,y:49,mark:'♡',label:'un color que se niega a apagarse',line:'esto sí recuerda.',sub:'sin saber por qué.'}
     ],
 
     2:[
       {id:'paw1',x:330,y:68,mark:'🐾',label:'una huellita',line:'una.',sub:''},
       {id:'paw2',x:455,y:61,mark:'🐾',label:'otra huellita',line:'otra.',sub:'van hacia adelante.'},
       {id:'warmth',x:580,y:72,mark:'·',label:'un lugar tibio',line:'todavía está tibio.',sub:'pero no hay nadie.'},
-      {id:'name',x:735,y:47,mark:'?',label:'algo que parece un nombre',line:'me...',sub:'...wo?'}
+      {id:'name',x:735,y:47,mark:'?',label:'algo que parece un nombre',line:'me...',sub:'...wo?'},
+      {id:'toy-shadow',x:80,y:72,mark:'●',label:'la sombra de un juguete',line:'rodaba.',sub:'alguien lo perseguía.'},
+      {id:'sleep-mark',x:870,y:58,mark:'zZ',label:'un lugar donde alguien dormía',line:'se quedaba aquí.',sub:'creo.'}
     ],
 
     3:[
@@ -391,14 +824,18 @@
       {id:'lamp',x:-255,y:49,mark:'✦',label:'una luz sin brillo',line:'una lucecita.',sub:'no recuerda cómo encender.'},
       {id:'pillow',x:-110,y:72,mark:'zZ',label:'una almohadita fuera de lugar',line:'demasiado lejos.',sub:'alguien la movía antes.'},
       {id:'box',x:35,y:68,mark:'□',label:'una cajita cerrada',line:'cerrada.',sub:'hay algo dentro.'},
-      {id:'home',x:190,y:55,mark:'⌂',label:'la forma de un lugar',line:'hog...',sub:'la palabra no llega.'}
+      {id:'home',x:190,y:55,mark:'⌂',label:'la forma de un lugar',line:'hog...',sub:'la palabra no llega.'},
+      {id:'water-shadow',x:330,y:70,mark:'◇',label:'un cuenco sin reflejo',line:'había agua.',sub:'para alguien.'},
+      {id:'scratch-sound',x:470,y:42,mark:'///',label:'marcas en algo que ya no está',line:'ras...',sub:'...guños.'}
     ],
 
     4:[
       {id:'wrong-gray',x:-60,y:54,mark:'?',label:'una silueta gris',line:'gris.',sub:'no.'},
       {id:'wrong-eyes',x:70,y:61,mark:'?',label:'unos ojos incorrectos',line:'los ojos...',sub:'no eran así.'},
       {id:'quiet-voice',x:205,y:43,mark:'·',label:'una voz sin palabras',line:'...',sub:'casi escuché algo.'},
-      {id:'chosen-place',x:340,y:68,mark:'☾',label:'un rincón conocido',line:'alguien elegía este rincón.',sub:'eso sí lo recuerda.'}
+      {id:'chosen-place',x:340,y:68,mark:'☾',label:'un rincón conocido',line:'alguien elegía este rincón.',sub:'eso sí lo recuerda.'},
+      {id:'soft-step',x:510,y:63,mark:'·',label:'un paso muy suave',line:'no corría.',sub:'se acercaba despacio.'},
+      {id:'gray-thread',x:-210,y:70,mark:'≈',label:'un hilo gris',line:'esto pertenece a...',sub:'la frase se pierde.'}
     ],
 
     5:[
@@ -406,7 +843,9 @@
       {id:'search-box',x:-300,y:69,mark:'□',label:'buscar en la caja',line:'no.',sub:'tampoco.'},
       {id:'search-cards',x:-30,y:46,mark:'♡',label:'buscar entre cartas',line:'no.',sub:'ninguna es anterior.'},
       {id:'search-field',x:270,y:72,mark:'✿',label:'buscar en el campo',line:'no.',sub:'sigue sin estar.'},
-      {id:'search-backward',x:545,y:48,mark:'↺',label:'buscar todavía más atrás',line:'aquí tampoco.',sub:'quizá el error es mirar hacia atrás.'}
+      {id:'search-backward',x:545,y:48,mark:'↺',label:'buscar todavía más atrás',line:'aquí tampoco.',sub:'quizá el error es mirar hacia atrás.'},
+      {id:'search-moon',x:700,y:29,mark:'☾',label:'buscar en una noche anterior',line:'ninguna huella.',sub:'todavía no.'},
+      {id:'search-name',x:835,y:61,mark:'?',label:'buscar un nombre antes de existir',line:'TUL...',sub:'SOURCE DATE: —'}
     ]
   };
 
@@ -498,6 +937,7 @@
       touchPhaseDone(state.chapter) ||
       sceneLock ||
       suppressed ||
+      puzzleOpen ||
       cine?.classList.contains('show') ||
       window.ParadoxAct2Archive?.isOpen?.()
     ){
@@ -587,6 +1027,1503 @@
     });
 
     touchLayer.classList.add('show');
+  }
+
+
+  /* =======================================================
+     PUZZLES OBLIGATORIOS DEL ACTO II
+
+     Flujo de cada capítulo:
+       explorar rastros
+       → resolver puzzle
+       → cinematográfica principal
+
+     No hay contador de rastros ni de puzzles.
+  ======================================================= */
+
+  const PUZZLE_META={
+    0:{
+      kicker:'RECEPTOR SIN PORTADORA',
+      title:'ENCUENTRA LAS VOCES QUE QUEDARON',
+      x:20
+    },
+
+    1:{
+      kicker:'MEMORIA VEGETAL / INCOMPLETA',
+      title:'RECONSTRUYE LO PRIMERO QUE CRECIÓ',
+      x:355
+    },
+
+    2:{
+      kicker:'PATRÓN DE MOVIMIENTO',
+      title:'SIGUE LAS HUELLAS',
+      x:630
+    },
+
+    3:{
+      kicker:'CIRCUITO DEL REFUGIO',
+      title:'DEVUELVE LA SEÑAL A LAS LUCES',
+      x:-95
+    },
+
+    4:{
+      kicker:'MEMORIA INESTABLE',
+      title:'DESCARTA LO QUE CAMBIA',
+      x:165
+    },
+
+    5:{
+      kicker:'LÍNEA TEMPORAL',
+      title:'BUSCA DONDE EL ARCHIVO NO QUIERE MIRAR',
+      x:600
+    },
+
+    6:{
+      kicker:'RECONSTRUCCIÓN',
+      title:'SEPARA RECUERDO DE COPIA',
+      x:40
+    },
+
+    7:{
+      kicker:'ESPACIO SIN FUENTE',
+      title:'DECIDE QUÉ HACER CON LO QUE FALTA',
+      x:0
+    }
+  };
+
+  function puzzleDone(ch=state.chapter){
+    const all=
+      state.puzzles &&
+      typeof state.puzzles==='object'
+        ? state.puzzles
+        : {};
+
+    return Boolean(
+      all[String(ch)] ??
+      all[ch]
+    );
+  }
+
+  function markPuzzleDone(ch){
+    const all={
+      ...(
+        state.puzzles &&
+        typeof state.puzzles==='object'
+          ? state.puzzles
+          : {}
+      )
+    };
+
+    all[String(ch)]=true;
+
+    save({
+      puzzles:all
+    });
+  }
+
+  function setPuzzleStatus(main='',sub=''){
+    if(!puzzleStatus) return;
+
+    const a=
+      puzzleStatus.querySelector('span');
+
+    const b=
+      puzzleStatus.querySelector('small');
+
+    if(a) a.textContent=main;
+    if(b) b.textContent=sub;
+
+    puzzleStatus.classList.remove('pulse');
+    void puzzleStatus.offsetWidth;
+    puzzleStatus.classList.add('pulse');
+  }
+
+  function closePuzzle(){
+    if(!puzzleOpen) return;
+
+    try{
+      puzzleCleanup?.();
+    }catch(_){}
+
+    puzzleCleanup=null;
+    puzzleOpen=false;
+
+    puzzleOverlay?.classList.remove('show');
+    puzzleOverlay?.setAttribute(
+      'aria-hidden',
+      'true'
+    );
+
+    document.body.classList.remove(
+      'act2-puzzle-open'
+    );
+
+    if(puzzleBody){
+      puzzleBody.innerHTML='';
+    }
+
+    setAct2SoundMode('silence');
+
+    setTimeout(
+      setObjectiveForChapter,
+      350
+    );
+  }
+
+  function completePuzzle(ch,line='algo encaja.',sub=''){
+    if(!puzzleOpen) return;
+
+    markPuzzleDone(ch);
+
+    setPuzzleStatus(
+      line,
+      sub
+    );
+
+    puzzleOverlay?.classList.add(
+      'solved'
+    );
+
+    setAct2SoundMode('silence');
+
+    setTimeout(
+      ()=>{
+        puzzleOverlay?.classList.remove(
+          'solved'
+        );
+
+        closePuzzle();
+
+        showBrokenLine(
+          line,
+          sub
+        );
+
+        setTimeout(
+          setObjectiveForChapter,
+          900
+        );
+      },
+      1050
+    );
+  }
+
+  function openPuzzle(ch){
+    if(
+      puzzleOpen ||
+      puzzleDone(ch)
+    ) return;
+
+    ensureAct2Soundscape();
+
+    puzzleOpen=true;
+
+    clearObjective();
+
+    document.body.classList.add(
+      'act2-puzzle-open'
+    );
+
+    puzzleOverlay?.classList.add(
+      'show'
+    );
+
+    puzzleOverlay?.setAttribute(
+      'aria-hidden',
+      'false'
+    );
+
+    const meta=
+      PUZZLE_META[ch] ||
+      {
+        kicker:'SEÑAL',
+        title:'...'
+      };
+
+    if(puzzleKicker){
+      puzzleKicker.textContent=
+        meta.kicker;
+    }
+
+    if(puzzleTitle){
+      puzzleTitle.textContent=
+        meta.title;
+    }
+
+    if(puzzleBody){
+      puzzleBody.innerHTML='';
+    }
+
+    setPuzzleStatus(
+      '',
+      ''
+    );
+
+    setAct2SoundMode(
+      ch===0 || ch===5
+        ? 'static'
+        : 'hum'
+    );
+
+    switch(ch){
+      case 0:
+        buildRadioPuzzle(ch);
+        break;
+
+      case 1:
+        buildTulipPuzzle(ch);
+        break;
+
+      case 2:
+        buildEchoPuzzle(ch);
+        break;
+
+      case 3:
+        buildRefugeCircuitPuzzle(ch);
+        break;
+
+      case 4:
+        buildMarieMemoryPuzzle(ch);
+        break;
+
+      case 5:
+        buildTuluzTimelinePuzzle(ch);
+        break;
+
+      case 6:
+        buildMemoryWeavePuzzle(ch);
+        break;
+
+      case 7:
+        buildEmptyGapPuzzle(ch);
+        break;
+
+      default:
+        completePuzzle(
+          ch,
+          '...',
+          ''
+        );
+    }
+  }
+
+  /* -------------------------------------------------------
+     PUZZLE 0 — RADIO SIN SEÑAL
+  ------------------------------------------------------- */
+
+  function buildRadioPuzzle(ch){
+    const targets=[18,51,84];
+    const messages=[
+      ['¿sigues ah—',''],
+      ['me...','...wo'],
+      ['te amaré un día m—','']
+    ];
+
+    const found=new Set();
+
+    puzzleBody.innerHTML=`
+      <div class="act2RadioPuzzle">
+        <div class="act2RadioDisplay">
+          <span id="act2RadioFreq">000.0</span>
+          <small id="act2RadioCarrier">NO SIGNAL</small>
+        </div>
+
+        <div class="act2RadioSlots">
+          <i></i><i></i><i></i>
+        </div>
+
+        <input
+          id="act2RadioDial"
+          type="range"
+          min="0"
+          max="100"
+          value="2"
+          step="1"
+          aria-label="Sintonizar frecuencia"
+        >
+
+        <p>
+          No busca una canción.<br>
+          Busca algo que todavía esté intentando hablar.
+        </p>
+      </div>
+    `;
+
+    const dial=
+      puzzleBody.querySelector(
+        '#act2RadioDial'
+      );
+
+    const freq=
+      puzzleBody.querySelector(
+        '#act2RadioFreq'
+      );
+
+    const carrier=
+      puzzleBody.querySelector(
+        '#act2RadioCarrier'
+      );
+
+    const slots=[
+      ...puzzleBody.querySelectorAll(
+        '.act2RadioSlots i'
+      )
+    ];
+
+    const update=()=>{
+      const v=
+        Number(dial.value);
+
+      freq.textContent=
+        String(
+          (88+(v*.55)).toFixed(1)
+        );
+
+      setPuzzleRadioTune(
+        v,
+        targets.filter(
+          (_,i)=>!found.has(i)
+        )
+      );
+
+      const nearest=
+        Math.min(
+          ...targets.map(
+            t=>Math.abs(t-v)
+          )
+        );
+
+      carrier.textContent=
+        nearest<=4
+          ? 'CARRIER?'
+          : nearest<=10
+            ? '...'
+            : 'NO SIGNAL';
+    };
+
+    const lockStation=()=>{
+      const v=Number(dial.value);
+
+      let best=-1;
+      let distance=999;
+
+      targets.forEach(
+        (target,i)=>{
+          if(found.has(i)) return;
+
+          const d=
+            Math.abs(
+              target-v
+            );
+
+          if(d<distance){
+            distance=d;
+            best=i;
+          }
+        }
+      );
+
+      if(
+        best>=0 &&
+        distance<=4
+      ){
+        found.add(best);
+
+        slots[best]?.classList.add(
+          'found'
+        );
+
+        setPuzzleStatus(
+          messages[best][0],
+          messages[best][1]
+        );
+
+        setAct2SoundMode(
+          'hum'
+        );
+
+        setTimeout(
+          ()=>setAct2SoundMode('static'),
+          620
+        );
+
+        if(found.size>=targets.length){
+          setTimeout(
+            ()=>completePuzzle(
+              ch,
+              'tres voces.',
+              'ninguna consigue terminar la frase.'
+            ),
+            850
+          );
+        }
+      }else{
+        setPuzzleStatus(
+          '...',
+          'solo estática.'
+        );
+      }
+    };
+
+    dial.addEventListener(
+      'input',
+      update
+    );
+
+    dial.addEventListener(
+      'change',
+      lockStation
+    );
+
+    update();
+
+    puzzleCleanup=()=>{
+      setAct2SoundMode('silence');
+    };
+  }
+
+  /* -------------------------------------------------------
+     PUZZLE 1 — TULIPÁN
+  ------------------------------------------------------- */
+
+  function buildTulipPuzzle(ch){
+    const order=[
+      'soil',
+      'stem',
+      'petal',
+      'color'
+    ];
+
+    const labels={
+      soil:['·','TIERRA'],
+      stem:['│','TALLO'],
+      petal:['✿','PÉTALO'],
+      color:['♡','COLOR']
+    };
+
+    let step=0;
+    let failures=0;
+
+    puzzleBody.innerHTML=`
+      <div class="act2TulipPuzzle">
+        <div class="act2TulipGhostPuzzle">
+          <span class="soil"></span>
+          <span class="stem"></span>
+          <span class="petal"></span>
+          <span class="color"></span>
+        </div>
+
+        <div class="act2PuzzlePieces"></div>
+
+        <p>
+          El mundo recuerda las partes.<br>
+          No recuerda qué apareció primero.
+        </p>
+      </div>
+    `;
+
+    const pieces=
+      puzzleBody.querySelector(
+        '.act2PuzzlePieces'
+      );
+
+    ['petal','soil','color','stem']
+      .forEach(id=>{
+        const b=
+          document.createElement(
+            'button'
+          );
+
+        b.type='button';
+        b.dataset.part=id;
+
+        b.innerHTML=`
+          <strong>${labels[id][0]}</strong>
+          <small>${labels[id][1]}</small>
+        `;
+
+        b.addEventListener(
+          'click',
+          ()=>{
+            if(
+              order[step]===id
+            ){
+              b.disabled=true;
+              b.classList.add(
+                'correct'
+              );
+
+              puzzleBody
+                .querySelector(
+                  `.act2TulipGhostPuzzle .${id}`
+                )
+                ?.classList.add(
+                  'show'
+                );
+
+              step++;
+
+              const lines=[
+                ['debajo.','primero algo sostuvo lo demás.'],
+                ['después subió.',''],
+                ['luego tomó forma.',''],
+                ['y al final...','volvió el rosa.']
+              ];
+
+              setPuzzleStatus(
+                lines[step-1][0],
+                lines[step-1][1]
+              );
+
+              if(step>=order.length){
+                setTimeout(
+                  ()=>completePuzzle(
+                    ch,
+                    'ya sé cómo empezaba.',
+                    ''
+                  ),
+                  700
+                );
+              }
+            }else{
+              failures++;
+
+              setPuzzleStatus(
+                'no.',
+                failures>=2
+                  ? 'estás intentando recordar el final antes del principio.'
+                  : 'esa parte todavía no podía existir.'
+              );
+
+              puzzleBody.classList.add(
+                'wrong'
+              );
+
+              setTimeout(
+                ()=>puzzleBody.classList.remove(
+                  'wrong'
+                ),
+                320
+              );
+            }
+          }
+        );
+
+        pieces.appendChild(b);
+      });
+
+    puzzleCleanup=()=>{};
+  }
+
+  /* -------------------------------------------------------
+     PUZZLE 2 — ECO DE HUELLAS
+  ------------------------------------------------------- */
+
+  function buildEchoPuzzle(ch){
+    const rounds=[
+      [0,2,1],
+      [3,1,0,2],
+      [1,3,0,2,1]
+    ];
+
+    let round=0;
+    let input=[];
+    let locked=true;
+
+    puzzleBody.innerHTML=`
+      <div class="act2EchoPuzzle">
+        <div class="act2PawGrid">
+          <button data-pad="0">🐾</button>
+          <button data-pad="1">🐾</button>
+          <button data-pad="2">🐾</button>
+          <button data-pad="3">🐾</button>
+        </div>
+
+        <p>
+          Las huellas no forman un camino.<br>
+          Forman un ritmo.
+        </p>
+      </div>
+    `;
+
+    const pads=[
+      ...puzzleBody.querySelectorAll(
+        '[data-pad]'
+      )
+    ];
+
+    const flash=async(sequence)=>{
+      locked=true;
+      input=[];
+
+      setPuzzleStatus(
+        'escucha.',
+        ''
+      );
+
+      await wait(650);
+
+      for(const idx of sequence){
+        pads[idx]?.classList.add(
+          'echo'
+        );
+
+        setAct2SoundMode('hum');
+
+        await wait(330);
+
+        pads[idx]?.classList.remove(
+          'echo'
+        );
+
+        setAct2SoundMode('silence');
+
+        await wait(240);
+      }
+
+      locked=false;
+
+      setPuzzleStatus(
+        'ahora tú.',
+        ''
+      );
+    };
+
+    const replay=()=>{
+      flash(rounds[round]);
+    };
+
+    pads.forEach(
+      (b,idx)=>{
+        b.addEventListener(
+          'click',
+          ()=>{
+            if(locked) return;
+
+            b.classList.add('pressed');
+            setTimeout(
+              ()=>b.classList.remove('pressed'),
+              180
+            );
+
+            input.push(idx);
+
+            const expected=
+              rounds[round][input.length-1];
+
+            if(idx!==expected){
+              locked=true;
+
+              setPuzzleStatus(
+                'la huella se corta.',
+                'inténtalo otra vez.'
+              );
+
+              setAct2SoundMode('static');
+
+              setTimeout(
+                ()=>{
+                  setAct2SoundMode('silence');
+                  replay();
+                },
+                900
+              );
+
+              return;
+            }
+
+            if(
+              input.length>=
+              rounds[round].length
+            ){
+              round++;
+
+              if(
+                round>=rounds.length
+              ){
+                locked=true;
+
+                setPuzzleStatus(
+                  'ahí estás.',
+                  'algo respondió desde adelante.'
+                );
+
+                setTimeout(
+                  ()=>completePuzzle(
+                    ch,
+                    'las huellas ya no están solas.',
+                    ''
+                  ),
+                  800
+                );
+              }else{
+                locked=true;
+
+                setPuzzleStatus(
+                  'otra vez.',
+                  'esta vez recuerda un poco más.'
+                );
+
+                setTimeout(
+                  replay,
+                  900
+                );
+              }
+            }
+          }
+        );
+      }
+    );
+
+    replay();
+
+    puzzleCleanup=()=>{
+      locked=true;
+      setAct2SoundMode('silence');
+    };
+  }
+
+  /* -------------------------------------------------------
+     PUZZLE 3 — CIRCUITO DEL REFUGIO
+  ------------------------------------------------------- */
+
+  function buildRefugeCircuitPuzzle(ch){
+    const path=[
+      0,1,4,7,8
+    ];
+
+    let index=0;
+
+    puzzleBody.innerHTML=`
+      <div class="act2CircuitPuzzle">
+        <div class="act2CircuitGrid"></div>
+
+        <div class="act2CircuitLegend">
+          <span>FUENTE</span>
+          <span>LUZ</span>
+        </div>
+
+        <p>
+          La energía todavía conoce una ruta.<br>
+          Las demás parecen copias muertas.
+        </p>
+      </div>
+    `;
+
+    const grid=
+      puzzleBody.querySelector(
+        '.act2CircuitGrid'
+      );
+
+    for(let i=0;i<9;i++){
+      const b=
+        document.createElement(
+          'button'
+        );
+
+      b.type='button';
+      b.dataset.node=String(i);
+
+      if(i===path[0]){
+        b.classList.add(
+          'source'
+        );
+      }
+
+      if(i===path[path.length-1]){
+        b.classList.add(
+          'target'
+        );
+      }
+
+      if(path.includes(i)){
+        b.classList.add(
+          'memory-node'
+        );
+      }
+
+      b.addEventListener(
+        'click',
+        ()=>{
+          const expected=
+            path[index];
+
+          if(i===expected){
+            b.classList.add(
+              'active'
+            );
+
+            index++;
+
+            setPuzzleStatus(
+              index===1
+                ? 'hay corriente.'
+                : 'sigue.',
+              ''
+            );
+
+            setAct2SoundMode(
+              'hum'
+            );
+
+            if(
+              index>=path.length
+            ){
+              puzzleBody.classList.add(
+                'circuit-complete'
+              );
+
+              setTimeout(
+                ()=>completePuzzle(
+                  ch,
+                  'una luz vuelve.',
+                  'después otra.'
+                ),
+                850
+              );
+            }
+          }else{
+            setPuzzleStatus(
+              'sin corriente.',
+              'esa ruta no recuerda nada.'
+            );
+
+            puzzleBody.classList.add(
+              'wrong'
+            );
+
+            setTimeout(
+              ()=>puzzleBody.classList.remove(
+                'wrong'
+              ),
+              320
+            );
+          }
+        }
+      );
+
+      grid.appendChild(b);
+    }
+
+    puzzleCleanup=()=>{};
+  }
+
+  /* -------------------------------------------------------
+     PUZZLE 4 — MARIE
+  ------------------------------------------------------- */
+
+  function buildMarieMemoryPuzzle(ch){
+    const rounds=[
+      {
+        q:'El lugar cambia. ¿Qué permanece?',
+        answers:[
+          ['distancia exacta del árbol',false],
+          ['el rincón que eligió',true],
+          ['la posición de cada flor',false]
+        ]
+      },
+      {
+        q:'La silueta falla. ¿Qué vuelve una y otra vez?',
+        answers:[
+          ['gris',true],
+          ['naranja',false],
+          ['rosa',false]
+        ]
+      },
+      {
+        q:'La voz llega cortada. ¿Qué sensación no cambia?',
+        answers:[
+          ['ruido',false],
+          ['calma',true],
+          ['prisa',false]
+        ]
+      }
+    ];
+
+    let round=0;
+
+    puzzleBody.innerHTML=`
+      <div class="act2MariePuzzle">
+        <div id="act2MariePrompt"></div>
+        <div id="act2MarieAnswers"></div>
+      </div>
+    `;
+
+    const prompt=
+      puzzleBody.querySelector(
+        '#act2MariePrompt'
+      );
+
+    const answers=
+      puzzleBody.querySelector(
+        '#act2MarieAnswers'
+      );
+
+    const render=()=>{
+      const data=rounds[round];
+
+      prompt.textContent=data.q;
+      answers.innerHTML='';
+
+      data.answers.forEach(
+        ([label,correct])=>{
+          const b=
+            document.createElement(
+              'button'
+            );
+
+          b.type='button';
+          b.textContent=label;
+
+          b.addEventListener(
+            'click',
+            ()=>{
+              if(correct){
+                b.classList.add(
+                  'correct'
+                );
+
+                setPuzzleStatus(
+                  'sí.',
+                  'esa parte no cambia.'
+                );
+
+                round++;
+
+                if(round>=rounds.length){
+                  setTimeout(
+                    ()=>completePuzzle(
+                      ch,
+                      'no recuerdas una copia.',
+                      'recuerdas cómo se siente reconocerla.'
+                    ),
+                    850
+                  );
+                }else{
+                  setTimeout(
+                    render,
+                    650
+                  );
+                }
+              }else{
+                b.classList.add(
+                  'wrong'
+                );
+
+                setPuzzleStatus(
+                  'esa parte cambia.',
+                  'prueba con algo menos exacto.'
+                );
+
+                setTimeout(
+                  ()=>b.classList.remove(
+                    'wrong'
+                  ),
+                  420
+                );
+              }
+            }
+          );
+
+          answers.appendChild(b);
+        }
+      );
+    };
+
+    render();
+
+    puzzleCleanup=()=>{};
+  }
+
+  /* -------------------------------------------------------
+     PUZZLE 5 — TULUZ / LÍNEA TEMPORAL
+  ------------------------------------------------------- */
+
+  function buildTuluzTimelinePuzzle(ch){
+    let beforeAttempts=0;
+    let futureUnlocked=false;
+
+    puzzleBody.innerHTML=`
+      <div class="act2TimelinePuzzle">
+        <div class="act2TimelineScreen">
+          <span id="act2TimelineDate">BACKUP -100</span>
+          <small id="act2TimelineResult">NO SOURCE</small>
+        </div>
+
+        <input
+          id="act2TimelineDial"
+          type="range"
+          min="-100"
+          max="100"
+          value="-88"
+          step="1"
+          aria-label="Buscar en la línea temporal"
+        >
+
+        <div class="act2TimelineLabels">
+          <span>ANTES</span>
+          <i></i>
+          <span>DESPUÉS</span>
+        </div>
+
+        <p id="act2TimelineHint">
+          El Archivo insiste en buscar antes.
+        </p>
+      </div>
+    `;
+
+    const dial=
+      puzzleBody.querySelector(
+        '#act2TimelineDial'
+      );
+
+    const date=
+      puzzleBody.querySelector(
+        '#act2TimelineDate'
+      );
+
+    const result=
+      puzzleBody.querySelector(
+        '#act2TimelineResult'
+      );
+
+    const hint=
+      puzzleBody.querySelector(
+        '#act2TimelineHint'
+      );
+
+    const update=()=>{
+      const v=
+        Number(
+          dial.value
+        );
+
+      date.textContent=
+        v<0
+          ? `BACKUP ${v}`
+          : `AFTER +${v}`;
+
+      setPuzzleRadioTune(
+        ((v+100)/2),
+        futureUnlocked
+          ? [78]
+          : [8,22]
+      );
+
+      if(v<=0){
+        result.textContent=
+          'NO SOURCE';
+      }else if(!futureUnlocked){
+        result.textContent=
+          'OUTSIDE BACKUP';
+      }else if(v>=55){
+        result.textContent=
+          'SOURCE?';
+      }else{
+        result.textContent=
+          'SEARCHING...';
+      }
+    };
+
+    const commit=()=>{
+      const v=
+        Number(
+          dial.value
+        );
+
+      if(!futureUnlocked){
+        if(v<=0){
+          beforeAttempts++;
+
+          const lines=[
+            ['no.','lluvia: sin coincidencia.'],
+            ['no.','cartas: sin coincidencia.'],
+            ['otra vez no.','tal vez no estaba antes.']
+          ];
+
+          const line=
+            lines[
+              Math.min(
+                beforeAttempts-1,
+                lines.length-1
+              )
+            ];
+
+          setPuzzleStatus(
+            line[0],
+            line[1]
+          );
+
+          setAct2SoundMode(
+            'static'
+          );
+
+          setTimeout(
+            ()=>setAct2SoundMode('silence'),
+            620
+          );
+
+          if(beforeAttempts>=3){
+            futureUnlocked=true;
+
+            puzzleBody.classList.add(
+              'future-unlocked'
+            );
+
+            hint.textContent=
+              '¿Y si el error es buscar hacia atrás?';
+
+            setPuzzleStatus(
+              'SOURCE DATE: —',
+              'la línea continúa hacia la derecha.'
+            );
+          }
+        }else{
+          setPuzzleStatus(
+            'fuera del respaldo.',
+            'el Archivo no quiere mirar allí.'
+          );
+        }
+
+        update();
+        return;
+      }
+
+      if(v>=55){
+        result.textContent=
+          'SOURCE DATE: AFTER BACKUP';
+
+        setAct2SoundMode(
+          'hum'
+        );
+
+        setPuzzleStatus(
+          'ahí.',
+          'no estaba perdido. todavía no había ocurrido.'
+        );
+
+        setTimeout(
+          ()=>completePuzzle(
+            ch,
+            'dejamos de buscarlo en el pasado.',
+            ''
+          ),
+          950
+        );
+      }else{
+        setPuzzleStatus(
+          'sigue.',
+          'más adelante.'
+        );
+      }
+    };
+
+    dial.addEventListener(
+      'input',
+      update
+    );
+
+    dial.addEventListener(
+      'change',
+      commit
+    );
+
+    update();
+
+    puzzleCleanup=()=>{
+      setAct2SoundMode('silence');
+    };
+  }
+
+  /* -------------------------------------------------------
+     PUZZLE 6 — RECUERDO VS COPIA
+  ------------------------------------------------------- */
+
+  function buildMemoryWeavePuzzle(ch){
+    const rows=[
+      {
+        label:'El primer tulipán',
+        correct:'remember'
+      },
+      {
+        label:'La voz de Mewo',
+        correct:'remember'
+      },
+      {
+        label:'La posición exacta de cada luz',
+        correct:'change'
+      },
+      {
+        label:'Un hueco que nunca tuvo recuerdo',
+        correct:'change'
+      },
+      {
+        label:'Tuluz antes de conocerlo',
+        correct:'change'
+      }
+    ];
+
+    let solved=0;
+
+    puzzleBody.innerHTML=`
+      <div class="act2WeavePuzzle">
+        <div id="act2WeaveRows"></div>
+
+        <div class="act2WeaveLegend">
+          <span>RECUPERAR</span>
+          <span>DEJAR CAMBIAR</span>
+        </div>
+      </div>
+    `;
+
+    const wrap=
+      puzzleBody.querySelector(
+        '#act2WeaveRows'
+      );
+
+    rows.forEach(
+      row=>{
+        const item=
+          document.createElement(
+            'div'
+          );
+
+        item.className=
+          'act2WeaveRow';
+
+        item.innerHTML=`
+          <strong>${row.label}</strong>
+
+          <div>
+            <button data-value="remember">↺</button>
+            <button data-value="change">→</button>
+          </div>
+        `;
+
+        item
+          .querySelectorAll(
+            'button'
+          )
+          .forEach(
+            b=>{
+              b.addEventListener(
+                'click',
+                ()=>{
+                  if(
+                    item.classList.contains(
+                      'done'
+                    )
+                  ) return;
+
+                  if(
+                    b.dataset.value===
+                    row.correct
+                  ){
+                    item.classList.add(
+                      'done'
+                    );
+
+                    b.classList.add(
+                      'correct'
+                    );
+
+                    solved++;
+
+                    setPuzzleStatus(
+                      row.correct==='remember'
+                        ? 'eso sí puede volver.'
+                        : 'eso no necesita una copia.',
+                      ''
+                    );
+
+                    if(solved>=rows.length){
+                      setTimeout(
+                        ()=>completePuzzle(
+                          ch,
+                          'recordar no es congelar.',
+                          ''
+                        ),
+                        800
+                      );
+                    }
+                  }else{
+                    b.classList.add(
+                      'wrong'
+                    );
+
+                    setPuzzleStatus(
+                      'algo no encaja.',
+                      'piensa si estás recordando... o copiando.'
+                    );
+
+                    setTimeout(
+                      ()=>b.classList.remove(
+                        'wrong'
+                      ),
+                      390
+                    );
+                  }
+                }
+              );
+            }
+          );
+
+        wrap.appendChild(
+          item
+        );
+      }
+    );
+
+    puzzleCleanup=()=>{};
+  }
+
+  /* -------------------------------------------------------
+     PUZZLE 7 — DEJAR UN HUECO
+  ------------------------------------------------------- */
+
+  function buildEmptyGapPuzzle(ch){
+    let resistantHits=0;
+    let filled=0;
+
+    puzzleBody.innerHTML=`
+      <div class="act2GapPuzzle">
+        <div class="act2GapSlots">
+          <button data-gap="0">·</button>
+          <button data-gap="1">·</button>
+          <button data-gap="2">·</button>
+          <button data-gap="3">·</button>
+          <button data-gap="4" class="resistant">·</button>
+        </div>
+
+        <button
+          id="act2LeaveEmpty"
+          type="button"
+        >
+          DEJARLO VACÍO
+        </button>
+
+        <p>
+          El mundo intenta completar la imagen.
+        </p>
+      </div>
+    `;
+
+    const leave=
+      puzzleBody.querySelector(
+        '#act2LeaveEmpty'
+      );
+
+    puzzleBody
+      .querySelectorAll(
+        '[data-gap]'
+      )
+      .forEach(
+        b=>{
+          b.addEventListener(
+            'click',
+            ()=>{
+              const idx=
+                Number(
+                  b.dataset.gap
+                );
+
+              if(idx<4){
+                if(
+                  b.classList.contains(
+                    'filled'
+                  )
+                ) return;
+
+                b.classList.add(
+                  'filled'
+                );
+
+                b.textContent=
+                  ['✿','🐾','☾','⌂'][idx];
+
+                filled++;
+
+                setPuzzleStatus(
+                  'recuerdo encontrado.',
+                  ''
+                );
+
+                return;
+              }
+
+              resistantHits++;
+
+              setAct2SoundMode(
+                'static'
+              );
+
+              setTimeout(
+                ()=>setAct2SoundMode('silence'),
+                500
+              );
+
+              const lines=[
+                ['NO SOURCE',''],
+                ['NO SOURCE','no hay nada detrás.'],
+                ['NO SOURCE','tal vez no falta nada.']
+              ];
+
+              const line=
+                lines[
+                  Math.min(
+                    resistantHits-1,
+                    lines.length-1
+                  )
+                ];
+
+              setPuzzleStatus(
+                line[0],
+                line[1]
+              );
+
+              b.classList.remove(
+                'fail'
+              );
+
+              void b.offsetWidth;
+
+              b.classList.add(
+                'fail'
+              );
+
+              if(
+                resistantHits>=3 &&
+                filled>=3
+              ){
+                leave.classList.add(
+                  'show'
+                );
+              }
+            }
+          );
+        }
+      );
+
+    leave.addEventListener(
+      'click',
+      ()=>{
+        setPuzzleStatus(
+          '...',
+          'por primera vez el mundo deja de intentar.'
+        );
+
+        setTimeout(
+          ()=>completePuzzle(
+            ch,
+            'no todo espacio vacío está roto.',
+            ''
+          ),
+          850
+        );
+      }
+    );
+
+    puzzleCleanup=()=>{};
   }
 
   function bindWalking(){
@@ -704,6 +2641,25 @@
 
     renderTouchPoints();
 
+    /*
+      Aunque ya haya tocado todos los rastros, el evento grande
+      no aparece hasta resolver el puzzle de ese capítulo.
+    */
+    if(!puzzleDone(state.chapter)){
+      const meta=
+        PUZZLE_META[state.chapter];
+
+      if(meta){
+        setObjective(
+          `chapter-puzzle-${state.chapter}`,
+          '',
+          Number(meta.x||0)
+        );
+
+        return;
+      }
+    }
+
     switch(state.chapter){
       case 0:
         setObjective('wake-glimmer','',240);
@@ -750,6 +2706,16 @@
     const id=objectiveId;
     if(!id || sceneLock) return;
     clearObjective();
+
+    if(id.startsWith('chapter-puzzle-')){
+      const ch=
+        Number(
+          id.split('-').pop()
+        );
+
+      openPuzzle(ch);
+      return;
+    }
 
     if(id==='wake-glimmer'){
       playScene(SCENES.wakeGlimmer,{onDone:()=>{
@@ -920,6 +2886,9 @@
     cine.setAttribute('aria-hidden','false');
     cineChoices.innerHTML='';
     document.body.classList.add('act2-cinematic-open');
+
+    setAct2SoundMode('silence');
+
     renderCineFrame();
   }
 
@@ -1021,6 +2990,18 @@
       renderTouchPoints,
       180
     );
+
+    setTimeout(
+      ()=>{
+        if(
+          !puzzleOpen &&
+          !window.ParadoxAct2Archive?.isOpen?.()
+        ){
+          setAct2SoundMode('silence');
+        }
+      },
+      280
+    );
   }
 
   function playExternalScene(scene,opts={}){
@@ -1039,7 +3020,34 @@
 
   function jumpChapter(ch){
     const n=Math.max(0,Math.min(7,Number(ch)||0));
-    const patch={chapter:n,started:true,finished:false,finaleSeen:false};
+
+    const devPuzzles={
+      ...(
+        state.puzzles &&
+        typeof state.puzzles==='object'
+          ? state.puzzles
+          : {}
+      )
+    };
+
+    /*
+      Al saltar a un capítulo DEV:
+      todos los puzzles anteriores se consideran resueltos,
+      pero el puzzle del capítulo elegido queda disponible.
+    */
+    for(let i=0;i<n;i++){
+      devPuzzles[String(i)]=true;
+    }
+
+    delete devPuzzles[String(n)];
+
+    const patch={
+      chapter:n,
+      started:true,
+      finished:false,
+      finaleSeen:false,
+      puzzles:devPuzzles
+    };
     if(n>=2) patch.firstTulip=true;
     if(n>=3) patch.mewo=true;
     if(n>=4) patch.refuge=true;
@@ -1080,7 +3088,10 @@
 
     wakeGlimmer:{
       theme:'glimmer',mark:'✦',frames:[
-        {text:'Algo responde cuando te acercas.',memory:'glimmer'},
+        {text:'Después de tocarlo todo, algo responde.',memory:'glimmer'},
+        {text:'La estática desaparece durante un segundo.',memory:'trace'},
+        {text:'Algo intenta pronunciar una palabra.',memory:'trace'},
+        {text:'No consigue terminarla.',memory:'trace'},
         {text:'No parece una carta.',memory:'trace'},
         {text:'Parece el lugar donde una carta alguna vez pudo existir.',memory:'trace'}
       ]
@@ -1088,9 +3099,13 @@
 
     firstTulip:{
       theme:'first-tulip',mark:'✿',frames:[
+        {text:'La tierra ya recordó qué debía sostener.',memory:'pink'},
         {text:'Primero vuelve un color.',memory:'pink'},
-        {text:'Después una forma.',memory:'stem'},
-        {text:'El mundo intenta recordar cómo crecía.',memory:'tulip'},
+        {text:'Después una línea.',memory:'stem'},
+        {text:'Luego una forma.',memory:'tulip'},
+        {text:'Durante un instante tiene demasiados pétalos.',memory:'tulip'},
+        {text:'El mundo se detiene.',memory:'tulip'},
+        {text:'Quita uno.',memory:'tulip'},
         {text:'No queda exactamente igual.',memory:'tulip'},
         {text:'Pero cuando termina... sabes cuál es.',memory:'tulip'},
         {text:'Nuestro tulipán ♡',memory:'tulip'}
@@ -1099,9 +3114,13 @@
 
     mewo:{
       theme:'mewo',mark:'🐾',frames:[
+        {text:'El ritmo termina exactamente donde empiezan las huellitas.',memory:'paws'},
         {text:'Hay huellitas donde todavía no hay nadie.',memory:'paws'},
+        {text:'Una aparece demasiado grande.',memory:'mewo-wrong'},
+        {text:'Otra mira en la dirección equivocada.',memory:'mewo-wrong'},
         {text:'El mundo encuentra una silueta.',memory:'mewo-shadow'},
         {text:'La reconstruye mal.',memory:'mewo-wrong'},
+        {text:'La borra.',memory:'mewo-shadow'},
         {text:'Lo intenta otra vez.',memory:'mewo-forming'},
         {text:'...',cats:['mewo_confused.png'],memory:'mewo-forming'},
         {text:'Ah...',cats:['mewo_confused.png'],memory:'mewo-forming'},
@@ -1111,11 +3130,15 @@
 
     refuge:{
       theme:'refuge',mark:'⌂',frames:[
+        {text:'La corriente llega hasta una luz que todavía no tiene pared.',cats:['mewo_idle.png'],memory:'empty-refuge'},
         {text:'Mewo camina hacia un lugar que todavía no existe.',cats:['mewo_idle.png'],memory:'empty-refuge'},
         {text:'Primero recuerda el árbol.',cats:['mewo_idle.png'],memory:'tree'},
         {text:'Después una luz.',cats:['mewo_idle.png'],memory:'lamp'},
-        {text:'Una almohadita aparece demasiado lejos.',cats:['mewo_idle.png'],memory:'pillow'},
+        {text:'La luz parpadea como si dudara.',cats:['mewo_idle.png'],memory:'lamp'},
+        {text:'Aparece una almohadita demasiado lejos.',cats:['mewo_idle.png'],memory:'pillow'},
         {text:'El mundo la mueve.',cats:['mewo_idle.png'],memory:'pillow'},
+        {text:'La mueve otra vez.',cats:['mewo_idle.png'],memory:'pillow'},
+        {text:'Mewo deja de esperar.',cats:['mewo_idle.png'],memory:'refuge'},
         {text:'No volvió exactamente como antes.',cats:['mewo_happy.png'],memory:'refuge'},
         {text:'Mewo se acuesta igual.',cats:['mewo_sleep.png'],memory:'refuge'}
       ]
@@ -1123,10 +3146,14 @@
 
     marie:{
       theme:'marie',mark:'☾',frames:[
+        {text:'El puzzle no encontró una copia perfecta.',memory:'marie-shadow'},
+        {text:'Encontró algo más pequeño: cosas que no dejaban de coincidir.',memory:'marie-shadow'},
         {text:'Hay un rincón que insiste en tener a alguien.',memory:'marie-shadow'},
         {text:'La primera silueta no encaja.',memory:'marie-wrong'},
         {text:'La segunda tiene el color correcto... casi.',memory:'marie-wrong2'},
-        {text:'El mundo deja de corregir por un momento.',memory:'marie-shadow'},
+        {text:'La tercera parece correcta hasta que se mueve.',memory:'marie-wrong'},
+        {text:'El mundo empieza a corregirla otra vez.',memory:'marie-shadow'},
+        {text:'Y se detiene.',memory:'marie-shadow'},
         {text:'...',cats:['cat_gray_idle.png'],memory:'marie-home'},
         {text:'Te recordaba diferente.',cats:['cat_gray_idle.png'],memory:'marie-home'},
         {text:'Pero sigues siendo tú.',cats:['cat_gray_happy.png'],memory:'marie-home'}
@@ -1135,15 +3162,19 @@
 
     tuluz:{
       theme:'tuluz',mark:'✦',frames:[
-        {text:'El mundo busca a alguien más.',memory:'search'},
+        {text:'La línea temporal termina de abrirse hacia la derecha.',memory:'search'},
+        {text:'El mundo vuelve a buscar a alguien más.',memory:'search'},
         {text:'Busca en la lluvia.',memory:'search'},
         {text:'En el refugio.',memory:'search'},
         {text:'En las cartas que todavía recuerda.',memory:'search'},
+        {text:'En una noche anterior.',memory:'search'},
         {text:'No encuentra nada.',memory:'gap'},
+        {text:'SOURCE DATE: AFTER BACKUP',memory:'gap'},
         {text:'Porque estaba buscando hacia atrás.',memory:'gap'},
         {text:'...',cats:['cat_orange_idle.png'],memory:'future'},
         {text:'No te recordaba.',cats:['cat_orange_idle.png'],memory:'future'},
-        {text:'Porque todavía no te había conocido.',cats:['cat_orange_happy.png'],memory:'future'}
+        {text:'Porque todavía no te había conocido.',cats:['cat_orange_happy.png'],memory:'future'},
+        {text:'Y aun así... ahora estás aquí.',cats:['cat_orange_happy.png'],memory:'future'}
       ]
     },
 
@@ -1190,12 +3221,16 @@
 
     finale:{
       theme:'finale',mark:'♡',frames:[
+        {text:'El último hueco sigue vacío.',memory:'future-gap'},
+        {text:'Esperas que el mundo intente llenarlo otra vez.',memory:'future-gap'},
+        {text:'No lo hace.',memory:'future-gap'},
         {text:'El campo vuelve a tener profundidad.',memory:'world'},
         {text:'El Claro vuelve a tener voces.',cats:['cat_gray_idle.png','mewo_happy.png','cat_orange_idle.png'],memory:'world'},
         {text:'Algunas cosas están donde las recordabas.',cats:['cat_gray_idle.png','mewo_happy.png','cat_orange_idle.png'],memory:'world'},
         {text:'Otras no.',cats:['cat_gray_idle.png','mewo_happy.png','cat_orange_idle.png'],memory:'world'},
         {text:'Y todavía quedan espacios vacíos.',memory:'future-gap'},
-        {text:'Por primera vez, el mundo no intenta llenarlos.',memory:'future-gap'},
+        {text:'Esta vez no parecen errores.',memory:'future-gap'},
+        {text:'Parecen lugares esperando algo.',memory:'future-gap'},
         {text:'Tal vez no todo lo que falta se perdió.',memory:'future-gap'},
         {text:'Tal vez algunas cosas todavía no han ocurrido.',memory:'future-gap'}
       ]
@@ -1211,7 +3246,16 @@
     setTimeout(activate,3600);
   });
 
+  window.addEventListener(
+    'paradox-act2-archive-requested',
+    ()=>{
+      ensureAct2Soundscape();
+      setAct2SoundMode('archive');
+    }
+  );
+
   window.addEventListener('paradox-act2-archive-finished',()=>{
+    setAct2SoundMode('silence');
     continueAfterArchive();
   });
 
@@ -1234,6 +3278,16 @@
     jumpChapter,
     reset:resetAct2,
     fragments:fragmentState,
+    puzzles:()=>({
+      ...(
+        state.puzzles &&
+        typeof state.puzzles==='object'
+          ? state.puzzles
+          : {}
+      )
+    }),
+    openPuzzle,
+    isPuzzleOpen:()=>puzzleOpen,
     isActive:()=>document.body.classList.contains('act2-active'),
     worldX:()=>state.worldX,
     setWorldX(x){

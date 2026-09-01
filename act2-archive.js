@@ -60,6 +60,24 @@
       code:'HOME_0079',
       label:'HOGAR',
       preview:'estado: RECUPERABLE\nobjetos: 31\nespacio libre: 00\nbloquear cambios: disponible'
+    },
+    {
+      id:'weather',
+      code:'WEATHER_ALL',
+      label:'CLIMA',
+      preview:'rain / storm / snow / stars\nframes recuperables: 891\nvariación encontrada: DEMASIADA'
+    },
+    {
+      id:'letters',
+      code:'LETTERS_0099',
+      label:'CARTAS',
+      preview:'99 objetos válidos\n1 objeto sin índice\nCARD_0100: NOT SAVED'
+    },
+    {
+      id:'future',
+      code:'FUTURE_NULL',
+      label:'DESPUÉS',
+      preview:'permiso: DENEGADO\nsource: NONE\nframes: 0\ncrear nuevos frames: BLOQUEADO'
     }
   ];
 
@@ -139,6 +157,34 @@
       meta:'SOURCE DATE: AFTER BACKUP',
       text:'El Archivo está intentando recordar algo que todavía no había ocurrido.',
       cls:'archive-future',
+      action:'...'
+    },
+    {
+      title:'WEATHER_ALL',
+      meta:'NORMALIZING VARIATION...',
+      text:'La lluvia cae exactamente igual cada vez.',
+      cls:'archive-rain-loop',
+      action:'SIGUIENTE'
+    },
+    {
+      title:'LETTERS_0099',
+      meta:'99 / 99 VALID · CARD_0100 MISSING',
+      text:'La colección está completa si ignoramos lo que no pudo guardarse.',
+      cls:'archive-letters',
+      action:'SIGUIENTE'
+    },
+    {
+      title:'FUTURE_NULL',
+      meta:'NEW FRAME CREATION = DISABLED',
+      text:'El futuro no contiene errores.',
+      cls:'archive-future-null',
+      action:'...'
+    },
+    {
+      title:'FUTURE_NULL',
+      meta:'NEW FRAME CREATION = DISABLED',
+      text:'El futuro tampoco contiene nada.',
+      cls:'archive-future-null-2',
       action:'...'
     },
     {
@@ -289,7 +335,7 @@
 
       setTimeout(()=>{
         preview.textContent=
-          '6 REGISTROS LEÍDOS\n\nLOCK WORLD = AVAILABLE\n\nningún registro nuevo será permitido.';
+          '9 REGISTROS LEÍDOS\n\nLOCK WORLD = AVAILABLE\n\ncrear nuevos frames será deshabilitado.';
       },450);
     }
   }
