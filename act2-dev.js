@@ -83,6 +83,21 @@
         <button data-v4="still">No hacer nada</button>
         <button data-v4="walk">Recorrido final</button>
       </div>
+      <div class="devLabel">V5 · ESTACIÓN 143</div>
+
+      <div class="devGrid">
+        <button data-v5="mewo">Mewo espera</button>
+        <button data-v5="station">Estación 143</button>
+        <button data-v5="tape">Cinta 100</button>
+        <button data-v5="storm">Tormenta congelada</button>
+        <button data-v5="learn">Habitación aprende</button>
+        <button data-v5="maze">Laberinto atrás</button>
+        <button data-v5="camera">Cámara rebelde</button>
+        <button data-v5="recover99">Recover 99%</button>
+        <button data-v5="symbols">Palabras → símbolos</button>
+        <button data-v5="symmetry">Tuluz rompe puzzle</button>
+      </div>
+
       <pre id="devState"></pre>
     `;
     document.body.appendChild(panel);
@@ -99,6 +114,7 @@
         localStorage.removeItem('paradox143_act2_v1');
         localStorage.removeItem('paradox143_fragments_v1');
         localStorage.removeItem('paradox143_act2_world_v4');
+        localStorage.removeItem('paradox143_act2_v5');
 
         const raw=
           localStorage.getItem(
@@ -163,6 +179,21 @@
       setTimeout(refresh,300);
     }));
 
+    panel.querySelectorAll('[data-v5]').forEach(
+      b=>b.addEventListener('click',()=>{
+        panel.classList.remove('show');
+
+        window.ParadoxAct2V5
+          ?.debug
+          ?.(b.dataset.v5);
+
+        setTimeout(
+          refresh,
+          300
+        );
+      })
+    );
+
     panel.querySelector('#devArchive').addEventListener('click',()=>window.ParadoxAct2Archive?.open?.());
     panel.querySelector('#devAllFragments').addEventListener('click',()=>{
       ['before','first','keep','missing','marie','tuluz','remains'].forEach(id=>window.ParadoxAct2Fragments?.collect?.(id));
@@ -182,6 +213,7 @@
     const state=window.ParadoxAct2?.state?.()||{};
     const fragments=window.ParadoxAct2Fragments?.found?.()||[];
     const v4=window.ParadoxAct2WorldV4?.state?.()||{};
+    const v5=window.ParadoxAct2V5?.state?.()||{};
 
     panel.querySelector('#devState').textContent=JSON.stringify({
       chapter:state.chapter,
@@ -201,6 +233,19 @@
         still:v4.stillRoomDone,
         finalWalk:v4.finalWalkDone,
         futureGlimpse:v4.futureGlimpseSeen
+      },
+      v5:{
+        mewo:v5.mewoWaitDone,
+        station:v5.stationDone,
+        tape100:v5.tape100Seen,
+        storm:v5.stormDone,
+        learn:v5.learningRoomDone,
+        marie:v5.marieRevealDone,
+        maze:v5.mazeDone,
+        camera:v5.cameraLossDone,
+        recover99:v5.recover99Done,
+        symbols:v5.symbolsDone,
+        symmetry:v5.symmetryDone
       }
     },null,2);
   }

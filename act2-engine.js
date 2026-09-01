@@ -3256,6 +3256,21 @@
     }
 
     /*
+      ACTO II V5:
+      V4 termina su bloque del capítulo 6 primero.
+      Después V5 toma el control para la última ruptura grande
+      antes del puzzle de reconstrucción normal.
+    */
+    if(
+      window.ParadoxAct2V5?.gate?.(
+        state.chapter,
+        {...state}
+      )
+    ){
+      return;
+    }
+
+    /*
       El recuerdo principal solo aparece después de que el jugador
       haya examinado todos los rastros de ese capítulo.
     */
@@ -3691,6 +3706,7 @@
       localStorage.removeItem(ACT2_KEY);
       localStorage.removeItem(FRAGMENT_KEY);
       localStorage.removeItem('paradox143_act2_world_v4');
+      localStorage.removeItem('paradox143_act2_v5');
     }catch(_){}
     const s=story();
     writeStory({...s,act:2,phase:'act2',act2Finished:false});
