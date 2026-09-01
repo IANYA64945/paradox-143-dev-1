@@ -2,12 +2,13 @@
    PARADOX143 — CARTA 100
    FIN DEL ACTO I
 
-   IMPORTANTE:
-   - NO borra ninguna carta.
-   - NO borra localStorage del mundo.
-   - NO altera gatos, tulipán, crafting, constelación, etc.
-   - La Carta 100 NO entra a la Canasta.
-     El mundo intenta guardarla y falla.
+   PATCH MUSICAL:
+   - No cambia la cinematográfica.
+   - No cambia textos.
+   - No cambia progreso.
+   - Solo hace que la música realmente se rompa durante
+     la Carta 100 y quede como un eco incompleto al entrar
+     al Acto II.
 ========================================================= */
 
 (() => {
@@ -21,6 +22,398 @@
   let started=false;
   let availableTimer=0;
   let originalMusic=null;
+
+  /* =======================================================
+     MOTOR DE AUDIO ROTO
+     ======================================================= */
+
+  let audioWarp=null;
+  let act2GhostStarted=false;
+
+  function distortionCurve(amount=0){
+    const samples=44100;
+    const curve=new Float32Array(samples);
+
+    if(amount<=0){
+      for(let i=0;i<samples;i++){
+        curve[i]=(i*2/samples)-1;
+      }
+      return curve;
+    }
+
+    const k=amount;
+    const deg=Math.PI/180;
+
+    for(let i=0;i<samples;i++){
+      const x=(i*2/samples)-1;
+      curve[i]=
+        (3+k)*x*20*deg/
+        (Math.PI+k*Math.abs(x));
+    }
+
+    return curve;
+  }
+
+  function createAudioWarp(audio){
+    if(audioWarp) return audioWarp;
+    if(!audio) return null;
+
+    const AudioCtx=
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if(!AudioCtx){
+      return null;
+    }
+
+    try{
+      const ctx=new AudioCtx();
+      const source=ctx.createMediaElementSource(audio);
+
+      const lowpass=ctx.createBiquadFilter();
+      lowpass.type='lowpass';
+      lowpass.frequency.value=18000;
+      lowpass.Q.value=.4;
+
+      const highpass=ctx.createBiquadFilter();
+      highpass.type='highpass';
+      highpass.frequency.value=20;
+      highpass.Q.value=.2;
+
+      const shaper=ctx.createWaveShaper();
+      shaper.curve=distortionCurve(0);
+      shaper.oversample='4x';
+
+      const dry=ctx.createGain();
+      dry.gain.value=1;
+
+      const delay=ctx.createDelay(.5);
+      delay.delayTime.value=.035;
+
+      const feedback=ctx.createGain();
+      feedback.gain.value=.08;
+
+      const wet=ctx.createGain();
+      wet.gain.value=0;
+
+      const master=ctx.createGain();
+      master.gain.value=1;
+
+      source.connect(lowpass);
+      lowpass.connect(highpass);
+      highpass.connect(shaper);
+
+      shaper.connect(dry);
+      dry.connect(master);
+
+      shaper.connect(delay);
+      delay.connect(wet);
+      wet.connect(master);
+
+      delay.connect(feedback);
+      feedback.connect(delay);
+
+      master.connect(ctx.destination);
+
+      audioWarp={
+        ctx,
+        audio,
+        lowpass,
+        highpass,
+        shaper,
+        dry,
+        delay,
+        feedback,
+        wet,
+        master,
+
+        setBroken(amount){
+          const a=Math.max(0,Math.min(1,amount));
+
+          lowpass.frequency.setTargetAtTime(
+            18000-(16600*a),
+            ctx.currentTime,
+            .05
+          );
+
+          highpass.frequency.setTargetAtTime(
+            20+(125*a),
+            ctx.currentTime,
+            .05
+          );
+
+          shaper.curve=
+            distortionCurve(
+              5+(150*a)
+            );
+
+          dry.gain.setTargetAtTime(
+            1-(.34*a),
+            ctx.currentTime,
+            .04
+          );
+
+          wet.gain.setTargetAtTime(
+            .02+(.33*a),
+            ctx.currentTime,
+            .04
+          );
+
+          delay.delayTime.setTargetAtTime(
+            .035+(.095*a),
+            ctx.currentTime,
+            .04
+          );
+
+          feedback.gain.setTargetAtTime(
+            .08+(.30*a),
+            ctx.currentTime,
+            .05
+          );
+        },
+
+        cut(strength=.12,duration=95){
+          const now=ctx.currentTime;
+
+          master.gain.cancelScheduledValues(now);
+          master.gain.setValueAtTime(
+            master.gain.value,
+            now
+          );
+          master.gain.linearRampToValueAtTime(
+            strength,
+            now+.025
+          );
+          master.gain.linearRampToValueAtTime(
+            1,
+            now+(duration/1000)
+          );
+        }
+      };
+
+      return audioWarp;
+    }catch(_){
+      /*
+        Si otro script ya conectó este elemento a WebAudio,
+        seguimos usando la distorsión por playbackRate/stutter.
+      */
+      return null;
+    }
+  }
+
+  function resumeWarp(warp){
+    try{
+      if(
+        warp?.ctx &&
+        warp.ctx.state==='suspended'
+      ){
+        warp.ctx.resume().catch(()=>{});
+      }
+    }catch(_){}
+  }
+
+  function startAct2GhostMusic(){
+    /*
+      Al comenzar el Acto II no vuelve ninguna canción.
+      Después de la destrucción de la Carta 100 queda
+      silencio total para que el Despertar se sienta vacío.
+    */
+    if(act2GhostStarted) return;
+    act2GhostStarted=true;
+
+    const audio=
+      document.getElementById(
+        'bgMusic'
+      );
+
+    if(!audio) return;
+
+    try{
+      audio.pause();
+      audio.volume=0;
+      audio.playbackRate=1;
+    }catch(_){}
+
+    if(audioWarp){
+      try{
+        audioWarp.master.gain.cancelScheduledValues(
+          audioWarp.ctx.currentTime
+        );
+
+        audioWarp.master.gain.setValueAtTime(
+          0,
+          audioWarp.ctx.currentTime
+        );
+
+        audioWarp.wet.gain.setValueAtTime(
+          0,
+          audioWarp.ctx.currentTime
+        );
+
+        audioWarp.feedback.gain.setValueAtTime(
+          0,
+          audioWarp.ctx.currentTime
+        );
+      }catch(_){}
+    }
+  }
+
+  function distortMusic(){
+    const audio=
+      document.getElementById(
+        'bgMusic'
+      );
+
+    if(!audio) return;
+
+    captureMusic();
+
+    const warp=
+      createAudioWarp(audio);
+
+    resumeWarp(warp);
+
+    try{
+      audio.preservesPitch=false;
+      audio.mozPreservesPitch=false;
+      audio.webkitPreservesPitch=false;
+    }catch(_){}
+
+    const startVolume=
+      Number.isFinite(audio.volume)
+        ? Math.max(.32,audio.volume)
+        : .55;
+
+    /*
+      Esta progresión está hecha para que YA NO suene como
+      la canción normal. Primero se dobla, después tartamudea
+      y finalmente se apaga.
+    */
+    const sequence=[
+      {rate:.94, broken:.08, vol:1.00},
+      {rate:.82, broken:.18, vol:.94},
+      {rate:1.10, broken:.26, vol:.88, cut:true},
+      {rate:.71, broken:.38, vol:.80},
+      {rate:.88, broken:.46, vol:.72, rewind:.10},
+      {rate:.60, broken:.60, vol:.62, cut:true},
+      {rate:.77, broken:.68, vol:.54, rewind:.18},
+      {rate:.49, broken:.78, vol:.43, cut:true},
+      {rate:.64, broken:.86, vol:.32, rewind:.26},
+      {rate:.41, broken:.94, vol:.20},
+      {rate:.33, broken:1.00, vol:.10, cut:true}
+    ];
+
+    let i=0;
+
+    const step=()=>{
+      if(i>=sequence.length){
+        const fade=setInterval(
+          ()=>{
+            try{
+              audio.volume=
+                Math.max(
+                  0,
+                  Number(audio.volume||0)-
+                  .018
+                );
+
+              audio.playbackRate=
+                Math.max(
+                  .27,
+                  Number(audio.playbackRate||.33)-
+                  .009
+                );
+
+              if(warp){
+                warp.setBroken(1);
+              }
+            }catch(_){}
+
+            if(
+              Number(audio.volume||0)<=.005
+            ){
+              clearInterval(fade);
+
+              try{
+                audio.volume=0;
+                audio.pause();
+                audio.playbackRate=1;
+              }catch(_){}
+            }
+          },
+          75
+        );
+
+        return;
+      }
+
+      const item=sequence[i++];
+
+      try{
+        audio.playbackRate=item.rate;
+        audio.volume=
+          Math.max(
+            0,
+            startVolume*item.vol
+          );
+
+        if(
+          item.rewind &&
+          Number.isFinite(audio.currentTime)
+        ){
+          audio.currentTime=
+            Math.max(
+              0,
+              audio.currentTime-item.rewind
+            );
+        }
+      }catch(_){}
+
+      if(warp){
+        try{
+          warp.setBroken(
+            item.broken
+          );
+
+          if(item.cut){
+            warp.cut(
+              .045,
+              120
+            );
+          }
+        }catch(_){}
+      }else if(item.cut){
+        /*
+          Fallback sin WebAudio:
+          corte audible corto.
+        */
+        try{
+          const v=audio.volume;
+          audio.volume=.015;
+
+          setTimeout(
+            ()=>{
+              try{
+                audio.volume=v;
+              }catch(_){}
+            },
+            95
+          );
+        }catch(_){}
+      }
+
+      setTimeout(
+        step,
+        260
+      );
+    };
+
+    step();
+  }
+
+  /* =======================================================
+     ESTADO / CARTA
+     ======================================================= */
 
   function readStory(){
     try{
@@ -272,120 +665,6 @@
     };
   }
 
-  function distortMusic(){
-    const audio=
-      document.getElementById(
-        'bgMusic'
-      );
-
-    if(!audio) return;
-
-    captureMusic();
-
-    /*
-      La Carta 100 es el PRIMER momento donde la música deja
-      de comportarse como la canción normal del Acto I.
-    */
-    try{
-      audio.preservesPitch=false;
-      audio.mozPreservesPitch=false;
-      audio.webkitPreservesPitch=false;
-    }catch(_){}
-
-    const rates=[
-      .96,.82,1.07,.74,.91,.61,.79,.53,.69,.47
-    ];
-
-    const startVolume=
-      Number.isFinite(audio.volume)
-        ? audio.volume
-        : .5;
-
-    let n=0;
-
-    const wobble=setInterval(
-      ()=>{
-        try{
-          audio.playbackRate=
-            rates[
-              Math.min(
-                n,
-                rates.length-1
-              )
-            ];
-
-          const progress=
-            (n+1)/
-            (rates.length+2);
-
-          audio.volume=
-            Math.max(
-              0,
-              startVolume*
-              (1-progress)
-            );
-
-          /*
-            Dos pequeñas pérdidas de continuidad.
-            No saltamos mucho para que no parezca un bug normal.
-          */
-          if(
-            (n===4 || n===7) &&
-            Number.isFinite(audio.currentTime)
-          ){
-            audio.currentTime=
-              Math.max(
-                0,
-                audio.currentTime-
-                .16
-              );
-          }
-        }catch(_){}
-
-        n++;
-
-        if(n>=rates.length){
-          clearInterval(wobble);
-
-          const fade=setInterval(
-            ()=>{
-              try{
-                audio.volume=
-                  Math.max(
-                    0,
-                    Number(audio.volume||0)-
-                    .025
-                  );
-
-                audio.playbackRate=
-                  Math.max(
-                    .38,
-                    Number(audio.playbackRate||.5)-
-                    .018
-                  );
-              }catch(_){}
-
-              if(
-                !audio ||
-                audio.volume<=.005
-              ){
-                clearInterval(fade);
-
-                try{
-                  audio.volume=0;
-                  audio.pause();
-                  audio.playbackRate=1;
-                }catch(_){}
-              }
-            },
-            85
-          );
-        }
-      },
-      175
-    );
-  }
-
   function coverMoon(){
     const moon=
       document.getElementById(
@@ -488,6 +767,15 @@
             )
           );
         }catch(_){}
+
+        /*
+          El Acto II ya no recibe la canción limpia.
+          Unos segundos después del negro entra el eco roto.
+        */
+        setTimeout(
+          startAct2GhostMusic,
+          2100
+        );
       },
       2800
     );
@@ -531,9 +819,6 @@
 
     dispatchPhase('letter');
 
-    /*
-      Primera lectura: completamente normal.
-    */
     setPaper(
       'Quería guardar una última cosa.',
       'algo que no quería perder...'
@@ -541,10 +826,6 @@
 
     await wait(2600);
 
-    /*
-      Primer fallo. No hay glitch previo a la Carta 100:
-      esta es la primera vez que el mundo falla.
-    */
     document.body.classList.add(
       'card100-first-failure'
     );
@@ -593,11 +874,11 @@
 
     await wait(2200);
 
-    /*
-      El papel deja de poder permanecer.
-    */
     dispatchPhase('collapse');
 
+    /*
+      AQUÍ empieza la destrucción musical real.
+    */
     distortMusic();
 
     document
@@ -610,10 +891,6 @@
 
     await wait(1900);
 
-    /*
-      El mundo intenta recurrir al refugio:
-      lo último que todavía se siente "casa".
-    */
     const refuge=
       document.getElementById(
         'card100RefugeStage'
@@ -623,18 +900,12 @@
 
     await wait(2200);
 
-    /*
-      Primero las pequeñas luces.
-    */
     document.body.classList.add(
       'card100-lights-gone'
     );
 
     await wait(1300);
 
-    /*
-      Marie y Tuluz desaparecen.
-    */
     document
       .getElementById(
         'card100Tuluz'
@@ -655,9 +926,6 @@
 
     await wait(1250);
 
-    /*
-      Mewo es lo último que permanece.
-    */
     const mewo=
       document.getElementById(
         'card100Mewo'
@@ -680,19 +948,12 @@
 
     await wait(1400);
 
-    /*
-      El refugio también se va.
-    */
     refuge?.classList.add(
       'gone'
     );
 
     await wait(1100);
 
-    /*
-      Campo real: primero la luna queda tapada,
-      después desaparecen los tulipanes y finalmente todo.
-    */
     coverMoon();
 
     await wait(1350);
@@ -732,17 +993,15 @@
   function init(){
     ensureDOM();
 
-    /*
-      PRUEBA DEV:
-      ?dev=1&card100=1 reproduce la transición COMPLETA
-      aunque esta ventana de incógnito no tenga las 99 cartas.
-      Nunca funciona sin ?dev=1.
-    */
     const params=
       new URLSearchParams(
         location.search
       );
 
+    /*
+      DEV:
+      reproduce la Carta 100 completa sin necesitar 99 cartas.
+    */
     if(
       params.has('dev') &&
       params.has('card100')
@@ -755,9 +1014,6 @@
       return;
     }
 
-    /*
-      En juego normal no repetimos la Carta 100.
-    */
     if(
       readStory().card100Seen
     ){
@@ -795,6 +1051,25 @@
     );
   }
 
+  /*
+    Si el Acto II empieza dentro de la misma sesión después
+    de la Carta 100, mantenemos el sonido fantasma.
+  */
+  setInterval(
+    ()=>{
+      if(
+        document.body.classList.contains(
+          'act2-active'
+        ) &&
+        started &&
+        !act2GhostStarted
+      ){
+        startAct2GhostMusic();
+      }
+    },
+    1000
+  );
+
   const boot=setInterval(
     ()=>{
       if(
@@ -815,6 +1090,7 @@
   window.ParadoxCard100={
     eligible,
     start,
+
     startDev(){
       if(
         !new URLSearchParams(
@@ -824,12 +1100,9 @@
 
       start(true);
     },
+
     getState:readStory,
 
-    /*
-      Solo para pruebas manuales del creador desde consola.
-      No aparece como botón dentro del juego.
-    */
     reset(){
       const story=readStory();
 
