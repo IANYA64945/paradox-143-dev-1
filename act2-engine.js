@@ -3707,6 +3707,7 @@
       localStorage.removeItem(FRAGMENT_KEY);
       localStorage.removeItem('paradox143_act2_world_v4');
       localStorage.removeItem('paradox143_act2_v5');
+      localStorage.removeItem('paradox143_act3_v1');
     }catch(_){}
     const s=story();
     writeStory({...s,act:2,phase:'act2',act2Finished:false});

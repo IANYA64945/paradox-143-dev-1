@@ -1285,17 +1285,37 @@
 
             setTimeout(
               ()=>{
+                /*
+                  FIX CINTA 100:
+                  Si la cinta se abrió dentro de Estación 143,
+                  volvemos a la estación.
+
+                  Si se abrió directamente desde DEV, antes quedaba
+                  una pantalla negra vacía sin forma de avanzar.
+                  En ese caso cerramos el evento y regresamos al mundo.
+                */
+                const hasStationControls=
+                  Boolean(
+                    overlay.querySelector(
+                      '#v5StationConnect'
+                    )
+                  );
+
                 tape.remove();
 
                 overlay.classList.remove(
                   'v5-tape-playing'
                 );
 
-                core()
-                  ?.suppressObjectives
-                  ?.(
-                    true
-                  );
+                if(hasStationControls){
+                  core()
+                    ?.suppressObjectives
+                    ?.(
+                      true
+                    );
+                }else{
+                  end();
+                }
               },
               600
             );

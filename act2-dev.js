@@ -98,6 +98,19 @@
         <button data-v5="symmetry">Tuluz rompe puzzle</button>
       </div>
 
+      <div class="devLabel">ACTO III · RUTAS</div>
+
+      <div class="devGrid">
+        <button data-act3="start">III · Amanecer</button>
+        <button data-act3="world">Mundo nuevo</button>
+        <button data-act3="remember">Ruta Recordar</button>
+        <button data-act3="release">Ruta Dejar ir</button>
+        <button data-act3="grow">Ruta Seguir creciendo</button>
+        <button data-act3="no-change">Ruta NO CAMBIES</button>
+        <button data-act3="secret">Epílogo secreto</button>
+        <button id="devResetAct3">Reiniciar Acto III</button>
+      </div>
+
       <pre id="devState"></pre>
     `;
     document.body.appendChild(panel);
@@ -194,6 +207,27 @@
       })
     );
 
+    panel.querySelectorAll('[data-act3]').forEach(
+      b=>b.addEventListener('click',()=>{
+        panel.classList.remove('show');
+
+        window.ParadoxAct3
+          ?.debug
+          ?.(b.dataset.act3);
+
+        setTimeout(
+          refresh,
+          300
+        );
+      })
+    );
+
+    panel.querySelector('#devResetAct3')
+      ?.addEventListener('click',()=>{
+        panel.classList.remove('show');
+        window.ParadoxAct3?.reset?.();
+      });
+
     panel.querySelector('#devArchive').addEventListener('click',()=>window.ParadoxAct2Archive?.open?.());
     panel.querySelector('#devAllFragments').addEventListener('click',()=>{
       ['before','first','keep','missing','marie','tuluz','remains'].forEach(id=>window.ParadoxAct2Fragments?.collect?.(id));
@@ -214,6 +248,7 @@
     const fragments=window.ParadoxAct2Fragments?.found?.()||[];
     const v4=window.ParadoxAct2WorldV4?.state?.()||{};
     const v5=window.ParadoxAct2V5?.state?.()||{};
+    const act3=window.ParadoxAct3?.state?.()||{};
 
     panel.querySelector('#devState').textContent=JSON.stringify({
       chapter:state.chapter,
@@ -246,6 +281,15 @@
         recover99:v5.recover99Done,
         symbols:v5.symbolsDone,
         symmetry:v5.symmetryDone
+      },
+      act3:{
+        dawn:act3.dawnSeen,
+        nodes:act3.nodes,
+        choices:act3.choices,
+        route:act3.route,
+        ending:act3.endingSeen,
+        newMemory:act3.newMemoryDone,
+        secret:act3.secretSeen
       }
     },null,2);
   }
