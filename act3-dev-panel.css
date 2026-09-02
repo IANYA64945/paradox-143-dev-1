@@ -1,0 +1,109 @@
+/* =========================================================
+   PANEL DEV EXCLUSIVO ACTO III
+========================================================= */
+
+#paradoxAct3DevToggle{
+  position:fixed;
+  left:58px;
+  top:8px;
+  z-index:2400;
+  width:42px;
+  height:28px;
+  border:1px solid rgba(255,239,190,.25);
+  border-radius:7px;
+  background:rgba(11,13,12,.88);
+  color:rgba(255,241,204,.88);
+  font:900 9px/1 monospace;
+  box-shadow:0 5px 15px rgba(0,0,0,.35);
+}
+
+#paradoxAct3DevPanel{
+  position:fixed;
+  left:8px;
+  top:44px;
+  z-index:2401;
+  width:min(350px,calc(100vw - 16px));
+  max-height:calc(100vh - 54px);
+  overflow:auto;
+  padding:10px;
+  border:1px solid rgba(255,238,190,.17);
+  border-radius:10px;
+  background:rgba(7,10,10,.97);
+  color:#eee;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transform:translateY(-5px);
+  transition:.2s;
+}
+
+#paradoxAct3DevPanel.show{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:none;
+}
+
+#paradoxAct3DevPanel header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+
+#paradoxAct3DevPanel header strong,
+#paradoxAct3DevPanel header small{
+  display:block;
+}
+
+#paradoxAct3DevPanel header strong{
+  color:rgba(255,243,207,.82);
+  font-size:10px;
+  letter-spacing:.08em;
+}
+
+#paradoxAct3DevPanel header small{
+  margin-top:5px;
+  color:rgba(255,255,255,.30);
+  font-size:7px;
+}
+
+#paradoxAct3DevPanel header small.ok{
+  color:rgba(164,230,181,.65);
+}
+
+#act3DevClose{
+  border:0;
+  background:transparent;
+  color:#fff;
+  font-size:18px;
+}
+
+.act3DevGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+}
+
+.act3DevGrid button{
+  min-height:42px;
+  padding:8px 6px;
+  border:1px solid rgba(255,239,194,.12);
+  border-radius:6px;
+  background:rgba(255,255,255,.045);
+  color:rgba(245,241,224,.78);
+  font:700 8px/1.25 monospace;
+}
+
+.act3DevGrid button:active{
+  background:rgba(255,245,209,.12);
+}
+
+.act3DevHelp{
+  margin-top:10px;
+  padding-top:8px;
+  border-top:1px solid rgba(255,255,255,.07);
+  color:rgba(255,255,255,.28);
+  font:700 7px/1.4 monospace;
+}

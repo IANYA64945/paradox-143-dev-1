@@ -1194,9 +1194,21 @@
     );
   }
 
-  function playTape100(){
+  function playTape100(forceReplay=false){
+    /*
+      FIX DEFINITIVO CINTA 100
+
+      - Dentro de Estación 143: vuelve a la estación.
+      - Desde DEV: vuelve al mundo.
+      - Si ya fue vista y se lanza desde DEV, forceReplay=true
+        permite volver a probarla.
+      - Al llegar a NOT SAVED aparece un botón VOLVER.
+        Aunque un temporizador falle, nunca puede dejarte atrapado.
+    */
+
     if(
-      state.tape100Seen
+      state.tape100Seen &&
+      !forceReplay
     ){
       whisper(
         'CARD_0100',
@@ -1206,9 +1218,11 @@
       return;
     }
 
-    save({
-      tape100Seen:true
-    });
+    if(!state.tape100Seen){
+      save({
+        tape100Seen:true
+      });
+    }
 
     core()?.suppressObjectives?.(
       true
@@ -1217,11 +1231,6 @@
     core()?.ambientMode?.(
       'silence'
     );
-
-    const stationWasOpen=
-      overlay.classList.contains(
-        'show'
-      );
 
     overlay.classList.add(
       'v5-tape-playing'
@@ -1247,9 +1256,37 @@
       </header>
 
       <div id="v5TapeAttempt"></div>
+
       <div id="v5TapeStatus">
         REC
       </div>
+
+      <button
+        id="v5TapeExit"
+        type="button"
+        style="
+          position:absolute;
+          left:50%;
+          bottom:10%;
+          transform:translateX(-50%);
+          min-width:120px;
+          min-height:42px;
+          padding:0 16px;
+          border:1px solid rgba(230,233,229,.18);
+          border-radius:5px;
+          background:rgba(5,7,8,.86);
+          color:rgba(235,237,232,.65);
+          font:800 8px/1 monospace;
+          letter-spacing:.08em;
+          opacity:0;
+          visibility:hidden;
+          pointer-events:none;
+          transition:.35s;
+          z-index:10;
+        "
+      >
+        VOLVER
+      </button>
     `;
 
     overlay.appendChild(
@@ -1259,6 +1296,11 @@
     const target=
       tape.querySelector(
         '#v5TapeAttempt'
+      );
+
+    const exitButton=
+      tape.querySelector(
+        '#v5TapeExit'
       );
 
     const attempts=[
@@ -1272,56 +1314,95 @@
     ];
 
     let i=0;
+    let closed=false;
+    let nextTimer=null;
+    let closeTimer=null;
+
+    const closeTape=()=>{
+      if(closed) return;
+      closed=true;
+
+      if(nextTimer){
+        clearTimeout(nextTimer);
+        nextTimer=null;
+      }
+
+      if(closeTimer){
+        clearTimeout(closeTimer);
+        closeTimer=null;
+      }
+
+      const hasStationControls=
+        Boolean(
+          overlay.querySelector(
+            '#v5StationConnect'
+          )
+        );
+
+      tape.classList.add(
+        'gone'
+      );
+
+      setTimeout(
+        ()=>{
+          tape.remove();
+
+          overlay.classList.remove(
+            'v5-tape-playing'
+          );
+
+          /*
+            Si sigue existiendo #v5StationConnect significa
+            que la cinta se encontró físicamente dentro de la estación.
+            En ese caso NO cerramos la estación.
+          */
+          if(hasStationControls){
+            core()
+              ?.suppressObjectives
+              ?.(
+                true
+              );
+          }else{
+            end();
+          }
+        },
+        420
+      );
+    };
+
+    exitButton.addEventListener(
+      'click',
+      closeTape
+    );
 
     const next=()=>{
+      if(closed) return;
+
       if(
         i>=attempts.length
       ){
-        setTimeout(
-          ()=>{
-            tape.classList.add(
-              'gone'
-            );
+        /*
+          Ya vimos NOT SAVED.
+          Damos control explícito al jugador.
+        */
+        exitButton.style.opacity='1';
+        exitButton.style.visibility='visible';
+        exitButton.style.pointerEvents='auto';
 
-            setTimeout(
-              ()=>{
-                /*
-                  FIX CINTA 100:
-                  Si la cinta se abrió dentro de Estación 143,
-                  volvemos a la estación.
+        tape.querySelector(
+          '#v5TapeStatus'
+        ).textContent=
+          'END OF RECOVERY';
 
-                  Si se abrió directamente desde DEV, antes quedaba
-                  una pantalla negra vacía sin forma de avanzar.
-                  En ese caso cerramos el evento y regresamos al mundo.
-                */
-                const hasStationControls=
-                  Boolean(
-                    overlay.querySelector(
-                      '#v5StationConnect'
-                    )
-                  );
-
-                tape.remove();
-
-                overlay.classList.remove(
-                  'v5-tape-playing'
-                );
-
-                if(hasStationControls){
-                  core()
-                    ?.suppressObjectives
-                    ?.(
-                      true
-                    );
-                }else{
-                  end();
-                }
-              },
-              600
-            );
-          },
-          1200
-        );
+        /*
+          Además existe salida automática.
+          El botón sigue siendo la garantía principal.
+        */
+        closeTimer=
+          setTimeout(
+            closeTape,
+            5000
+          );
 
         return;
       }
@@ -1357,15 +1438,39 @@
         );
       }
 
-      setTimeout(
-        next,
-        text==='...'
-          ? 1150
-          : 720
-      );
+      nextTimer=
+        setTimeout(
+          next,
+          text==='...'
+            ? 1150
+            : text==='NOT SAVED'
+              ? 1200
+              : 720
+        );
     };
 
     next();
+
+    /*
+      Si el evento principal se cierra por otro motivo, limpiamos
+      los timers para que la cinta no vuelva a actuar después.
+    */
+    const previousCleanup=
+      cleanup;
+
+    cleanup=()=>{
+      try{
+        previousCleanup?.();
+      }catch(_){}
+
+      if(nextTimer){
+        clearTimeout(nextTimer);
+      }
+
+      if(closeTimer){
+        clearTimeout(closeTimer);
+      }
+    };
   }
 
   /* =======================================================
@@ -2959,7 +3064,7 @@
           </div>
         `;
 
-        playTape100();
+        playTape100(true);
         break;
     }
   }
