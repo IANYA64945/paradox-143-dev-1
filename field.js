@@ -59,32 +59,32 @@ function buildSky(){
 
     const palettes={
       'act3-dawn':[
-        '#071426',
-        '#14304a',
-        '#49546c',
-        '#b17470',
-        '#d3a27f'
+        '#09182d',
+        '#24445f',
+        '#697386',
+        '#c98d7c',
+        '#edc49a'
       ],
       'act3-remember':[
-        '#050c1b',
-        '#112844',
-        '#30435c',
-        '#80666f',
-        '#bb8f7f'
+        '#050d1d',
+        '#132b49',
+        '#3b4e69',
+        '#8e7078',
+        '#c29a87'
       ],
       'act3-release':[
-        '#0a1825',
-        '#244052',
-        '#66747e',
-        '#9a9f95',
-        '#c8b99c'
+        '#0d1e2c',
+        '#345264',
+        '#7d8c94',
+        '#b1b3a8',
+        '#deceb0'
       ],
       'act3-grow':[
-        '#07182a',
-        '#1e4662',
-        '#687f78',
-        '#b39772',
-        '#e0bb7f'
+        '#0a2034',
+        '#2b5870',
+        '#79978b',
+        '#c2a273',
+        '#f0cb84'
       ],
       'act3-no-change':[
         '#020612',
@@ -550,17 +550,17 @@ function drawGroundBase(){
 
   if(isAct3Field()){
     if(fieldTheme==='act3-grow'){
-      floor.addColorStop(0,'rgba(63,103,72,.44)');
-      floor.addColorStop(.10,'rgba(58,104,57,.76)');
-      floor.addColorStop(.32,'#244b2b');
-      floor.addColorStop(.61,'#15331d');
-      floor.addColorStop(1,'#07120b');
+      floor.addColorStop(0,'rgba(92,137,83,.56)');
+      floor.addColorStop(.10,'rgba(72,126,68,.84)');
+      floor.addColorStop(.32,'#315f35');
+      floor.addColorStop(.61,'#1c3c22');
+      floor.addColorStop(1,'#08150c');
     }else if(fieldTheme==='act3-release'){
-      floor.addColorStop(0,'rgba(56,91,77,.35)');
-      floor.addColorStop(.12,'rgba(51,91,68,.68)');
-      floor.addColorStop(.34,'#24432d');
-      floor.addColorStop(.64,'#142a1c');
-      floor.addColorStop(1,'#07110b');
+      floor.addColorStop(0,'rgba(82,113,94,.48)');
+      floor.addColorStop(.12,'rgba(67,107,79,.76)');
+      floor.addColorStop(.34,'#31513a');
+      floor.addColorStop(.64,'#193222');
+      floor.addColorStop(1,'#08130c');
     }else if(fieldTheme==='act3-no-change'){
       floor.addColorStop(0,'rgba(21,67,59,.22)');
       floor.addColorStop(.08,'rgba(25,66,39,.66)');
@@ -568,12 +568,18 @@ function drawGroundBase(){
       floor.addColorStop(.48,'#0b2515');
       floor.addColorStop(.74,'#07160d');
       floor.addColorStop(1,'#020704');
+    }else if(fieldTheme==='act3-remember'){
+      floor.addColorStop(0,'rgba(62,94,69,.36)');
+      floor.addColorStop(.10,'rgba(50,85,55,.70)');
+      floor.addColorStop(.34,'#223d29');
+      floor.addColorStop(.62,'#122719');
+      floor.addColorStop(1,'#050e09');
     }else{
-      floor.addColorStop(0,'rgba(70,103,69,.38)');
-      floor.addColorStop(.10,'rgba(55,93,53,.72)');
-      floor.addColorStop(.34,'#244128');
-      floor.addColorStop(.62,'#132a19');
-      floor.addColorStop(1,'#06100a');
+      floor.addColorStop(0,'rgba(100,135,82,.52)');
+      floor.addColorStop(.10,'rgba(73,116,64,.82)');
+      floor.addColorStop(.34,'#315333');
+      floor.addColorStop(.62,'#193520');
+      floor.addColorStop(1,'#07130b');
     }
   }else{
     floor.addColorStop(0,'rgba(21,67,59,.22)');
@@ -873,8 +879,20 @@ function drawTulip(row,j,x,time){
     );
   }
 
+  const act3TulipVisibility=
+    isAct3Field()
+      ? fieldTheme==='act3-no-change'
+        ? .82
+        : fieldTheme==='act3-remember'
+          ? 1.04
+          : 1.16
+      : 1;
+
   if(!row.glow){
-    ctx.globalAlpha=row.alpha*lifePulse;
+    ctx.globalAlpha=Math.min(
+      1,
+      row.alpha*lifePulse*act3TulipVisibility
+    );
     ctx.drawImage(
       plainFrames[frozenAct3?0:currentFrame],
       xx-drawW*.5,
@@ -886,7 +904,10 @@ function drawTulip(row,j,x,time){
   }
 
   const scale=drawH/192, compW=166*scale;
-  ctx.globalAlpha=row.alpha*lifePulse;
+  ctx.globalAlpha=Math.min(
+    1,
+    row.alpha*lifePulse*act3TulipVisibility
+  );
   ctx.drawImage(
     flowerFrames[frozenAct3?0:currentFrame],
     xx-compW*.5,
@@ -989,9 +1010,9 @@ function drawDistanceMist(){
       mist.addColorStop(.56,'rgba(85,131,104,.10)');
       mist.addColorStop(1,'rgba(65,112,84,0)');
     }else if(fieldTheme==='act3-grow'){
-      mist.addColorStop(0,'rgba(99,151,168,.29)');
-      mist.addColorStop(.28,'rgba(91,147,132,.19)');
-      mist.addColorStop(.60,'rgba(76,132,87,.07)');
+      mist.addColorStop(0,'rgba(120,169,178,.20)');
+      mist.addColorStop(.28,'rgba(104,158,138,.12)');
+      mist.addColorStop(.60,'rgba(81,139,91,.045)');
       mist.addColorStop(1,'rgba(55,105,72,0)');
     }else if(fieldTheme==='act3-no-change'){
       mist.addColorStop(0,'rgba(7,25,43,.76)');
@@ -999,9 +1020,9 @@ function drawDistanceMist(){
       mist.addColorStop(.58,'rgba(20,58,46,.18)');
       mist.addColorStop(1,'rgba(9,27,18,0)');
     }else{
-      mist.addColorStop(0,'rgba(79,116,143,.32)');
-      mist.addColorStop(.25,'rgba(89,125,133,.22)');
-      mist.addColorStop(.58,'rgba(75,119,91,.08)');
+      mist.addColorStop(0,'rgba(105,137,156,.20)');
+      mist.addColorStop(.25,'rgba(101,136,139,.13)');
+      mist.addColorStop(.58,'rgba(79,127,94,.045)');
       mist.addColorStop(1,'rgba(55,105,72,0)');
     }
 

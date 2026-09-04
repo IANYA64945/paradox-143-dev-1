@@ -112,6 +112,61 @@
       );
   }
 
+  function skipBlankOpeningFrame(){
+    const cine=
+      document.getElementById(
+        'act3Cine'
+      );
+
+    if(
+      !cine ||
+      !cine.classList.contains('show') ||
+      cine.dataset.theme!=='dawn' ||
+      cine.dataset.memory!=='dark'
+    ) return;
+
+    const text=
+      document.getElementById(
+        'act3CineText'
+      );
+
+    const sub=
+      document.getElementById(
+        'act3CineSub'
+      );
+
+    if(
+      (text?.textContent||'').trim() ||
+      (sub?.textContent||'').trim() ||
+      cine.dataset.v2BlankSkipped==='1'
+    ) return;
+
+    cine.dataset.v2BlankSkipped='1';
+
+    setTimeout(
+      ()=>{
+        if(
+          cine.isConnected &&
+          cine.classList.contains('show') &&
+          cine.dataset.theme==='dawn' &&
+          cine.dataset.memory==='dark' &&
+          !(text?.textContent||'').trim()
+        ){
+          cine.dispatchEvent(
+            new MouseEvent(
+              'click',
+              {
+                bubbles:true,
+                cancelable:true
+              }
+            )
+          );
+        }
+      },
+      620
+    );
+  }
+
   function addWorldLayer(){
     const root=
       document.getElementById(
@@ -416,6 +471,7 @@
     addWorldLayer();
     decorateNodes();
     updateRouteClass();
+    skipBlankOpeningFrame();
     injectRetry();
   }
 
