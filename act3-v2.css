@@ -1,0 +1,872 @@
+/* =========================================================
+   PARADOX143 — ACTO III V2
+   RENACER DEL CAMPO
+
+   Regla visual:
+   No es "otra pantalla".
+   Es el mismo campo del Acto I después de sobrevivir al Acto II.
+========================================================= */
+
+/* El canvas original vuelve a ser el escenario real. */
+body.act3-v2-field #app{
+  z-index:0;
+  opacity:1!important;
+  visibility:visible!important;
+  filter:none!important;
+}
+
+body.act3-v2-field #scene{
+  opacity:1!important;
+  filter:none!important;
+}
+
+/*
+  Acto III deja de pintar un fondo CSS opaco encima del canvas.
+*/
+#act3Root{
+  background:transparent!important;
+}
+
+#act3Root #act3Sky{
+  display:none!important;
+}
+
+#act3Root .act3Ground,
+#act3Root .act3Horizon{
+  background:transparent!important;
+  box-shadow:none!important;
+  filter:none!important;
+}
+
+/*
+  Un velo extremadamente sutil une DOM + canvas sin esconder tulipanes.
+*/
+#act3Stage{
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255,255,255,0) 0 48%,
+      rgba(4,13,9,.035) 69%,
+      rgba(2,8,5,.17) 100%
+    )!important;
+}
+
+/* =========================================================
+   CAPA FÍSICA NUEVA
+========================================================= */
+
+#act3V2Layer{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  overflow:hidden;
+  pointer-events:none;
+}
+
+.act3V2Haze{
+  position:absolute;
+  left:-10%;
+  right:-10%;
+  top:26%;
+  height:31%;
+  background:
+    radial-gradient(
+      ellipse at 28% 48%,
+      rgba(255,211,161,.075),
+      transparent 46%
+    ),
+    radial-gradient(
+      ellipse at 71% 55%,
+      rgba(177,205,196,.045),
+      transparent 43%
+    );
+  filter:blur(10px);
+}
+
+.act3V2Path{
+  position:absolute;
+  left:50%;
+  bottom:-22%;
+  width:min(31vw,300px);
+  height:72%;
+  transform:
+    translateX(-50%)
+    perspective(400px)
+    rotateX(59deg);
+  transform-origin:bottom;
+  border-radius:50% 50% 18% 18%;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(220,190,146,.025) 16%,
+      rgba(230,205,166,.075) 48%,
+      rgba(220,190,146,.025) 84%,
+      transparent
+    );
+  filter:blur(.4px);
+}
+
+.act3V2Path i{
+  position:absolute;
+  inset:0;
+  border-left:1px solid rgba(239,218,181,.018);
+  border-right:1px solid rgba(239,218,181,.018);
+}
+
+.act3V2Scar{
+  position:absolute;
+  width:84px;
+  height:1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(184,205,207,.15),
+      transparent
+    );
+  opacity:.45;
+}
+
+.act3V2Scar::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-3px;
+  width:7px;
+  height:7px;
+  border:1px solid rgba(184,205,207,.10);
+  border-radius:50%;
+}
+
+.act3V2Scar.scar-a{
+  left:15%;
+  top:56%;
+  rotate:-7deg;
+}
+
+.act3V2Scar.scar-b{
+  right:18%;
+  top:63%;
+  rotate:5deg;
+}
+
+/*
+  Los restos del Acto II no son glitches agresivos.
+  Son pequeñas cicatrices.
+*/
+#act3Root.act3v2-grow .act3V2Scar{
+  opacity:.18;
+}
+
+#act3Root.act3v2-release .act3V2Scar{
+  opacity:.10;
+}
+
+#act3Root.act3v2-no-change .act3V2Scar{
+  opacity:.72;
+}
+
+/* Nuevas flores: pocos puntos, no reemplazan el campo rosa. */
+.act3V2Bloom{
+  position:absolute;
+  display:flex;
+  gap:5px;
+  align-items:end;
+}
+
+.act3V2Bloom i{
+  position:relative;
+  width:7px;
+  height:22px;
+  border-radius:6px 6px 2px 2px;
+  background:
+    linear-gradient(
+      #8fb478,
+      #3e6a46
+    );
+  transform-origin:bottom;
+  animation:act3V2Sway 4.8s ease-in-out infinite alternate;
+}
+
+.act3V2Bloom i::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-5px;
+  width:11px;
+  height:11px;
+  border-radius:60% 40% 55% 45%;
+  background:rgba(230,190,116,.76);
+  box-shadow:
+    0 0 10px rgba(255,218,141,.12);
+  transform:translateX(-50%);
+}
+
+.act3V2Bloom i:nth-child(2)::before{
+  background:rgba(166,210,219,.72);
+}
+
+.act3V2Bloom i:nth-child(3)::before{
+  background:rgba(194,169,226,.72);
+}
+
+.act3V2Bloom.bloom-a{
+  left:26%;
+  bottom:13%;
+  opacity:.44;
+  scale:.85;
+}
+
+.act3V2Bloom.bloom-b{
+  right:23%;
+  bottom:25%;
+  opacity:.32;
+  scale:.65;
+}
+
+#act3Root:not(.act3v2-grow) .act3V2Bloom{
+  opacity:.12;
+}
+
+#act3Root.act3v2-no-change .act3V2Bloom{
+  display:none;
+}
+
+@keyframes act3V2Sway{
+  to{rotate:2.2deg}
+}
+
+/* Luciérnagas / partículas de mañana. */
+.act3V2Fireflies i{
+  position:absolute;
+  width:3px;
+  height:3px;
+  border-radius:50%;
+  background:rgba(255,231,166,.66);
+  box-shadow:0 0 8px rgba(255,220,145,.25);
+  animation:act3V2Float 5s ease-in-out infinite alternate;
+}
+
+.act3V2Fireflies i:nth-child(1){left:14%;top:49%;animation-delay:-1s}
+.act3V2Fireflies i:nth-child(2){left:33%;top:38%;animation-delay:-3s}
+.act3V2Fireflies i:nth-child(3){left:58%;top:45%;animation-delay:-2s}
+.act3V2Fireflies i:nth-child(4){left:74%;top:32%;animation-delay:-4s}
+.act3V2Fireflies i:nth-child(5){left:87%;top:52%;animation-delay:-.5s}
+
+#act3Root.act3v2-no-change .act3V2Fireflies{
+  display:none;
+}
+
+@keyframes act3V2Float{
+  to{
+    translate:4px -9px;
+    opacity:.35;
+  }
+}
+
+.act3V2DistantMark{
+  position:absolute;
+  right:7%;
+  top:29%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  opacity:.18;
+}
+
+.act3V2DistantMark span{
+  color:#fff2c6;
+  font:900 12px/1 monospace;
+}
+
+.act3V2DistantMark small{
+  color:rgba(238,234,215,.36);
+  font:700 5px/1 monospace;
+}
+
+#act3Root.act3v2-grow .act3V2DistantMark{
+  opacity:.48;
+}
+
+
+/* =========================================================
+   PUNTOS DEL ACTO III: DEL MENÚ AL CAMPO
+========================================================= */
+
+#act3Nodes{
+  z-index:15!important;
+}
+
+.act3Node{
+  width:auto!important;
+  min-width:92px;
+  min-height:0!important;
+  padding:10px 11px 9px!important;
+  border:0!important;
+  border-radius:14px!important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(13,25,21,.32),
+      rgba(6,14,11,.18)
+    )!important;
+  color:rgba(247,240,217,.70)!important;
+  box-shadow:
+    0 8px 22px rgba(0,0,0,.12),
+    inset 0 0 0 1px rgba(241,231,203,.07)!important;
+  backdrop-filter:
+    blur(4px)
+    saturate(.9)!important;
+  transform:none!important;
+  transition:
+    opacity .35s,
+    translate .35s,
+    box-shadow .35s!important;
+}
+
+.act3Node::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:100%;
+  width:1px;
+  height:20px;
+  background:
+    linear-gradient(
+      rgba(236,225,198,.13),
+      transparent
+    );
+}
+
+.act3Node span{
+  font-size:18px!important;
+  text-shadow:0 0 12px rgba(255,232,175,.14);
+}
+
+.act3Node small{
+  margin-top:5px!important;
+  padding:0!important;
+  line-height:1.3!important;
+}
+
+.act3Node small b,
+.act3Node small em{
+  display:block;
+  font-style:normal;
+}
+
+.act3Node small b{
+  color:rgba(245,238,217,.48);
+  font:800 6px/1 monospace;
+  letter-spacing:.05em;
+}
+
+.act3Node small em{
+  max-width:110px;
+  margin-top:4px;
+  color:rgba(229,231,216,.25);
+  font:600 5px/1.35 monospace;
+}
+
+.act3Node.flower{
+  left:12%!important;
+  top:auto!important;
+  bottom:24%!important;
+}
+
+.act3Node.place{
+  left:34%!important;
+  top:auto!important;
+  bottom:38%!important;
+}
+
+.act3Node.cats{
+  left:auto!important;
+  right:28%!important;
+  top:auto!important;
+  bottom:22%!important;
+}
+
+.act3Node.sky{
+  left:auto!important;
+  right:9%!important;
+  top:29%!important;
+}
+
+.act3Node:hover,
+.act3Node:active{
+  translate:0 -3px;
+  background:rgba(27,42,33,.42)!important;
+  box-shadow:
+    0 10px 25px rgba(0,0,0,.18),
+    inset 0 0 0 1px rgba(244,232,200,.15)!important;
+}
+
+.act3Node.done{
+  opacity:.12!important;
+  translate:0 8px!important;
+  scale:.86;
+}
+
+/* =========================================================
+   GATOS: siguen siendo el punto reconocible, pero pertenecen al campo
+========================================================= */
+
+#act3Cats{
+  bottom:5%!important;
+  z-index:26!important;
+  gap:12px!important;
+  padding:6px 13px 2px;
+  border-radius:50%;
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(7,15,9,.22),
+      transparent 70%
+    );
+}
+
+.act3Cat{
+  filter:
+    drop-shadow(0 6px 6px rgba(0,0,0,.30));
+  opacity:.90;
+}
+
+.act3Cat small{
+  opacity:.42;
+  color:rgba(244,237,215,.66)!important;
+}
+
+.act3Cat img{
+  transform-origin:bottom;
+}
+
+.act3Cat:active img{
+  transform:
+    translateY(-4px)
+    rotate(-1deg)!important;
+}
+
+/* =========================================================
+   SIN FUENTE — ahora parece un hueco en el propio campo
+========================================================= */
+
+#act3FinalGap{
+  top:auto!important;
+  bottom:28%!important;
+  width:92px!important;
+  height:52px!important;
+  border:
+    1px dashed
+    rgba(244,231,194,.16)!important;
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(255,231,178,.035),
+      rgba(4,12,8,.04) 56%,
+      transparent 72%
+    )!important;
+  transform:
+    translateX(-50%)
+    perspective(250px)
+    rotateX(58deg)!important;
+  box-shadow:
+    0 0 22px rgba(255,224,162,.025)!important;
+}
+
+#act3FinalGap span,
+#act3FinalGap small{
+  transform:rotateX(-58deg);
+}
+
+/* =========================================================
+   TÍTULO — sobre el mismo campo
+========================================================= */
+
+#act3Title{
+  background:
+    linear-gradient(
+      rgba(4,9,13,.25),
+      rgba(4,9,13,.08) 47%,
+      rgba(4,9,13,.31)
+    )!important;
+  backdrop-filter:blur(1px);
+}
+
+#act3Title h2{
+  text-shadow:
+    0 3px 20px rgba(0,0,0,.35);
+}
+
+/* =========================================================
+   CINEMÁTICAS: ventana sobre el campo, no pantalla aparte
+========================================================= */
+
+#act3Cine{
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(2,7,10,.52),
+      rgba(2,7,10,.13) 44%,
+      rgba(2,7,10,.58)
+    )!important;
+  backdrop-filter:blur(1.5px);
+}
+
+#act3CineShade{
+  background:
+    radial-gradient(
+      ellipse at 50% 42%,
+      rgba(255,227,180,.055),
+      transparent 39%
+    )!important;
+}
+
+#act3CineVisual{
+  opacity:.76;
+}
+
+#act3CineMark{
+  text-shadow:
+    0 0 35px rgba(255,225,177,.18)!important;
+}
+
+#act3CineWords{
+  bottom:6%!important;
+  padding:15px 15px 13px;
+  border-radius:16px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(5,12,12,.43),
+      rgba(3,9,9,.56)
+    );
+  box-shadow:
+    inset 0 0 0 1px rgba(246,235,205,.06),
+    0 15px 35px rgba(0,0,0,.12);
+}
+
+#act3Choices{
+  bottom:17%!important;
+}
+
+#act3Choices button{
+  border:
+    1px solid
+    rgba(241,230,201,.10)!important;
+  border-radius:12px!important;
+  background:
+    rgba(7,15,14,.62)!important;
+  backdrop-filter:blur(5px);
+}
+
+#act3Choices button:active{
+  background:
+    rgba(45,57,42,.52)!important;
+}
+
+/* =========================================================
+   MEMORIA NUEVA — campo visible
+========================================================= */
+
+#act3Ending.new-memory{
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(20,47,63,.34),
+      rgba(27,49,45,.20) 60%,
+      rgba(8,18,10,.48)
+    )!important;
+  backdrop-filter:blur(.6px);
+}
+
+.act3NewMemory header{
+  padding:9px 10px;
+  border-radius:10px;
+  background:rgba(4,10,10,.28);
+}
+
+#act3NewFlower,
+#act3NewSky{
+  filter:
+    drop-shadow(0 8px 10px rgba(0,0,0,.16));
+}
+
+/* =========================================================
+   POST-FINAL: el campo sigue visible
+========================================================= */
+
+#act3PostWorld{
+  align-items:end!important;
+  background:transparent!important;
+  padding:
+    0
+    14px
+    max(16px,env(safe-area-inset-bottom))!important;
+  pointer-events:none!important;
+}
+
+#act3PostWorld.show{
+  pointer-events:none!important;
+}
+
+.act3PostCard{
+  width:min(92vw,580px)!important;
+  padding:17px 18px 15px!important;
+  margin:0 auto;
+  border:
+    1px solid
+    rgba(241,232,207,.10)!important;
+  border-radius:18px!important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(5,13,12,.63),
+      rgba(3,9,9,.78)
+    )!important;
+  backdrop-filter:
+    blur(9px)
+    saturate(.9)!important;
+  box-shadow:
+    0 16px 40px rgba(0,0,0,.22)!important;
+  pointer-events:auto!important;
+}
+
+.act3PostCard h3{
+  font-size:15px!important;
+}
+
+.act3PostActions{
+  margin-top:10px!important;
+}
+
+.act3PostActions button{
+  min-height:34px!important;
+  border-radius:9px!important;
+  background:rgba(255,255,255,.015)!important;
+}
+
+/* =========================================================
+   INTENTAR OTRO FINAL
+========================================================= */
+
+.act3V2Retry{
+  margin-top:13px;
+  padding-top:12px;
+  border-top:
+    1px solid
+    rgba(244,234,207,.07);
+}
+
+.act3V2FinalName{
+  display:flex;
+  justify-content:center;
+  align-items:baseline;
+  gap:7px;
+  margin-bottom:8px;
+}
+
+.act3V2FinalName small{
+  color:rgba(239,233,215,.24)!important;
+}
+
+.act3V2FinalName strong{
+  color:rgba(246,239,219,.63);
+  font:800 9px/1 serif;
+}
+
+#act3RetryEnding{
+  width:100%;
+  min-height:43px;
+  border:
+    1px solid
+    rgba(248,229,191,.16);
+  border-radius:12px;
+  background:
+    linear-gradient(
+      rgba(255,241,205,.045),
+      rgba(255,241,205,.018)
+    );
+  color:rgba(252,239,211,.76);
+  font:800 8px/1 monospace;
+  touch-action:manipulation;
+}
+
+#act3RetryEnding:active{
+  scale:.985;
+  background:rgba(255,239,197,.08);
+}
+
+.act3V2RetryHint{
+  display:block;
+  margin-top:7px!important;
+  color:rgba(232,229,213,.22)!important;
+  font:600 6px/1.35 monospace!important;
+}
+
+.act3V2History{
+  display:flex;
+  justify-content:center;
+  gap:4px;
+  margin-top:7px;
+}
+
+.act3V2History i{
+  color:rgba(249,223,191,.34);
+  font:400 7px/1 serif;
+  font-style:normal;
+}
+
+.act3V2RetryVeil{
+  position:absolute;
+  inset:0;
+  z-index:700;
+  display:grid;
+  place-content:center;
+  gap:8px;
+  text-align:center;
+  background:
+    radial-gradient(
+      circle at 50% 40%,
+      rgba(245,207,153,.10),
+      transparent 27%
+    ),
+    rgba(2,7,8,.83);
+  animation:act3V2RetryIn .55s ease both;
+}
+
+.act3V2RetryVeil span{
+  color:rgba(255,229,184,.62);
+  font:400 28px/1 serif;
+}
+
+.act3V2RetryVeil strong{
+  color:rgba(244,237,216,.72);
+  font:800 15px/1.2 serif;
+}
+
+.act3V2RetryVeil small{
+  color:rgba(232,229,214,.32);
+  font:600 7px/1.4 monospace;
+}
+
+@keyframes act3V2RetryIn{
+  from{opacity:0}
+}
+
+/* =========================================================
+   RUTAS — la diferencia está en el CAMPO, no en otra UI
+========================================================= */
+
+#act3Root.act3v2-remember .act3V2Haze{
+  opacity:.60;
+}
+
+#act3Root.act3v2-release .act3V2Path{
+  opacity:.35;
+}
+
+#act3Root.act3v2-grow .act3V2Path{
+  opacity:1;
+}
+
+#act3Root.act3v2-no-change #act3V2Layer{
+  filter:grayscale(.55);
+}
+
+#act3Root.act3v2-no-change .act3Node,
+#act3Root.act3v2-no-change #act3Cats{
+  filter:grayscale(.45);
+}
+
+/* =========================================================
+   OCULTAR RESTOS DE INTERFAZ DEL ACTO I SOLO DURANTE ACTO III
+   El campo/canvas NO se oculta.
+========================================================= */
+
+body.act3-v2-field #secretLetterBtn,
+body.act3-v2-field #musicBtn,
+body.act3-v2-field [id^="basketHint"],
+body.act3-v2-field .basketHint{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+/* Fullscreen sigue disponible. */
+body.act3-v2-field #fsBtn{
+  z-index:1200!important;
+  opacity:.45;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:650px){
+
+  .act3Node{
+    min-width:78px!important;
+    padding:8px 8px 7px!important;
+  }
+
+  .act3Node small em{
+    display:none;
+  }
+
+  .act3Node.flower{
+    left:5%!important;
+    bottom:25%!important;
+  }
+
+  .act3Node.place{
+    left:28%!important;
+    bottom:40%!important;
+  }
+
+  .act3Node.cats{
+    right:24%!important;
+    bottom:25%!important;
+  }
+
+  .act3Node.sky{
+    right:3%!important;
+    top:31%!important;
+  }
+
+  #act3Cats{
+    bottom:4%!important;
+  }
+
+  #act3CineWords{
+    width:92vw!important;
+    padding:13px 12px 11px;
+  }
+
+  #act3Choices{
+    width:92vw!important;
+    bottom:18%!important;
+  }
+
+  #act3PostWorld{
+    padding:
+      0
+      8px
+      max(8px,env(safe-area-inset-bottom))!important;
+  }
+
+  .act3PostCard{
+    width:96vw!important;
+    padding:14px 12px 12px!important;
+  }
+
+  .act3V2Bloom.bloom-a{
+    left:18%;
+  }
+
+  .act3V2Bloom.bloom-b{
+    right:15%;
+  }
+}

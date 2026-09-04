@@ -1,3 +1,14 @@
+let fieldTheme='night';
+let fieldGrassAsset=null;
+
+/*
+  El Acto III NO usa otro campo.
+  Este tema transforma el mismo motor de tulipanes del Acto I.
+*/
+function isAct3Field(){
+  return String(fieldTheme).startsWith('act3-');
+}
+
 let fieldGroundLightCanvas=null;
 
 function makeGroundGlow(){
@@ -37,6 +48,293 @@ function buildSky(){
   skyCanvas.width=Math.max(1,Math.round(W*DPR)); skyCanvas.height=Math.max(1,Math.round(H*DPR));
   const s=skyCanvas.getContext('2d'); s.setTransform(DPR,0,0,DPR,0,0);
   const portrait=H>W;
+
+  /*
+    ACTO III — RENACER DEL CAMPO
+    Sigue siendo el MISMO canvas del Acto I.
+    Solo cambia la luz que cae sobre él.
+  */
+  if(isAct3Field()){
+    const theme=fieldTheme;
+
+    const palettes={
+      'act3-dawn':[
+        '#071426',
+        '#14304a',
+        '#49546c',
+        '#b17470',
+        '#d3a27f'
+      ],
+      'act3-remember':[
+        '#050c1b',
+        '#112844',
+        '#30435c',
+        '#80666f',
+        '#bb8f7f'
+      ],
+      'act3-release':[
+        '#0a1825',
+        '#244052',
+        '#66747e',
+        '#9a9f95',
+        '#c8b99c'
+      ],
+      'act3-grow':[
+        '#07182a',
+        '#1e4662',
+        '#687f78',
+        '#b39772',
+        '#e0bb7f'
+      ],
+      'act3-no-change':[
+        '#020612',
+        '#07162c',
+        '#0c3152',
+        '#123e42',
+        '#10281e'
+      ]
+    };
+
+    const c=
+      palettes[theme] ||
+      palettes['act3-dawn'];
+
+    const bg=s.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,c[0]);
+    bg.addColorStop(.28,c[1]);
+    bg.addColorStop(.53,c[2]);
+    bg.addColorStop(.72,c[3]);
+    bg.addColorStop(1,c[4]);
+    s.fillStyle=bg;
+    s.fillRect(0,0,W,H);
+
+    /*
+      Todavía quedan estrellas.
+      El Acto III no borra la noche: la deja atrás lentamente.
+    */
+    const starAlpha=
+      theme==='act3-no-change'
+        ? .78
+        : theme==='act3-remember'
+          ? .42
+          : .16;
+
+    const starCount=
+      VERY_LOW
+        ? 16
+        : MEDIUM
+          ? 28
+          : 40;
+
+    for(let i=0;i<starCount;i++){
+      const x=hash(i*7.1)*W;
+      const y=hash(i*11.3)*H*.34;
+      const size=.42+hash(i*3.2)*.92;
+      s.globalAlpha=
+        starAlpha*
+        (.25+hash(i*4.3)*.72);
+      s.fillStyle=
+        i%8===0
+          ? '#fff0c6'
+          : '#eef5ff';
+      s.beginPath();
+      s.arc(x,y,size,0,Math.PI*2);
+      s.fill();
+    }
+    s.globalAlpha=1;
+
+    /*
+      Luna reconocible del Acto I.
+      En Recordar se conserva fuerte.
+      En las demás rutas se desvanece con el amanecer.
+    */
+    const mx=
+      portrait
+        ? W*.82
+        : W*.88;
+
+    const my=
+      portrait
+        ? H*.10
+        : H*.13;
+
+    const mr=
+      clamp(
+        Math.min(W,H)*.055,
+        15,
+        29
+      );
+
+    const moonAlpha=
+      theme==='act3-no-change'
+        ? 1
+        : theme==='act3-remember'
+          ? .82
+          : .28;
+
+    s.globalAlpha=moonAlpha;
+
+    const moonGlow=s.createRadialGradient(
+      mx,my,mr*.35,
+      mx,my,mr*4.2
+    );
+    moonGlow.addColorStop(0,'rgba(244,247,255,.27)');
+    moonGlow.addColorStop(.35,'rgba(205,221,255,.11)');
+    moonGlow.addColorStop(1,'rgba(136,154,240,0)');
+    s.fillStyle=moonGlow;
+    s.fillRect(
+      mx-mr*4.4,
+      my-mr*4.4,
+      mr*8.8,
+      mr*8.8
+    );
+
+    const moon=s.createRadialGradient(
+      mx-mr*.25,
+      my-mr*.25,
+      1,
+      mx,my,mr
+    );
+    moon.addColorStop(0,'#fffef1');
+    moon.addColorStop(.52,'#f3f3dd');
+    moon.addColorStop(1,'#9eabc9');
+    s.fillStyle=moon;
+    s.beginPath();
+    s.arc(mx,my,mr,0,Math.PI*2);
+    s.fill();
+    s.globalAlpha=1;
+
+    /*
+      Sol NUEVO.
+      No reemplaza la luna de golpe:
+      aparece desde el horizonte del mismo campo.
+    */
+    if(theme!=='act3-no-change'){
+      const sx=
+        portrait
+          ? W*.28
+          : W*.31;
+
+      const sy=
+        portrait
+          ? H*.315
+          : H*.405;
+
+      const sr=
+        clamp(
+          Math.min(W,H)*.045,
+          13,
+          26
+        );
+
+      const sunGlow=s.createRadialGradient(
+        sx,sy,0,
+        sx,sy,sr*5.8
+      );
+      sunGlow.addColorStop(0,'rgba(255,239,184,.52)');
+      sunGlow.addColorStop(.24,'rgba(255,206,145,.23)');
+      sunGlow.addColorStop(.62,'rgba(238,151,125,.08)');
+      sunGlow.addColorStop(1,'rgba(238,151,125,0)');
+      s.fillStyle=sunGlow;
+      s.fillRect(
+        sx-sr*6,
+        sy-sr*6,
+        sr*12,
+        sr*12
+      );
+
+      s.fillStyle=
+        theme==='act3-grow'
+          ? 'rgba(255,238,183,.92)'
+          : 'rgba(255,225,179,.77)';
+
+      s.beginPath();
+      s.arc(
+        sx,
+        sy,
+        sr,
+        0,
+        Math.PI*2
+      );
+      s.fill();
+    }
+
+    /*
+      Luz del suelo pre-renderizada, igual que en Acto I.
+      No añade un segundo motor ni un segundo canvas.
+    */
+    fieldGroundLightCanvas=document.createElement('canvas');
+    fieldGroundLightCanvas.width=Math.max(1,Math.round(W*DPR));
+    fieldGroundLightCanvas.height=Math.max(1,Math.round(H*DPR));
+
+    const g=fieldGroundLightCanvas.getContext('2d');
+    g.setTransform(DPR,0,0,DPR,0,0);
+
+    const horizonY=
+      portrait
+        ? H*.31
+        : H*.43;
+
+    const horizonGlow=
+      g.createLinearGradient(
+        0,
+        horizonY-H*.06,
+        0,
+        horizonY+H*.30
+      );
+
+    if(theme==='act3-grow'){
+      horizonGlow.addColorStop(0,'rgba(255,222,165,0)');
+      horizonGlow.addColorStop(.22,'rgba(238,190,124,.13)');
+      horizonGlow.addColorStop(.48,'rgba(123,169,111,.12)');
+      horizonGlow.addColorStop(1,'rgba(48,106,67,0)');
+    }else if(theme==='act3-release'){
+      horizonGlow.addColorStop(0,'rgba(211,225,224,0)');
+      horizonGlow.addColorStop(.22,'rgba(171,203,199,.10)');
+      horizonGlow.addColorStop(.50,'rgba(113,151,127,.075)');
+      horizonGlow.addColorStop(1,'rgba(48,106,67,0)');
+    }else if(theme==='act3-no-change'){
+      horizonGlow.addColorStop(0,'rgba(39,123,147,0)');
+      horizonGlow.addColorStop(.22,'rgba(56,151,151,.075)');
+      horizonGlow.addColorStop(.48,'rgba(66,151,111,.075)');
+      horizonGlow.addColorStop(1,'rgba(30,93,60,0)');
+    }else{
+      horizonGlow.addColorStop(0,'rgba(255,220,183,0)');
+      horizonGlow.addColorStop(.22,'rgba(212,163,139,.10)');
+      horizonGlow.addColorStop(.50,'rgba(105,153,116,.09)');
+      horizonGlow.addColorStop(1,'rgba(48,106,67,0)');
+    }
+
+    g.fillStyle=horizonGlow;
+    g.fillRect(
+      0,
+      horizonY-H*.06,
+      W,
+      H*.36
+    );
+
+    const pathGlow=
+      g.createRadialGradient(
+        W*.34,
+        H*.76,
+        0,
+        W*.34,
+        H*.76,
+        Math.max(W,H)*.42
+      );
+
+    pathGlow.addColorStop(
+      0,
+      theme==='act3-grow'
+        ? 'rgba(255,218,151,.080)'
+        : 'rgba(226,198,162,.048)'
+    );
+    pathGlow.addColorStop(1,'rgba(255,210,150,0)');
+    g.fillStyle=pathGlow;
+    g.fillRect(0,H*.42,W,H*.58);
+
+    return;
+  }
 
   /*
     Cielo más vibrante pero pre-renderizado:
@@ -249,13 +547,45 @@ function drawGroundBase(){
   const portrait=H>W;
   const horizon=portrait?H*.28:H*.405;
   const floor=ctx.createLinearGradient(0,horizon,0,H);
-  floor.addColorStop(0,'rgba(21,67,59,.22)');
-  floor.addColorStop(.08,'rgba(25,66,39,.66)');
-  floor.addColorStop(.22,'#12341d');
-  floor.addColorStop(.48,'#0b2515');
-  floor.addColorStop(.74,'#07160d');
-  floor.addColorStop(1,'#020704');
-  ctx.fillStyle=floor; ctx.fillRect(0,horizon,W,H-horizon);
+
+  if(isAct3Field()){
+    if(fieldTheme==='act3-grow'){
+      floor.addColorStop(0,'rgba(63,103,72,.44)');
+      floor.addColorStop(.10,'rgba(58,104,57,.76)');
+      floor.addColorStop(.32,'#244b2b');
+      floor.addColorStop(.61,'#15331d');
+      floor.addColorStop(1,'#07120b');
+    }else if(fieldTheme==='act3-release'){
+      floor.addColorStop(0,'rgba(56,91,77,.35)');
+      floor.addColorStop(.12,'rgba(51,91,68,.68)');
+      floor.addColorStop(.34,'#24432d');
+      floor.addColorStop(.64,'#142a1c');
+      floor.addColorStop(1,'#07110b');
+    }else if(fieldTheme==='act3-no-change'){
+      floor.addColorStop(0,'rgba(21,67,59,.22)');
+      floor.addColorStop(.08,'rgba(25,66,39,.66)');
+      floor.addColorStop(.22,'#12341d');
+      floor.addColorStop(.48,'#0b2515');
+      floor.addColorStop(.74,'#07160d');
+      floor.addColorStop(1,'#020704');
+    }else{
+      floor.addColorStop(0,'rgba(70,103,69,.38)');
+      floor.addColorStop(.10,'rgba(55,93,53,.72)');
+      floor.addColorStop(.34,'#244128');
+      floor.addColorStop(.62,'#132a19');
+      floor.addColorStop(1,'#06100a');
+    }
+  }else{
+    floor.addColorStop(0,'rgba(21,67,59,.22)');
+    floor.addColorStop(.08,'rgba(25,66,39,.66)');
+    floor.addColorStop(.22,'#12341d');
+    floor.addColorStop(.48,'#0b2515');
+    floor.addColorStop(.74,'#07160d');
+    floor.addColorStop(1,'#020704');
+  }
+
+  ctx.fillStyle=floor;
+  ctx.fillRect(0,horizon,W,H-horizon);
 }
 
 function drawGrassBand(grass,row){
@@ -300,8 +630,11 @@ function drawTulip(row,j,x,time){
     );
 
 
+  const frozenAct3=
+    fieldTheme==='act3-no-change';
+
   const normalSway=
-    (VERY_LOW||row.horizon)
+    (VERY_LOW||row.horizon||frozenAct3)
     ? 0
     : (
         Math.sin(time*.00103+seed)*row.w*.013
@@ -367,6 +700,20 @@ function drawTulip(row,j,x,time){
   const yy=
     row.baseY+
     vertical;
+
+  /*
+    DEJAR IR:
+    el campo no queda vacío.
+    Solo aparecen pequeños espacios respirables entre flores.
+  */
+  if(
+    fieldTheme==='act3-release' &&
+    !row.horizon &&
+    depth>.28 &&
+    hash(seed+143.7)<.13
+  ){
+    return;
+  }
 
   const naturalScale=
     .955+
@@ -529,7 +876,7 @@ function drawTulip(row,j,x,time){
   if(!row.glow){
     ctx.globalAlpha=row.alpha*lifePulse;
     ctx.drawImage(
-      plainFrames[currentFrame],
+      plainFrames[frozenAct3?0:currentFrame],
       xx-drawW*.5,
       yy-drawH,
       drawW,
@@ -541,7 +888,7 @@ function drawTulip(row,j,x,time){
   const scale=drawH/192, compW=166*scale;
   ctx.globalAlpha=row.alpha*lifePulse;
   ctx.drawImage(
-    flowerFrames[currentFrame],
+    flowerFrames[frozenAct3?0:currentFrame],
     xx-compW*.5,
     yy-drawH,
     compW,
@@ -584,6 +931,48 @@ function drawTulip(row,j,x,time){
     ctx.fill();
   }
 
+  /*
+    SEGUIR CRECIENDO:
+    algunas flores empiezan a mostrar colores que no existían
+    en el campo original. No reemplazan los tulipanes rosas.
+  */
+  if(
+    fieldTheme==='act3-grow' &&
+    !row.horizon &&
+    depth>.38 &&
+    hash(seed+1214.3)>.945
+  ){
+    const variant=
+      Math.floor(
+        hash(seed+901.1)*3
+      );
+
+    const colors=[
+      'rgba(255,213,119,.72)',
+      'rgba(166,215,224,.68)',
+      'rgba(196,170,232,.68)'
+    ];
+
+    ctx.globalAlpha=
+      row.alpha*.82;
+
+    ctx.fillStyle=
+      colors[variant];
+
+    ctx.beginPath();
+    ctx.arc(
+      xx,
+      yy-drawH*.78,
+      Math.max(
+        1.6,
+        drawW*.10
+      ),
+      0,
+      Math.PI*2
+    );
+    ctx.fill();
+  }
+
   ctx.globalAlpha=1;
 }
 
@@ -592,6 +981,40 @@ function drawDistanceMist(){
   const top=portrait?H*.24:H*.375;
   const bottom=portrait?H*.52:H*.585;
   const mist=ctx.createLinearGradient(0,top,0,bottom);
+
+  if(isAct3Field()){
+    if(fieldTheme==='act3-release'){
+      mist.addColorStop(0,'rgba(155,185,188,.40)');
+      mist.addColorStop(.24,'rgba(127,163,157,.25)');
+      mist.addColorStop(.56,'rgba(85,131,104,.10)');
+      mist.addColorStop(1,'rgba(65,112,84,0)');
+    }else if(fieldTheme==='act3-grow'){
+      mist.addColorStop(0,'rgba(99,151,168,.29)');
+      mist.addColorStop(.28,'rgba(91,147,132,.19)');
+      mist.addColorStop(.60,'rgba(76,132,87,.07)');
+      mist.addColorStop(1,'rgba(55,105,72,0)');
+    }else if(fieldTheme==='act3-no-change'){
+      mist.addColorStop(0,'rgba(7,25,43,.76)');
+      mist.addColorStop(.25,'rgba(10,39,55,.55)');
+      mist.addColorStop(.58,'rgba(20,58,46,.18)');
+      mist.addColorStop(1,'rgba(9,27,18,0)');
+    }else{
+      mist.addColorStop(0,'rgba(79,116,143,.32)');
+      mist.addColorStop(.25,'rgba(89,125,133,.22)');
+      mist.addColorStop(.58,'rgba(75,119,91,.08)');
+      mist.addColorStop(1,'rgba(55,105,72,0)');
+    }
+
+    ctx.fillStyle=mist;
+    ctx.fillRect(
+      0,
+      top,
+      W,
+      bottom-top
+    );
+    return;
+  }
+
   if(portrait){
     mist.addColorStop(0,'rgba(7,25,43,.84)');
     mist.addColorStop(.17,'rgba(10,39,55,.64)');
@@ -652,6 +1075,10 @@ function render(grass){
 function schedule(grass){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;render(grass)})}
 
 function resize(grass){
+  if(grass){
+    fieldGrassAsset=grass;
+  }
+
   W=Math.max(1,app.clientWidth); H=Math.max(1,app.clientHeight);
   let targetDpr,maxPixels;
   if(VERY_LOW){targetDpr=.92;maxPixels=520000}
@@ -675,3 +1102,53 @@ function startInertia(grass){
   }
   inertiaRAF=requestAnimationFrame(step);
 }
+
+
+/* =========================================================
+   API DE TEMA DEL CAMPO
+   Acto I sigue usando "night".
+========================================================= */
+
+window.ParadoxFieldTheme={
+  set(theme='night'){
+    const next=
+      String(theme||'night');
+
+    if(next===fieldTheme){
+      if(fieldGrassAsset){
+        schedule(fieldGrassAsset);
+      }
+      return;
+    }
+
+    fieldTheme=next;
+
+    /*
+      El Acto III ya no hereda tormentas o viento del Acto I.
+      Son recuerdos, no estados climáticos activos.
+    */
+    if(isAct3Field()){
+      window.MAGIC_STORM_ACTIVE=false;
+      window.MAGIC_STORM_INTENSITY=0;
+      window.MAGIC_STORM_DAMAGE=0;
+      window.MAGIC_WIND_INTENSITY=0;
+    }
+
+    if(W>1 && H>1){
+      buildSky();
+      buildRows();
+
+      if(fieldGrassAsset){
+        schedule(fieldGrassAsset);
+      }
+    }
+  },
+
+  get(){
+    return fieldTheme;
+  },
+
+  reset(){
+    this.set('night');
+  }
+};
