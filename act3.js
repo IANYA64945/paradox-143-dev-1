@@ -488,6 +488,100 @@
   }
 
   /* =======================================================
+     VISUAL LIFECYCLE / DEV CLEAN JUMPS
+  ======================================================= */
+
+  function destroyVisualRoot({restoreField=false}={}){
+    try{
+      document.getElementById('act3Root')?.remove();
+    }catch(_){}
+
+    root=null;
+    stage=null;
+    cine=null;
+    cineText=null;
+    cineSub=null;
+    cineMark=null;
+    choicesBox=null;
+    sceneFrames=[];
+    sceneIndex=0;
+    sceneDone=null;
+    sceneLocked=false;
+
+    document.body.classList.remove(
+      'act3-active',
+      'act3-v2-field'
+    );
+
+    document.getElementById('act2Root')
+      ?.classList.remove('act2-under-act3');
+
+    if(restoreField){
+      window.ParadoxFieldTheme?.set?.('night');
+    }
+  }
+
+  function cleanForeignDevLayers(){
+    if(!IS_DEV) return;
+
+    [...document.body.classList].forEach(
+      cls=>{
+        if(
+          cls.startsWith('act2-') ||
+          cls.startsWith('card100-')
+        ){
+          document.body.classList.remove(cls);
+        }
+      }
+    );
+
+    document
+      .querySelectorAll('[id^="act2"]')
+      .forEach(el=>{
+        el.classList.remove(
+          'show',
+          'active',
+          'open',
+          'playing'
+        );
+      });
+
+    [
+      'catGarden',
+      'basket2Overlay',
+      'basket2Reader',
+      'gameOverlay',
+      'secretLetterReader'
+    ].forEach(id=>{
+      document.getElementById(id)
+        ?.classList.remove('show','active','open');
+    });
+  }
+
+  function resetDevState(action){
+    save({
+      started:true,
+      dawnSeen:action!=='start',
+      archiveOfferSeen:false,
+      archiveRefused:false,
+      nodes:{...DEFAULT.nodes},
+      choices:{...DEFAULT.choices},
+      route:'',
+      endingSeen:false,
+      newMemoryDone:false,
+      secretSeen:false,
+      postVisits:0
+    });
+  }
+
+  function deactivate(opts={}){
+    destroyVisualRoot({
+      restoreField:
+        opts.restoreField!==false
+    });
+  }
+
+  /* =======================================================
      ACTIVATION
   ======================================================= */
 
@@ -2210,22 +2304,18 @@
     }catch(_){}
 
     state=load();
-
-    document.getElementById(
-      'act3Root'
-    )?.remove();
-
-    root=null;
-
-    document.body.classList.remove(
-      'act3-active'
-    );
-
+    destroyVisualRoot({restoreField:false});
     activate();
   }
 
   function debug(action){
     if(!IS_DEV) return;
+
+    /* Cada botón DEV abre una escena limpia, no una capa nueva. */
+    cleanForeignDevLayers();
+    destroyVisualRoot({restoreField:false});
+    state=load();
+    resetDevState(action);
 
     build();
 
@@ -2237,11 +2327,6 @@
     document.body.classList.add(
       'act3-active'
     );
-
-    save({
-      started:true,
-      dawnSeen:true
-    });
 
     if(action==='start'){
       opening();
@@ -2352,6 +2437,7 @@
 
   window.ParadoxAct3={
     activate,
+    deactivate,
     state:()=>({
       ...state,
       nodes:{...state.nodes},

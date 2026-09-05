@@ -188,6 +188,11 @@
     layer.id='act3V2Layer';
 
     layer.innerHTML=`
+      <div class="act3V2Identity" aria-hidden="true">
+        <small>ACTO III</small>
+        <strong>PRIMER AMANECER</strong>
+      </div>
+
       <div class="act3V2Haze"></div>
 
       <div class="act3V2Path">
@@ -246,14 +251,21 @@
         const small=
           node.querySelector('small');
 
+        const label=
+          titles[node.dataset.node]||'';
+
+        node.dataset.v2Label=label;
+
         if(small){
           const original=
             small.textContent.trim();
 
-          small.innerHTML=`
-            <b>${titles[node.dataset.node]||''}</b>
-            <em>${original}</em>
-          `;
+          node.setAttribute(
+            'aria-label',
+            `${label}: ${original}`
+          );
+
+          small.innerHTML=`<em>${original}</em>`;
         }
       }
     );

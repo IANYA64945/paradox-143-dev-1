@@ -1080,3 +1080,59 @@ body.act3-v2-field #act3Root.act3v2-no-change #act3V2Layer{
   }
 }
 
+
+
+/* =========================================================
+   V4 — ESCENA LIMPIA + PRIMER AMANECER
+========================================================= */
+body.act3-v2-field [id^="act2"]{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+.act3V2Identity{
+  position:absolute;
+  left:max(18px,calc(env(safe-area-inset-left) + 14px));
+  bottom:max(18px,calc(env(safe-area-inset-bottom) + 14px));
+  z-index:18;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  color:rgba(255,241,215,.72);
+  text-shadow:0 2px 10px rgba(0,0,0,.5);
+  pointer-events:none;
+  animation:act3V4Identity 5.4s ease forwards;
+}
+.act3V2Identity small{font:800 7px/1 monospace;letter-spacing:.28em;color:rgba(237,240,229,.46)}
+.act3V2Identity strong{font:800 clamp(12px,1.6vw,17px)/1.1 Georgia,serif;letter-spacing:.08em}
+#act3Root.act3v2-remember .act3V2Identity,
+#act3Root.act3v2-release .act3V2Identity,
+#act3Root.act3v2-grow .act3V2Identity,
+#act3Root.act3v2-no-change .act3V2Identity{display:none}
+@keyframes act3V4Identity{0%{opacity:0;transform:translateY(6px)}12%,68%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-3px)}}
+
+body.act3-v2-field .act3V2Path{
+  opacity:.78;
+  background:linear-gradient(90deg,transparent,rgba(199,166,126,.055) 14%,rgba(230,202,163,.15) 48%,rgba(199,166,126,.055) 86%,transparent);
+  mix-blend-mode:screen;
+}
+
+body.act3-v2-field .act3Node small{
+  opacity:.28;
+  max-width:92px;
+  transition:opacity .22s ease,transform .22s ease;
+  transform:translateY(2px);
+}
+body.act3-v2-field .act3Node small b{display:none!important}
+body.act3-v2-field .act3Node:hover small,
+body.act3-v2-field .act3Node:focus-visible small,
+body.act3-v2-field .act3Node:active small{opacity:.82;transform:translateY(0)}
+
+body.act3-v2-field #scene{filter:saturate(.94) brightness(.90) contrast(1.03)!important}
+body.act3-v2-field:has(#act3Root.act3v2-grow) #scene{filter:saturate(1.04) brightness(.96) contrast(1.02)!important}
+body.act3-v2-field:has(#act3Root.act3v2-remember) #scene{filter:saturate(.86) brightness(.82) contrast(1.05)!important}
+body.act3-v2-field:has(#act3Root.act3v2-release) #scene{filter:saturate(.76) brightness(.91) contrast(.98)!important}
+body.act3-v2-field:has(#act3Root.act3v2-no-change) #scene{filter:saturate(.52) brightness(.68) contrast(1.08)!important}
+
+@media(max-width:650px){.act3V2Identity{left:14px;bottom:12px}.act3V2Identity strong{font-size:12px}}

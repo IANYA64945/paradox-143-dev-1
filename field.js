@@ -59,11 +59,11 @@ function buildSky(){
 
     const palettes={
       'act3-dawn':[
-        '#09182d',
-        '#24445f',
-        '#697386',
-        '#c98d7c',
-        '#edc49a'
+        '#061020',
+        '#17314a',
+        '#40596a',
+        '#8e716e',
+        '#c49b7b'
       ],
       'act3-remember':[
         '#050d1d',
@@ -575,11 +575,11 @@ function drawGroundBase(){
       floor.addColorStop(.62,'#122719');
       floor.addColorStop(1,'#050e09');
     }else{
-      floor.addColorStop(0,'rgba(100,135,82,.52)');
-      floor.addColorStop(.10,'rgba(73,116,64,.82)');
-      floor.addColorStop(.34,'#315333');
-      floor.addColorStop(.62,'#193520');
-      floor.addColorStop(1,'#07130b');
+      floor.addColorStop(0,'rgba(76,111,77,.44)');
+      floor.addColorStop(.10,'rgba(60,101,64,.76)');
+      floor.addColorStop(.34,'#29462f');
+      floor.addColorStop(.62,'#162d1d');
+      floor.addColorStop(1,'#06110a');
     }
   }else{
     floor.addColorStop(0,'rgba(21,67,59,.22)');

@@ -94,6 +94,10 @@
           Epílogo secreto
         </button>
 
+        <button data-act3dev="leave">
+          Comparar · Campo Acto I
+        </button>
+
         <button id="act3DevReset">
           Reiniciar Acto III
         </button>
@@ -181,10 +185,15 @@
               'show'
             );
 
-            window.ParadoxAct3
-              .debug?.(
-                action
-              );
+            if(action==='leave'){
+              window.ParadoxAct3
+                .deactivate?.({restoreField:true});
+            }else{
+              window.ParadoxAct3
+                .debug?.(
+                  action
+                );
+            }
 
             setTimeout(
               refreshStatus,

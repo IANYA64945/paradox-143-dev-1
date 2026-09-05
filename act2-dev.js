@@ -10,6 +10,16 @@
 
   let panel=null;
 
+  function leaveAct3ForDev(){
+    window.ParadoxAct3
+      ?.deactivate?.({restoreField:true});
+
+    document.body.classList.remove(
+      'act3-active',
+      'act3-v2-field'
+    );
+  }
+
   function build(){
     if(panel) return;
 
@@ -161,11 +171,13 @@
     });
 
     panel.querySelectorAll('[data-ch]').forEach(b=>b.addEventListener('click',()=>{
+      leaveAct3ForDev();
       window.ParadoxAct2?.jumpChapter?.(Number(b.dataset.ch));
       refresh();
     }));
 
     panel.querySelectorAll('[data-fr]').forEach(b=>b.addEventListener('click',()=>{
+      leaveAct3ForDev();
       window.ParadoxAct2Fragments?.play?.(b.dataset.fr);
       refresh();
     }));
@@ -173,6 +185,7 @@
     panel.querySelectorAll('[data-core-puzzle]').forEach(
       b=>b.addEventListener('click',()=>{
         panel.classList.remove('show');
+        leaveAct3ForDev();
 
         const n=
           Number(
@@ -188,6 +201,7 @@
 
     panel.querySelectorAll('[data-v4]').forEach(b=>b.addEventListener('click',()=>{
       panel.classList.remove('show');
+      leaveAct3ForDev();
       window.ParadoxAct2WorldV4?.debug?.(b.dataset.v4);
       setTimeout(refresh,300);
     }));
@@ -195,6 +209,7 @@
     panel.querySelectorAll('[data-v5]').forEach(
       b=>b.addEventListener('click',()=>{
         panel.classList.remove('show');
+        leaveAct3ForDev();
 
         window.ParadoxAct2V5
           ?.debug
@@ -228,13 +243,15 @@
         window.ParadoxAct3?.reset?.();
       });
 
-    panel.querySelector('#devArchive').addEventListener('click',()=>window.ParadoxAct2Archive?.open?.());
+    panel.querySelector('#devArchive').addEventListener('click',()=>{leaveAct3ForDev();window.ParadoxAct2Archive?.open?.();});
     panel.querySelector('#devAllFragments').addEventListener('click',()=>{
+      leaveAct3ForDev();
       ['before','first','keep','missing','marie','tuluz','remains'].forEach(id=>window.ParadoxAct2Fragments?.collect?.(id));
       window.ParadoxAct2?.render?.();
       refresh();
     });
     panel.querySelector('#devResetAct2').addEventListener('click',()=>{
+      leaveAct3ForDev();
       if(confirm('¿Reiniciar solo el Acto II y sus fragmentos?')) window.ParadoxAct2?.reset?.();
     });
 
