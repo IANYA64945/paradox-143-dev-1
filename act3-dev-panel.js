@@ -70,8 +70,8 @@
           III · Amanecer
         </button>
 
-        <button data-act3dev="world">
-          Mundo nuevo
+        <button data-act3dev="journey">
+          Recorrido jugable
         </button>
 
         <button data-act3dev="remember">

@@ -1136,3 +1136,191 @@ body.act3-v2-field:has(#act3Root.act3v2-release) #scene{filter:saturate(.76) bri
 body.act3-v2-field:has(#act3Root.act3v2-no-change) #scene{filter:saturate(.52) brightness(.68) contrast(1.08)!important}
 
 @media(max-width:650px){.act3V2Identity{left:14px;bottom:12px}.act3V2Identity strong{font-size:12px}}
+
+
+/* =========================================================
+   ACTO III V5 · RECORRIDO VIVO
+   Los encuentros se descubren recorriendo el mismo campo.
+========================================================= */
+
+#act3JourneyLayer{
+  position:absolute;
+  inset:0;
+  z-index:14;
+  pointer-events:none;
+  overflow:hidden;
+}
+
+#act3JourneyWhisper{
+  position:absolute;
+  left:50%;
+  bottom:17%;
+  max-width:min(72vw,430px);
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(4,10,8,.18);
+  color:rgba(247,240,218,.72);
+  font:700 8px/1.35 monospace;
+  text-align:center;
+  text-shadow:0 2px 7px rgba(0,0,0,.45);
+  opacity:0;
+  translate:-50% 7px;
+  transition:opacity .45s,translate .45s;
+  backdrop-filter:blur(2px);
+}
+
+#act3JourneyWhisper.show{
+  opacity:1;
+  translate:-50% 0;
+}
+
+#act3JourneyFootprints{
+  position:absolute;
+  left:50%;
+  bottom:12%;
+  display:flex;
+  gap:13px;
+  opacity:calc(var(--act3-journey-near,0)*.34);
+  translate:-50% 0;
+  transition:opacity .35s;
+}
+
+#act3JourneyFootprints i{
+  width:3px;
+  height:5px;
+  border-radius:60% 60% 50% 50%;
+  background:rgba(245,230,196,.44);
+  box-shadow:0 0 8px rgba(255,225,170,.16);
+  rotate:18deg;
+}
+
+#act3JourneyFootprints i:nth-child(2){
+  translate:9px -5px;
+  rotate:-18deg;
+}
+
+#act3JourneyFootprints i:nth-child(3){
+  translate:18px -1px;
+}
+
+/* Ningún encuentro aparece como menú completo al comenzar. */
+body.act3-journey-mode .act3Node{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transition:
+    opacity .65s ease,
+    filter .65s ease,
+    translate .28s ease!important;
+}
+
+body.act3-journey-mode .act3Node.done{
+  opacity:0!important;
+  visibility:hidden!important;
+}
+
+body.act3-journey-mode .act3Node.act3JourneyTarget{
+  left:var(--journey-x,50%)!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:var(--journey-y,27%)!important;
+  translate:var(--journey-shift,0px) 0!important;
+}
+
+body.act3-journey-mode .act3Node.act3JourneyNear{
+  opacity:.16!important;
+  visibility:visible!important;
+  filter:blur(.25px) brightness(.82);
+}
+
+body.act3-journey-mode .act3Node.act3JourneyRevealed{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  filter:none!important;
+  animation:act3JourneyDiscovery 2.1s ease-in-out infinite;
+}
+
+@keyframes act3JourneyDiscovery{
+  50%{
+    filter:drop-shadow(0 0 8px rgba(255,223,166,.22));
+  }
+}
+
+/* El hueco final también debe encontrarse caminando. */
+body.act3-journey-mode #act3FinalGap.show:not(.act3JourneyRevealed){
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+body.act3-journey-mode #act3FinalGap.act3JourneyTarget{
+  left:var(--journey-x,50%)!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:var(--journey-y,29%)!important;
+  translate:var(--journey-shift,0px) 0!important;
+}
+
+body.act3-journey-mode #act3FinalGap.act3JourneyNear{
+  opacity:.12!important;
+  visibility:visible!important;
+}
+
+body.act3-journey-mode #act3FinalGap.act3JourneyRevealed{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+
+/* Los gatos ya no parecen tres botones clavados en el HUD. */
+body.act3-journey-mode #act3Cats{
+  transition:left 1.5s cubic-bezier(.2,.7,.2,1),bottom 1.2s ease!important;
+}
+
+body.act3-journey-mode #act3Cats small{
+  display:none!important;
+}
+
+#act3Root.act3JourneyStep-flower #act3Cats{left:47%!important;bottom:5%!important}
+#act3Root.act3JourneyStep-place #act3Cats{left:57%!important;bottom:6%!important}
+#act3Root.act3JourneyStep-cats #act3Cats{left:66%!important;bottom:8%!important}
+#act3Root.act3JourneyStep-sky #act3Cats{left:42%!important;bottom:6%!important}
+#act3Root.act3JourneyStep-final #act3Cats{left:55%!important;bottom:5%!important}
+
+body.act3-journey-mode .act3Cat img{
+  animation:act3JourneyCatWalk 1.6s ease-in-out infinite alternate;
+}
+
+body.act3-journey-mode .act3Cat:nth-child(2) img{animation-delay:-.55s}
+body.act3-journey-mode .act3Cat:nth-child(3) img{animation-delay:-1.05s}
+
+@keyframes act3JourneyCatWalk{
+  from{translate:0 0}
+  to{translate:0 -2px}
+}
+
+/* Cuando el jugador ya se inclinó por una forma de vivir,
+   la identidad del amanecer se retira: el propio campo habla. */
+body.act3-journey-mode .act3V2Identity{
+  opacity:.52;
+}
+
+@media(max-width:650px){
+  #act3JourneyWhisper{
+    bottom:20%;
+    max-width:78vw;
+    font-size:7px;
+  }
+
+  body.act3-journey-mode .act3Node.act3JourneyTarget{
+    bottom:clamp(22%,var(--journey-y,27%),56%)!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  body.act3-journey-mode .act3Cat img,
+  body.act3-journey-mode .act3Node.act3JourneyRevealed{
+    animation:none!important;
+  }
+}

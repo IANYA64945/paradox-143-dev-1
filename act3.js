@@ -1349,6 +1349,28 @@
      ROUTE CHOICE
   ======================================================= */
 
+  function routeTendency(){
+    const c=state.choices||{};
+    const values={
+      remember:Number(c.remember||0),
+      release:Number(c.release||0),
+      grow:Number(c.grow||0)
+    };
+
+    const max=Math.max(
+      values.remember,
+      values.release,
+      values.grow
+    );
+
+    const leaders=Object.keys(values)
+      .filter(k=>values[k]===max);
+
+    return max>=2 && leaders.length===1
+      ? leaders[0]
+      : '';
+  }
+
   function chooseRoute(){
     if(
       state.route ||
@@ -1357,27 +1379,45 @@
       ).every(Boolean)
     ) return;
 
-    const c=state.choices;
+    const tendency=routeTendency();
+
+    const tendencyText={
+      remember:'Durante el camino elegiste conservar más de una vez.',
+      release:'Durante el camino dejaste espacio más de una vez.',
+      grow:'Durante el camino elegiste lo nuevo más de una vez.'
+    };
+
+    const markLabel=(route,label)=>
+      tendency===route
+        ? `${label}  ♡`
+        : label;
 
     playScene(
       [
         {
           mark:'□',
-          text:'Queda un último espacio.',
-          sub:'El mundo intenta buscar su fuente.'
+          text:tendency
+            ? 'El campo recuerda cómo caminaste.'
+            : 'Queda un último espacio.',
+          sub:tendency
+            ? tendencyText[tendency]
+            : 'No todas tus decisiones apuntaron al mismo lugar.'
         },
         {
           mark:'□',
           text:'SOURCE: NONE',
-          sub:'No falta ningún archivo.'
+          sub:'No falta ningún archivo. Lo que ocurra aquí no puede venir de un respaldo.'
         },
         {
           mark:'♡',
           text:'Este espacio no pertenece al pasado.',
-          sub:'¿Qué quieres hacer con él?',
+          sub:'Tus decisiones te trajeron hasta aquí. La última sigue siendo tuya.',
           choices:[
             {
-              label:'GUARDAR LO QUE YA CONOCEMOS',
+              label:markLabel(
+                'remember',
+                'GUARDAR LO QUE YA CONOCEMOS'
+              ),
               tone:'remember',
               next:false,
               onChoose:()=>{
@@ -1387,7 +1427,10 @@
               }
             },
             {
-              label:'DEJAR ESPACIO',
+              label:markLabel(
+                'release',
+                'DEJAR ESPACIO'
+              ),
               tone:'release',
               next:false,
               onChoose:()=>{
@@ -1397,7 +1440,10 @@
               }
             },
             {
-              label:'HACER ALGO NUEVO',
+              label:markLabel(
+                'grow',
+                'HACER ALGO NUEVO'
+              ),
               tone:'grow',
               next:false,
               onChoose:()=>{
@@ -2410,17 +2456,53 @@
       return;
     }
 
-    if(action==='world'){
+    if(action==='journey'){
       save({
+        dawnSeen:true,
         nodes:{
-          flower:true,
-          place:true,
-          cats:true,
-          sky:true
+          flower:false,
+          place:false,
+          cats:false,
+          sky:false
         },
-        route:''
+        choices:{
+          remember:0,
+          release:0,
+          grow:0
+        },
+        route:'',
+        endingSeen:false
       });
 
+      setWarmth(.022);
+      renderWorld();
+      return;
+    }
+
+    if(action==='world'){
+      /*
+        Compatibilidad con un DEV anterior:
+        ahora "world" abre también el recorrido real en vez de
+        saltar directamente al final de Flor/Lugar/Gatos/Cielo.
+      */
+      save({
+        dawnSeen:true,
+        nodes:{
+          flower:false,
+          place:false,
+          cats:false,
+          sky:false
+        },
+        choices:{
+          remember:0,
+          release:0,
+          grow:0
+        },
+        route:'',
+        endingSeen:false
+      });
+
+      setWarmth(.022);
       renderWorld();
     }
   }

@@ -1169,6 +1169,19 @@ window.ParadoxFieldTheme={
     return fieldTheme;
   },
 
+  /*
+    ACTO III V5 necesita conocer cuánto ha recorrido el jugador
+    para descubrir encuentros dentro del MISMO campo infinito.
+    Solo exponemos una lectura segura; no duplicamos el motor.
+  */
+  getWorldX(){
+    try{
+      return Number(worldX)||0;
+    }catch(_){
+      return 0;
+    }
+  },
+
   reset(){
     this.set('night');
   }

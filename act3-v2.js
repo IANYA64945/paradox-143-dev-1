@@ -96,6 +96,33 @@
       return 'act3-no-change';
     }
 
+    /*
+      Antes del final, el campo ya empieza a responder a las
+      decisiones tomadas durante Flor / Lugar / Gatos / Cielo.
+      No fija una ruta todavía: es solo una inclinación visual.
+    */
+    const c=st.choices||{};
+    const values={
+      remember:Number(c.remember||0),
+      release:Number(c.release||0),
+      grow:Number(c.grow||0)
+    };
+
+    const max=Math.max(
+      values.remember,
+      values.release,
+      values.grow
+    );
+
+    if(max>=2){
+      const leaders=Object.keys(values)
+        .filter(k=>values[k]===max);
+
+      if(leaders.length===1){
+        return `act3-${leaders[0]}`;
+      }
+    }
+
     return 'act3-dawn';
   }
 
@@ -527,10 +554,311 @@
     boot();
   }
 
+  /* =========================================================
+     V5 · RECORRIDO VIVO
+
+     Flor / Lugar / Gatos / Cielo ya no aparecen juntos como
+     cuatro opciones de interfaz. Se descubren uno a uno después
+     de recorrer físicamente el mismo campo del Acto I.
+  ========================================================= */
+
+  const JOURNEY=[
+    {
+      id:'flower',
+      travel:Math.max(170,Math.min(280,innerWidth*.20)),
+      x:72,
+      y:25,
+      near:'algo distinto asoma entre los tulipanes.',
+      after:'Un poco más adelante, el campo vuelve a abrirse.'
+    },
+    {
+      id:'place',
+      travel:Math.max(260,Math.min(390,innerWidth*.28)),
+      x:31,
+      y:34,
+      near:'hay un rincón donde ningún recuerdo encaja.',
+      after:'El camino continúa por un lugar que antes no existía.'
+    },
+    {
+      id:'cats',
+      travel:Math.max(300,Math.min(430,innerWidth*.31)),
+      x:68,
+      y:21,
+      near:'tres huellas se separan en el pasto.',
+      after:'Tuluz mira hacia arriba. Marie también.'
+    },
+    {
+      id:'sky',
+      travel:Math.max(320,Math.min(470,innerWidth*.34)),
+      x:43,
+      y:61,
+      near:'una parte del cielo parece tener sitio para algo más.',
+      after:'Más adelante queda un espacio que no pertenece a ningún recuerdo.'
+    },
+    {
+      id:'final',
+      travel:Math.max(260,Math.min(410,innerWidth*.29)),
+      x:51,
+      y:29,
+      near:'el sendero termina en un espacio sin fuente.',
+      after:''
+    }
+  ];
+
+  let journeyKey='';
+  let journeyTravel=0;
+  let journeyLastX=null;
+  let journeyRevealX=0;
+  let journeyRevealed=false;
+  let journeyAfterFor='';
+  let journeyNearShown=false;
+
+  function fieldX(){
+    return Number(
+      window.ParadoxFieldTheme
+        ?.getWorldX?.() || 0
+    );
+  }
+
+  function journeyLayer(){
+    const root=document.getElementById('act3Root');
+    if(!root) return null;
+
+    let layer=root.querySelector('#act3JourneyLayer');
+    if(layer) return layer;
+
+    layer=document.createElement('div');
+    layer.id='act3JourneyLayer';
+    layer.innerHTML=`
+      <div id="act3JourneyWhisper"></div>
+      <div id="act3JourneyFootprints" aria-hidden="true">
+        <i></i><i></i><i></i>
+      </div>
+    `;
+    root.appendChild(layer);
+    return layer;
+  }
+
+  function journeyWhisper(text,duration=2800){
+    const layer=journeyLayer();
+    const el=layer?.querySelector('#act3JourneyWhisper');
+    if(!el || !text) return;
+
+    el.textContent=text;
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+
+    clearTimeout(Number(el.dataset.timer||0));
+    const timer=setTimeout(
+      ()=>el.classList.remove('show'),
+      duration
+    );
+    el.dataset.timer=String(timer);
+  }
+
+  function journeyStage(st){
+    const nodes=st.nodes||{};
+    for(const step of JOURNEY.slice(0,4)){
+      if(!nodes[step.id]) return step;
+    }
+    return JOURNEY[4];
+  }
+
+  function journeyMode(st){
+    const root=document.getElementById('act3Root');
+
+    return Boolean(
+      root?.classList.contains('active') &&
+      document.body.classList.contains('act3-active') &&
+      st.dawnSeen &&
+      !st.route &&
+      !st.endingSeen
+    );
+  }
+
+  function resetJourneyRuntime(step){
+    journeyKey=step.id;
+    journeyTravel=0;
+    journeyLastX=fieldX();
+    journeyRevealX=journeyLastX;
+    journeyRevealed=false;
+    journeyNearShown=false;
+
+    const root=document.getElementById('act3Root');
+    if(root){
+      root.dataset.journeyStage=step.id;
+      root.classList.remove(
+        'act3JourneyStep-flower',
+        'act3JourneyStep-place',
+        'act3JourneyStep-cats',
+        'act3JourneyStep-sky',
+        'act3JourneyStep-final'
+      );
+      root.classList.add(`act3JourneyStep-${step.id}`);
+    }
+
+    document
+      .querySelectorAll('.act3Node')
+      .forEach(n=>{
+        n.classList.remove(
+          'act3JourneyTarget',
+          'act3JourneyNear',
+          'act3JourneyRevealed'
+        );
+        n.style.removeProperty('--journey-shift');
+      });
+
+    document.getElementById('act3FinalGap')
+      ?.classList.remove(
+        'act3JourneyTarget',
+        'act3JourneyNear',
+        'act3JourneyRevealed'
+      );
+
+    const previous=JOURNEY[
+      Math.max(0,JOURNEY.findIndex(x=>x.id===step.id)-1)
+    ];
+
+    if(
+      previous &&
+      previous.id!==step.id &&
+      journeyAfterFor!==previous.id
+    ){
+      journeyAfterFor=previous.id;
+      setTimeout(
+        ()=>journeyWhisper(previous.after,3000),
+        700
+      );
+    }else if(step.id==='flower'){
+      setTimeout(
+        ()=>journeyWhisper(
+          'No hay un objetivo marcado. Solo sigue recorriendo el campo.',
+          3200
+        ),
+        900
+      );
+    }
+  }
+
+  function journeyTarget(step){
+    if(step.id==='final'){
+      return document.getElementById('act3FinalGap');
+    }
+    return document.querySelector(
+      `.act3Node[data-node="${step.id}"]`
+    );
+  }
+
+  function revealJourneyTarget(step){
+    const target=journeyTarget(step);
+    if(!target) return;
+
+    journeyRevealed=true;
+    journeyRevealX=fieldX();
+
+    target.classList.add(
+      'act3JourneyTarget',
+      'act3JourneyRevealed'
+    );
+
+    target.style.setProperty('--journey-x',`${step.x}%`);
+    target.style.setProperty('--journey-y',`${step.y}%`);
+
+    journeyWhisper(step.near,3200);
+  }
+
+  function updateJourneyPosition(step){
+    if(!journeyRevealed) return;
+    const target=journeyTarget(step);
+    if(!target) return;
+
+    const shift=Math.max(
+      -135,
+      Math.min(
+        135,
+        (fieldX()-journeyRevealX)*.38
+      )
+    );
+
+    target.style.setProperty(
+      '--journey-shift',
+      `${shift.toFixed(1)}px`
+    );
+  }
+
+  function syncJourney(){
+    const st=readState();
+    const root=document.getElementById('act3Root');
+
+    if(!journeyMode(st)){
+      document.body.classList.remove('act3-journey-mode');
+      root?.removeAttribute('data-journey-stage');
+      journeyKey='';
+      journeyLastX=null;
+      return;
+    }
+
+    document.body.classList.add('act3-journey-mode');
+    journeyLayer();
+
+    const step=journeyStage(st);
+
+    if(step.id!==journeyKey){
+      resetJourneyRuntime(step);
+    }
+
+    const x=fieldX();
+    const cineOpen=document.getElementById('act3Cine')
+      ?.classList.contains('show');
+
+    if(!cineOpen && journeyLastX!==null){
+      journeyTravel+=Math.min(
+        75,
+        Math.abs(x-journeyLastX)
+      );
+    }
+    journeyLastX=x;
+
+    const target=journeyTarget(step);
+    if(target){
+      target.classList.add('act3JourneyTarget');
+      target.style.setProperty('--journey-x',`${step.x}%`);
+      target.style.setProperty('--journey-y',`${step.y}%`);
+    }
+
+    const ratio=Math.min(1,journeyTravel/step.travel);
+
+    if(
+      !journeyNearShown &&
+      ratio>=.63
+    ){
+      journeyNearShown=true;
+      target?.classList.add('act3JourneyNear');
+    }
+
+    if(
+      !journeyRevealed &&
+      ratio>=1
+    ){
+      revealJourneyTarget(step);
+    }
+
+    updateJourneyPosition(step);
+
+    root?.style.setProperty(
+      '--act3-journey-near',
+      String(Math.max(0,(ratio-.48)/.52))
+    );
+  }
+
+  setInterval(syncJourney,90);
+
   window.ParadoxAct3V2={
     sync,
     retryEnding,
     endings:readHistory,
-    theme:routeTheme
+    theme:routeTheme,
+    journey:syncJourney
   };
 })();
